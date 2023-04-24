@@ -1,4 +1,4 @@
 package com.Inholland.NovaBank.service;
 
-public class UserService {
+public class UserService extends BaseService{
 }
