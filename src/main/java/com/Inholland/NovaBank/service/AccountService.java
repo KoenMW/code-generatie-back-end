@@ -14,6 +14,7 @@ public class AccountService extends BaseService{
 
     public List<Account> getAll(){
         return (List<Account>) accountRepository.findAll();
+
     }
 
     public Account getById(long id){

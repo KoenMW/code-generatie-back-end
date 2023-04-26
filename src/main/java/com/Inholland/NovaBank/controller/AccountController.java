@@ -1,8 +1,10 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +19,8 @@ public class AccountController {
     public List<Account> getAll(){
         return accountService.getAll();
     }
+
+
 
     @GetMapping("/{id}")
     public Account getById(@PathVariable long id){
