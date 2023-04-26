@@ -1,17 +1,28 @@
 package com.Inholland.NovaBank.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.result.Output;
+import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 @Entity
 @Data
 @Table(name="\"Users\"")
 public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    @JsonIgnore
+    //@JsonIgnore
+    @JsonSerialize(using = AccountListSerializer.class)
     private List<Account> bankAccounts;
+
+
     @GeneratedValue
     @Id
     private Long id;
