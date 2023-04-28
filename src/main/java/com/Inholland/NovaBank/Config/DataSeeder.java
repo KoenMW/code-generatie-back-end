@@ -25,23 +25,16 @@ public class DataSeeder implements ApplicationRunner {
         userService.add(new User("John", "Doe",null));
         List<User> users = userService.getAll();
 
-        accountService.add(new Account("NL29INGB123123", 1000, users.get(0), AccountType.CHECKING,"EUR", true,100));
+        accountService.add(new Account("NL29INGB123123", 1000, users.get(0).getId(), users.get(0), AccountType.CHECKING,"EUR", true,100));
+        accountService.add(new Account("NL29INGB123123", 13000, users.get(0).getId(),users.get(0),  AccountType.SAVINGS,"EUR", true,1000));
         List<Account> accounts = accountService.getAll();
 
         Account account = accountService.getById(accounts.get(0).getId());
         users.get(0).setBankAccounts(List.of(account));
         userService.update(users.get(0));
         List<User> users2 = userService.getAll();
-        try{
-            System.out.println(users2.get(0).getBankAccounts().get(0).getId());
-            for (Account a: accounts) {
-                System.out.println(a.getId());
-                System.out.println(a.getBalance());
-                System.out.println(a.getIban());
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        //System.out.println(users2.get(0).getBankAccounts().get(0).getBalance());
+        System.out.println("Done seeding data");
 
 
     }
