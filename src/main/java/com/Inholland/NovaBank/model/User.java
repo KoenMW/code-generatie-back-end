@@ -17,10 +17,8 @@ import java.util.List;
 @Data
 @Table(name="\"Users\"")
 public class User {
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    //@JsonIgnore
-    @JsonSerialize(using = AccountListSerializer.class)
-    private List<Account> bankAccounts;
+
+
 
 
     @GeneratedValue
@@ -30,10 +28,10 @@ public class User {
     private String firstName;
     private String lastName;
 
-    public User(String firstName, String lastName, List<Account> bankAccounts) {
+    public User(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.bankAccounts = bankAccounts;
+
     }
 
     public User() {

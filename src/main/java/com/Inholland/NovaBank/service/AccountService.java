@@ -21,7 +21,16 @@ public class AccountService extends BaseService{
         return accountRepository.findById(id).orElse(null);
     }
 
+    public List<Account> getByUserId(long id){
+        return accountRepository.findByuserReferenceIdAndStatus(id, true);
+    }
+
     public Account add(Account account){
+        account.setIban(generateIban());
+        account.setBalance(0);
+        account.setStatus(true);
+        account.setCurrency("EUR");
+
         return accountRepository.save(account);
     }
 

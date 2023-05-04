@@ -26,21 +26,22 @@ public class AccountController {
     public Account getById(@PathVariable long id){
         return accountService.getById(id);
     }
-
+    @GetMapping("/user/{id}")
+    public List<Account> getByUserId(@PathVariable long id){
+        return accountService.getByUserId(id);
+    }
     @PostMapping
     public Account add(@RequestBody Account account){
         return accountService.add(account);
     }
 
-    @PutMapping("/{id}")
-    public Account update(@RequestBody Account account, @PathVariable long id){
-        Account accountFromService = accountService.getById(id);
+    @PatchMapping ()
+    public Account update(@RequestBody Account account){
 
-
-        return accountService.update(accountFromService);
+        return accountService.update(account);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/delete/{id}")
     public Account setInactive(@RequestBody Account account, @PathVariable long id){
         Account accountFromService = accountService.getById(id);
         accountFromService.setStatus(false);
