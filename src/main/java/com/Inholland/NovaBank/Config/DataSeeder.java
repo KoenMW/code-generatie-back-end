@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.Inholland.NovaBank.service.BaseService.generateIban;
+
 @Component
 public class DataSeeder implements ApplicationRunner {
     @Autowired
@@ -22,15 +24,15 @@ public class DataSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        userService.add(new User("John", "Doe",null));
+        userService.add(new User("John", "Doe"));
         List<User> users = userService.getAll();
 
-        accountService.add(new Account("NL29INGB123123", 1000, users.get(0).getId(), users.get(0), AccountType.CHECKING,"EUR", true,100));
-        accountService.add(new Account("NL29INGB123123", 13000, users.get(0).getId(),users.get(0),  AccountType.SAVINGS,"EUR", true,1000));
+        accountService.add(new Account("NL29INGB123123", 1000, users.get(0).getId(),  AccountType.CHECKING,"EUR", true,100));
+        accountService.add(new Account("NL29INGB123123", 13000, users.get(0).getId(),  AccountType.SAVINGS,"EUR", true,1000));
         List<Account> accounts = accountService.getAll();
 
         Account account = accountService.getById(accounts.get(0).getId());
-        users.get(0).setBankAccounts(List.of(account));
+
         userService.update(users.get(0));
         List<User> users2 = userService.getAll();
         //System.out.println(users2.get(0).getBankAccounts().get(0).getBalance());

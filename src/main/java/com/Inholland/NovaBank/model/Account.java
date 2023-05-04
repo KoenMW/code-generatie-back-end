@@ -16,19 +16,16 @@ public class Account {
     private float balance;
 
     private long userReferenceId;
-    @ManyToOne
-    //@JsonIgnore
-    private User user;
+
     private AccountType accountType;
     private String currency;
     private boolean status;
     private float absoluteLimit;
 
-    public Account(String iban, float balance, long userId, User user,  AccountType accountType, String currency, boolean status, float absoluteLimit) {
+    public Account(String iban, float balance, long userId, AccountType accountType, String currency, boolean status, float absoluteLimit) {
         this.iban = iban;
         this.balance = balance;
         this.userReferenceId = userId;
-        this.user = user;
         this.accountType = accountType;
         this.currency = currency;
         this.status = status;
