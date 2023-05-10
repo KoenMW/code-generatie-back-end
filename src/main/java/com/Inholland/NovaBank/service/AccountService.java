@@ -1,6 +1,8 @@
 package com.Inholland.NovaBank.service;
 
 import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.DTO.newAccountDTO;
+import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,16 +24,20 @@ public class AccountService extends BaseService{
     }
 
     public List<Account> getByUserId(long id){
-        return accountRepository.findByuserReferenceIdAndStatus(id, true);
+        return accountRepository.findByuserReferenceId(id);
     }
 
-    public Account add(Account account){
-        account.setIban(generateIban());
-        account.setBalance(0);
-        account.setStatus(true);
-        account.setCurrency("EUR");
+    public returnAccountDTO add(newAccountDTO account){
+        Account newAccount = new Account();
+        newAccount.setIban(generateIban());
+        newAccount.setBalance(0);
+        newAccount.setActive(true);
+        newAccount.setAccountType(account.getAccountType());
+        newAccount.setAbsoluteLimit(account.getAbsoluteLimit());
 
-        return accountRepository.save(account);
+        Account accountFromRepo = accountRepository.save(newAccount);
+        return new returnAccountDTO(accountFromRepo.getIban(), accountFromRepo.getAccountType());
+
     }
 
     public Account update(Account account){
