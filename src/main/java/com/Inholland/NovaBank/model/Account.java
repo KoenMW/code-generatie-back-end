@@ -14,21 +14,17 @@ public class Account {
     private long id;
     private String iban;
     private float balance;
-
     private long userReferenceId;
-
     private AccountType accountType;
-    private String currency;
-    private boolean status;
+    private boolean isActive;
     private float absoluteLimit;
 
-    public Account(String iban, float balance, long userId, AccountType accountType, String currency, boolean status, float absoluteLimit) {
+    public Account(String iban, float balance, long userId, AccountType accountType, boolean status, float absoluteLimit) {
         this.iban = iban;
         this.balance = balance;
         this.userReferenceId = userId;
         this.accountType = accountType;
-        this.currency = currency;
-        this.status = status;
+        this.isActive = status;
         this.absoluteLimit = absoluteLimit;
     }
 

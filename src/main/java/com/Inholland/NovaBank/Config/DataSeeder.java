@@ -2,6 +2,7 @@ package com.Inholland.NovaBank.Config;
 
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.service.AccountService;
 import com.Inholland.NovaBank.service.UserService;
@@ -26,9 +27,9 @@ public class DataSeeder implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         userService.add(new User("John", "Doe"));
         List<User> users = userService.getAll();
+        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.CHECKING,100));
+        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));
 
-        accountService.add(new Account("NL29INGB123123", 1000, users.get(0).getId(),  AccountType.CHECKING,"EUR", true,100));
-        accountService.add(new Account("NL29INGB123123", 13000, users.get(0).getId(),  AccountType.SAVINGS,"EUR", true,1000));
         List<Account> accounts = accountService.getAll();
 
         Account account = accountService.getById(accounts.get(0).getId());

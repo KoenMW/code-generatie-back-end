@@ -1,6 +1,8 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.DTO.newAccountDTO;
+import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +33,8 @@ public class AccountController {
         return accountService.getByUserId(id);
     }
     @PostMapping
-    public Account add(@RequestBody Account account){
-        return accountService.add(account);
+    public ResponseEntity<returnAccountDTO>add(@RequestBody newAccountDTO account){
+        return ResponseEntity.status(201).body(accountService.add(account));
     }
 
     @PatchMapping ()
@@ -44,7 +46,7 @@ public class AccountController {
     @PatchMapping("/delete/{id}")
     public Account setInactive(@RequestBody Account account, @PathVariable long id){
         Account accountFromService = accountService.getById(id);
-        accountFromService.setStatus(false);
+        accountFromService.setActive(false);
 
         return accountService.update(accountFromService);
     }
