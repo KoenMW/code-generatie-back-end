@@ -13,7 +13,7 @@ public class Account {
     @GeneratedValue
     private long id;
     private String iban;
-    private float balance;
+    private double balance;
 
     private long userReferenceId;
 
@@ -22,7 +22,7 @@ public class Account {
     private boolean status;
     private float absoluteLimit;
 
-    public Account(String iban, float balance, long userId, AccountType accountType, String currency, boolean status, float absoluteLimit) {
+    public Account(String iban, double balance, long userId, AccountType accountType, String currency, boolean status, float absoluteLimit) {
         this.iban = iban;
         this.balance = balance;
         this.userReferenceId = userId;

@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepositorie extends CrudRepository<Transaction, Long> {
-    public List<Transaction> findAllByFromAccount(String fromAccount);
+    public List<Transaction> findAllByFromAccountOrToAccount(String fromAccount, String toAccount);
 }
