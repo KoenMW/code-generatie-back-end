@@ -29,13 +29,14 @@ public class DataSeeder implements ApplicationRunner {
         List<User> users = userService.getAll();
         accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.CHECKING,100));
         accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));
+        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));
+        System.out.println(users.get(0).getId());
+        //List<Account> accounts = accountService.getAll();
 
-        List<Account> accounts = accountService.getAll();
+        //Account account = accountService.getByIban(accounts.get(0).getIban());
 
-        Account account = accountService.getById(accounts.get(0).getId());
-
-        userService.update(users.get(0));
-        List<User> users2 = userService.getAll();
+        //userService.update(users.get(0));
+        //List<User> users2 = userService.getAll();
         //System.out.println(users2.get(0).getBankAccounts().get(0).getBalance());
         System.out.println("Done seeding data");
 

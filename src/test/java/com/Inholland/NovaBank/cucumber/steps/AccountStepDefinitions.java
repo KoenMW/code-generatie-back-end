@@ -3,6 +3,7 @@ package com.Inholland.NovaBank.cucumber.steps;
 import com.Inholland.NovaBank.model.Account;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -76,5 +77,16 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
     }
 
 
+    @When("I retrieve all accounts")
+    public void iRetrieveAllAccounts() {
+        response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts", HttpMethod.GET, new HttpEntity<>(null, new HttpHeaders()), String.class);
     }
+
+    @Then("I should receive all accounts")
+    public void iShouldReceiveAllAccounts() {
+        int actual = JsonPath.read(response.getBody(), "$.size()");
+        Assertions.assertEquals(3, actual);
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+}
 
