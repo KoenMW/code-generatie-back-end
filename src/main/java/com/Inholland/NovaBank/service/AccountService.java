@@ -5,6 +5,9 @@ import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,13 +17,48 @@ public class AccountService extends BaseService{
     @Autowired
     private AccountRepository accountRepository;
 
-    public List<Account> getAll(){
-        return (List<Account>) accountRepository.findAll();
+    public ResponseEntity<List<Account>> getAll(boolean isActive, Long limit, Long offset){
+        if(isActive){
+            if(limit == null){
+                limit = 1000L;
+            }
+            if(offset == null){
+                offset = 0L;
+            }
+
+            return ResponseEntity.status(200).body(getAllActive(limit, offset,isActive));
+        }
+        else{
+            if(limit == null){
+                limit = 1000L;
+            }
+            if(offset == null){
+                offset = 0L;
+            }
+            return ResponseEntity.status(200).body(getAll(limit, offset));
+        }
+
 
     }
 
-    public Account getById(long id){
-        return accountRepository.findById(id).orElse(null);
+    public List<Account> getAllActive(Long limit, Long offset, boolean active){
+        return accountRepository.findAllAccountsActive(getPageable(limit, offset), active);
+    }
+
+    public List<Account> getAll(Long limit, Long offset){
+        return accountRepository.findAllAccounts(getPageable(limit, offset));
+    }
+
+    private Pageable getPageable(Long limit, Long offset) {
+        return PageRequest.of(offset.intValue(), limit.intValue());
+    }
+
+    public List<Account> getAllActive(){
+        return accountRepository.findByActive(true);
+    }
+
+    public Account getByIban(String iban){
+        return accountRepository.findByIban(iban);
     }
 
     public List<Account> getByUserId(long id){
@@ -34,6 +72,7 @@ public class AccountService extends BaseService{
         newAccount.setActive(true);
         newAccount.setAccountType(account.getAccountType());
         newAccount.setAbsoluteLimit(account.getAbsoluteLimit());
+        newAccount.setUserReferenceId(account.getUserReferenceId());
 
         Account accountFromRepo = accountRepository.save(newAccount);
         return new returnAccountDTO(accountFromRepo.getIban(), accountFromRepo.getAccountType());

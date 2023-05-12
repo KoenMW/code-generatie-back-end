@@ -12,7 +12,7 @@ public class AccountListSerializer extends JsonSerializer {
         jsonGenerator.writeStartArray();
         for (Account account : (Iterable<Account>) o) {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeNumberField("id", account.getId());
+
             jsonGenerator.writeStringField("iban", account.getIban());
             jsonGenerator.writeNumberField("balance", account.getBalance());
             jsonGenerator.writeStringField("accountType", account.getAccountType().toString());
