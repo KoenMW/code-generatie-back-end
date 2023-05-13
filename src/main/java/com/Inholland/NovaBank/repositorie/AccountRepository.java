@@ -19,6 +19,8 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
     @Query("SELECT a FROM Account a WHERE a.active = ?1 ORDER BY a.iban")
     List<Account> findAllAccountsActive(Pageable pageable, boolean active);
 
+
+
     List<Account> findByuserReferenceId(long id);
     Account findByIban(String iban);
 

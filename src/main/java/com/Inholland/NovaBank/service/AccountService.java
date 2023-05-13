@@ -50,7 +50,7 @@ public class AccountService extends BaseService{
     }
 
     private Pageable getPageable(Long limit, Long offset) {
-        return PageRequest.of(offset.intValue(), limit.intValue());
+        return new OffsetBasedPageRequest(offset.intValue(), limit.intValue());
     }
 
     public List<Account> getAllActive(){
