@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import lombok.Data;
+import org.hibernate.annotations.DynamicUpdate;
 
 
 @Entity
+@DynamicUpdate
 @Data
 public class Account {
     @Id

@@ -1,7 +1,9 @@
 package com.Inholland.NovaBank.service;
 
 import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
+import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +12,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 @Service
 public class AccountService extends BaseService{
     @Autowired
     private AccountRepository accountRepository;
+    private Account accountFromRepo;
 
     public ResponseEntity<List<Account>> getAll(boolean isActive, Long limit, Long offset){
         if(isActive){
@@ -79,8 +83,24 @@ public class AccountService extends BaseService{
 
     }
 
-    public Account update(Account account){
-        return accountRepository.save(account);
+    public returnAccountDTO update(patchAccountDTO account){
+        Account accountFromRepo = accountRepository.findByIban(account.getIban());
+        switch (account.getKey()) {
+            case "iban" -> accountFromRepo.setIban(account.getValue());
+            case "active" -> accountFromRepo.setActive(Boolean.parseBoolean(account.getValue()));
+            case "accountType" -> accountFromRepo.setAccountType(AccountType.valueOf(account.getValue()));
+            case "absoluteLimit" -> accountFromRepo.setAbsoluteLimit((float) Double.parseDouble(account.getValue()));
+            case "balance" -> accountFromRepo.setBalance((float) Double.parseDouble(account.getValue()));
+            case "userReferenceId" -> accountFromRepo.setUserReferenceId(Long.parseLong(account.getValue()));
+            default -> {
+                return null;
+            }
+        }
+
+
+        Account account1 = accountRepository.save(accountFromRepo);
+        returnAccountDTO returnAccountDTO;
+        return returnAccountDTO = new returnAccountDTO(account1.getIban(), account1.getAccountType());
     }
 
     public void delete(long id){
