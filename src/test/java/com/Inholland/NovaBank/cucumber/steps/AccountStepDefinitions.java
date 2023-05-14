@@ -1,28 +1,39 @@
 package com.Inholland.NovaBank.cucumber.steps;
 
 import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+
+
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+
+
 public class AccountStepDefinitions extends BaseStepDefinitions{
+
+
     @Autowired
     private TestRestTemplate restTemplate;
 
@@ -88,5 +99,44 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
         Assertions.assertEquals(3, actual);
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
+
+
+    @When("I retrieve the account with userReferenceId {int}")
+    public void iRetrieveTheAccountWithUserReferenceId(int userId) {
+        response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts/" + userId, HttpMethod.GET, new HttpEntity<>(null, new HttpHeaders()), String.class);
+    }
+
+    @And("There is an account with property {string}")
+    public void thereIsAnAccountWithProperty(String iban) {
+        //Loop trough response assert true if iban is found
+        List<returnAccountDTO> accounts = Arrays.asList(mapper.convertValue(JsonPath.read(response.getBody(), "$"), returnAccountDTO[].class));
+        Assertions.assertNotNull(accounts.stream().anyMatch(account -> Boolean.parseBoolean(account.getIban())));
+    }
+
+    @When("I patch the account with iban {string} and an absoluteLimit of {int}")
+    public void iPatchTheAccountWithIbanAndAnAbsoluteLimitOf(String iban, int absoluteLimit) throws IOException {
+        patchAccountDTO dto = new patchAccountDTO();
+        dto.setKey("absoluteLimit");
+        dto.setValue(String.valueOf(absoluteLimit));
+        dto.setOp("update");
+        dto.setIban(iban);
+
+
+
+
+    }
+
+    @And("The response body is a JSON object containing a property {string}")
+    public void theResponseBodyIsAJSONObjectContainingAProperty(String iban) {
+        returnAccountDTO account = null;
+        try {
+            account = mapper.readValue(response.getBody(), returnAccountDTO.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        assert account != null;
+        Assertions.assertNotNull(account.getIban());
+    }
 }
+
 
