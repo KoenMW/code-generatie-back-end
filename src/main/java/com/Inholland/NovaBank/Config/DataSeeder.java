@@ -47,10 +47,15 @@ public class DataSeeder implements ApplicationRunner {
 
 
 
+        List<Account> accounts = accountService.getAllActive();
 
-        //transactionService.Add(new Transaction(LocalDateTime.now(),"NL78RABO9043081477", "NL29INGB123123", 100, "Test transaction"));
-        //transactionService.Add(new Transaction(LocalDateTime.now(),"NL29INGB123123", "NL78RABO9043081477", 100, "Test transaction"));
-        //transactionService.Add(new Transaction(LocalDateTime.now(),"NL78RABO9043081477", "NL29INGB123123", 10, "Test transaction"));
+        for (Account account:
+             accounts) {
+            System.out.println(account.getIban());
+        }
+        transactionService.Add(new Transaction(LocalDateTime.now(), accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
+        transactionService.Add(new Transaction(LocalDateTime.now(), accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
+        transactionService.Add(new Transaction(LocalDateTime.now(), accounts.get(0).getIban(), accounts.get(1).getIban(), 10, "Test transaction"));
     }
 
 

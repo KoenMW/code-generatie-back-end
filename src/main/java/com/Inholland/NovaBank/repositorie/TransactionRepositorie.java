@@ -13,5 +13,5 @@ public interface TransactionRepositorie extends CrudRepository<Transaction, Long
     public List<Transaction> findAllByFromAccountOrToAccount(String fromAccount, String toAccount);
 
     //find all transactions by fromAccount or toAccount where the localDate is from the last 24 hours:
-    public List<Transaction> findAllByFromAccountOrToAccountAndDateAfter(String fromAccount, String toAccount, LocalDateTime date);
+    public List<Transaction> findAllByFromAccountOrToAccountAndTimestampAfter(String fromAccount, String toAccount, LocalDateTime date);
 }

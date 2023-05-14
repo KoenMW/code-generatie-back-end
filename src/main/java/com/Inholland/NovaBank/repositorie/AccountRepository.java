@@ -1,6 +1,7 @@
 package com.Inholland.NovaBank.repositorie;
 
 import com.Inholland.NovaBank.model.Account;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,6 +18,7 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
     List<Account> findByuserReferenceIdAndActive(long id, boolean active);
 
 
+    @Transactional
     @Modifying
     @Query("update Account a set a.balance = :balance where a.iban = :iban")
     void setBalance(@Param("iban") String iban, @Param("balance") double balance);

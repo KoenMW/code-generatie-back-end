@@ -37,7 +37,7 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<Transaction> Add(@RequestBody Transaction transaction){
-        if (transactionService.ValidateTransaction(transaction)){
+        if (transactionService.ValidateTransaction(transaction) /*&& ValidateAuthorization(transaction.getToken())*/){
             transactionService.Add(transaction);
             return ResponseEntity.ok().body(transaction);
         } else {
@@ -48,8 +48,6 @@ public class TransactionController {
 
     //not implemented yet
     private boolean ValidateAuthorization(String token){
-
-
         return true;
     }
     //haven't implemented withdraw and deposit yet
