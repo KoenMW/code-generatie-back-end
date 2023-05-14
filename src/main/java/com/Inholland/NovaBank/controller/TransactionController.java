@@ -36,13 +36,21 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<String> Add(@RequestBody Transaction transaction){
-        if (transaction.getAmount() > 0 && transactionService.IsValidIban(transaction.getFromAccount()) && transactionService.IsValidIban(transaction.getToAccount()) && transactionService.HasBalance(transaction.getFromAccount(), transaction.getAmount())){
+    public ResponseEntity<Transaction> Add(@RequestBody Transaction transaction){
+        if (transactionService.ValidateTransaction(transaction)){
             transactionService.Add(transaction);
-            return ResponseEntity.ok("Transaction added successfully (CODE: 200)");
+            return ResponseEntity.ok().body(transaction);
         } else {
-            return ResponseEntity.badRequest().body("Transaction not added (CODE: 400)");
+            return ResponseEntity.badRequest().build();
         }
+    }
+
+
+    //not implemented yet
+    private boolean ValidateAuthorization(String token){
+
+
+        return true;
     }
     //haven't implemented withdraw and deposit yet
 }

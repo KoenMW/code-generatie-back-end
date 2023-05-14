@@ -14,13 +14,13 @@ import java.util.List;
 
 @Repository
 public interface AccountRepository extends CrudRepository<Account, Long> {
-    List<Account> findByuserReferenceIdAndStatus(long id, boolean status);
+    List<Account> findByuserReferenceIdAndActive(long id, boolean active);
 
 
     @Modifying
     @Query("update Account a set a.balance = :balance where a.iban = :iban")
     void setBalance(@Param("iban") String iban, @Param("balance") double balance);
-    
+
     @Query("SELECT a FROM Account a ORDER BY a.iban")
     List<Account> findAllAccounts(Pageable pageable);
 

@@ -7,6 +7,7 @@ package com.Inholland.NovaBank.service;
         import org.springframework.beans.factory.annotation.Autowired;
         import org.springframework.stereotype.Service;
 
+        import java.time.LocalDateTime;
         import java.util.List;
 
 @Service
@@ -41,6 +42,36 @@ public class TransactionService extends BaseService {
     }
 
     public boolean HasBalance(String Iban, float amount){
-        return true;//accountRepository.getBalance(Iban) >= amount;
+        return accountRepository.findByIban(Iban).getBalance() >= amount;
+    }
+
+    public boolean AccountExists(String Iban){
+        return accountRepository.findByIban(Iban) != null;
+    }
+
+    //checks if the account exists and if the account has enough balance to make the transaction and if the absolute limit is not exceeded
+    public boolean ValidateTransaction(Transaction transaction){
+        if (AccountExists(transaction.getFromAccount()) && AccountExists(transaction.getToAccount())){
+            Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
+            return HasBalance(transaction.getFromAccount(), transaction.getAmount()) && CheckAbsoluteLimit(fromAccount, transaction.getAmount());
+        }
+        return false;
+    }
+
+    //first gets the transactions from the last 24 hours, then adds the amount of the new transaction to the total amount of the transactions from the last 24 hours and checks if it is less than the absolute limit
+
+    private boolean CheckAbsoluteLimit(Account account, float amount){
+        List<Transaction> transactions = GetTransactionsFromLast24Hours(account.getIban());
+        float totalAmount = 0;
+        for (Transaction transaction : transactions){
+            totalAmount += transaction.getAmount();
+        }
+        return totalAmount + amount <= account.getAbsoluteLimit();
+    }
+
+    //gets a list of transactions from the last 24 hours
+
+    private List<Transaction> GetTransactionsFromLast24Hours(String iban){
+        return transactionRepositorie.findAllByFromAccountOrToAccountAndDateAfter(iban, iban, LocalDateTime.now().minusDays(1));
     }
 }
