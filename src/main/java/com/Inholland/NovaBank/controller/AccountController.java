@@ -1,6 +1,8 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.DTO.newAccountDTO;
+import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,23 +18,21 @@ public class AccountController {
     private AccountService accountService;
 
     @GetMapping
-    public List<Account> getAll(){
-        return accountService.getAll();
+    public ResponseEntity<List<Account>> getAll(@RequestParam (required = false) boolean isActive,@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
+        return accountService.getAll(isActive, limit, offset);
+    }
+
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Account>> getByUserId(@PathVariable long userId){
+        return ResponseEntity.status(200).body(accountService.getByUserId(userId));
     }
 
 
 
-    @GetMapping("/{id}")
-    public Account getById(@PathVariable long id){
-        return accountService.getById(id);
-    }
-    @GetMapping("/user/{id}")
-    public List<Account> getByUserId(@PathVariable long id){
-        return accountService.getByUserId(id);
-    }
     @PostMapping
-    public Account add(@RequestBody Account account){
-        return accountService.add(account);
+    public ResponseEntity<returnAccountDTO>add(@RequestBody newAccountDTO account){
+        return ResponseEntity.status(201).body(accountService.add(account));
     }
 
     @PatchMapping ()
@@ -41,12 +41,6 @@ public class AccountController {
         return accountService.update(account);
     }
 
-    @PatchMapping("/delete/{id}")
-    public Account setInactive(@RequestBody Account account, @PathVariable long id){
-        Account accountFromService = accountService.getById(id);
-        accountFromService.setStatus(false);
 
-        return accountService.update(accountFromService);
-    }
 
 }

@@ -10,16 +10,11 @@ import lombok.Data;
 @Data
 public class Account {
     @Id
-    @GeneratedValue
-    private long id;
     private String iban;
     private double balance;
-
     private long userReferenceId;
-
     private AccountType accountType;
-    private String currency;
-    private boolean status;
+    private boolean active;
     private float absoluteLimit;
 
     public Account(String iban, double balance, long userId, AccountType accountType, String currency, boolean status, float absoluteLimit) {
@@ -27,8 +22,7 @@ public class Account {
         this.balance = balance;
         this.userReferenceId = userId;
         this.accountType = accountType;
-        this.currency = currency;
-        this.status = status;
+        this.active = status;
         this.absoluteLimit = absoluteLimit;
     }
 
