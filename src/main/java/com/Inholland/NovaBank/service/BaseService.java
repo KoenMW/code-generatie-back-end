@@ -6,7 +6,7 @@ import org.iban4j.Iban;
 import java.math.BigInteger;
 
 public abstract class BaseService {
-    public boolean IsValidIban(String iban) {
+    public static boolean IsValidIban(String iban) {
         if (iban == null || iban.length() < 15 || iban.length() > 34) {
             return false;
         }
