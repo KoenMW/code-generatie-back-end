@@ -1,32 +1,30 @@
 package com.Inholland.NovaBank.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import lombok.Data;
+import org.hibernate.annotations.DynamicUpdate;
 
 
 @Entity
+@DynamicUpdate
 @Data
 public class Account {
     @Id
-    @GeneratedValue
-    private long id;
     private String iban;
     private float balance;
-    @ManyToOne
-    private User user;
+    private long userReferenceId;
     private AccountType accountType;
-    private String currency;
-    private boolean status;
+    private boolean active;
     private float absoluteLimit;
 
-    public Account(String iban, float balance, User user, AccountType accountType, String currency, boolean status, float absoluteLimit) {
+    public Account(String iban, float balance, long userId, AccountType accountType, boolean status, float absoluteLimit) {
         this.iban = iban;
         this.balance = balance;
-        this.user = user;
+        this.userReferenceId = userId;
         this.accountType = accountType;
-        this.currency = currency;
-        this.status = status;
+        this.active = status;
         this.absoluteLimit = absoluteLimit;
     }
 

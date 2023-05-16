@@ -2,6 +2,8 @@ package com.Inholland.NovaBank.Config;
 
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.DTO.newAccountDTO;
+import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.service.AccountService;
 import com.Inholland.NovaBank.service.UserService;
@@ -11,6 +13,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import static com.Inholland.NovaBank.service.BaseService.generateIban;
 
 @Component
 public class DataSeeder implements ApplicationRunner {
@@ -22,26 +26,29 @@ public class DataSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+
         userService.add(new User(null, "John", "Doe", "JohnDoe", "123h4jg893n", "John@doe.nl", "employee", 3000, 1500, true));
+
+        userService.add(new User("John", "Doe"));
+
         List<User> users = userService.getAll();
+        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.CHECKING,100));
+        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));
+        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));
+        List<Account> accounts = accountService.getAll(1000L,0L);
+        String id = accounts.get(0).getIban();
+        patchAccountDTO patchAccountDTO = new patchAccountDTO();
+        patchAccountDTO.setOp("update");
+        patchAccountDTO.setKey("iban");
+        patchAccountDTO.setValue("NL18INHO0363662776");
+        patchAccountDTO.setIban(id);
+        accountService.update(patchAccountDTO);
+        System.out.println(users.get(0).getId());
 
-        accountService.add(new Account("NL29INGB123123", 1000, users.get(0), AccountType.CHECKING,"EUR", true,100));
-        List<Account> accounts = accountService.getAll();
 
-        Account account = accountService.getById(accounts.get(0).getId());
-        users.get(0).setBankAccounts(List.of(account));
-        userService.update(users.get(0));
-        List<User> users2 = userService.getAll();
-        try{
-            System.out.println(users2.get(0).getBankAccounts().get(0).getId());
-            for (Account a: accounts) {
-                System.out.println(a.getId());
-                System.out.println(a.getBalance());
-                System.out.println(a.getIban());
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+
+
+        System.out.println("Done seeding data");
 
 
     }
