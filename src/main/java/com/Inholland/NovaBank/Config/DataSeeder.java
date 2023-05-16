@@ -22,7 +22,7 @@ public class DataSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        userService.add(new User("John", "Doe",null));
+        userService.add(new User(null, "John", "Doe", "JohnDoe", "123h4jg893n", "John@doe.nl", "employee", 3000, 1500, true));
         List<User> users = userService.getAll();
 
         accountService.add(new Account("NL29INGB123123", 1000, users.get(0), AccountType.CHECKING,"EUR", true,100));
