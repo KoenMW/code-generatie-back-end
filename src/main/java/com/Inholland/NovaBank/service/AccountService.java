@@ -77,8 +77,6 @@ public class AccountService extends BaseService{
         newAccount.setAccountType(account.getAccountType());
         newAccount.setAbsoluteLimit(account.getAbsoluteLimit());
         newAccount.setUserReferenceId(account.getUserReferenceId());
-        newAccount.setDailyLimit(account.getDailyLimit());
-        newAccount.setTransactionLimit(account.getTransactionLimit());
 
         Account accountFromRepo = accountRepository.save(newAccount);
         return new returnAccountDTO(accountFromRepo.getIban(), accountFromRepo.getAccountType());

@@ -4,14 +4,10 @@ package com.Inholland.NovaBank.service;
         import com.Inholland.NovaBank.model.AccountType;
         import com.Inholland.NovaBank.model.Transaction;
         import com.Inholland.NovaBank.repositorie.AccountRepository;
-        import com.Inholland.NovaBank.repositorie.TransactionRepositorie;
-        import jakarta.transaction.Transactional;
+        import com.Inholland.NovaBank.repositorie.TransactionRepository;
+        import com.Inholland.NovaBank.repositorie.UserRepository;
         import org.springframework.beans.factory.annotation.Autowired;
         import org.springframework.stereotype.Service;
-import com.Inholland.NovaBank.model.Transaction;
-import com.Inholland.NovaBank.repositorie.TransactionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
         import java.time.LocalDateTime;
         import java.util.List;
@@ -24,6 +20,9 @@ public class TransactionService extends BaseService {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public List<Transaction> GetAll(){
         return (List<Transaction>) transactionRepositorie.findAll();
@@ -59,19 +58,19 @@ public class TransactionService extends BaseService {
         if (AccountExists(transaction.getFromAccount()) && AccountExists(transaction.getToAccount())){
             Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
             Account toAccount = accountRepository.findByIban(transaction.getToAccount());
-            return HasBalance(transaction.getFromAccount(), transaction.getAmount()) && CheckDailyLimit(fromAccount, transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && fromAccount.getTransactionLimit() >= transaction.getAmount() && CheckForSavingsAccount(fromAccount, toAccount);
+            return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() /*&& fromAccount.getTransactionLimit() >= transaction.getAmount()*/ && CheckForSavingsAccount(fromAccount, toAccount);
         }
         return false;
     }
 
     //first gets the transactions from the last 24 hours, then adds the amount of the new transaction to the total amount of the transactions from the last 24 hours and checks if it is less than the absolute limit
-    private boolean CheckDailyLimit(Account account, float amount){
-        List<Transaction> transactions = GetTransactionsFromLast24Hours(account.getIban());
+    private boolean CheckDailyLimit(String iban, double amount, float dailyLimit){
+        List<Transaction> transactions = GetTransactionsFromLast24Hours(iban);
         float totalAmount = 0;
         for (Transaction transaction : transactions){
             totalAmount += transaction.getAmount();
         }
-        return totalAmount + amount <= account.getDailyLimit();
+        return totalAmount + amount <= dailyLimit;
     }
 
     //gets a list of transactions from the last 24 hours
@@ -84,6 +83,6 @@ public class TransactionService extends BaseService {
         if (fromAccount.getAccountType() == AccountType.SAVINGS || toAccount.getAccountType() == AccountType.SAVINGS) {
             return fromAccount.getUserReferenceId() == toAccount.getUserReferenceId();
         }
-        return true;
+        return CheckDailyLimit(fromAccount.getIban(), fromAccount.getBalance(), userRepository.findUserDailyLimitById(fromAccount.getUserReferenceId()));
     }
 }
