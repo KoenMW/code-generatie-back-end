@@ -11,4 +11,6 @@ public interface UserRepository extends CrudRepository<User, Long> {
     Optional<User> findUserByUsername(String username);
 
     int findUserDailyLimitById(Long id);
+
+    int findUserTransactionLimitById(Long id);
 }
