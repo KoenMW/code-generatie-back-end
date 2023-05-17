@@ -8,6 +8,10 @@ package com.Inholland.NovaBank.service;
         import jakarta.transaction.Transactional;
         import org.springframework.beans.factory.annotation.Autowired;
         import org.springframework.stereotype.Service;
+import com.Inholland.NovaBank.model.Transaction;
+import com.Inholland.NovaBank.repositorie.TransactionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
         import java.time.LocalDateTime;
         import java.util.List;
@@ -16,7 +20,7 @@ package com.Inholland.NovaBank.service;
 public class TransactionService extends BaseService {
 
     @Autowired
-    private TransactionRepositorie transactionRepositorie;
+    private TransactionRepository transactionRepositorie;
 
     @Autowired
     private AccountRepository accountRepository;
