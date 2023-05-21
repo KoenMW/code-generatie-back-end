@@ -18,10 +18,10 @@ public class Transaction {
     private LocalDateTime timestamp;
     private String fromAccount;
     private String toAccount;
-    private double amount;
+    private float amount;
     private String description;
 
-    public Transaction(LocalDateTime timestamp, String fromAccount, String toAccount, double amount, String description) {
+    public Transaction(LocalDateTime timestamp, String fromAccount, String toAccount, float amount, String description) {
         this.timestamp = timestamp;
         this.fromAccount = fromAccount;
         this.toAccount = toAccount;
