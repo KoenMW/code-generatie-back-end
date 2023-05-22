@@ -5,11 +5,14 @@ import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
+import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -19,7 +22,8 @@ import java.util.List;
 public class AccountService extends BaseService{
     @Autowired
     private AccountRepository accountRepository;
-    private Account accountFromRepo;
+    @Autowired
+    private UserService userService;
 
     public ResponseEntity<List<Account>> getAll(boolean isActive, Long limit, Long offset){
         if(isActive){
@@ -57,19 +61,36 @@ public class AccountService extends BaseService{
         return new OffsetBasedPageRequest(offset.intValue(), limit.intValue());
     }
 
-    public List<Account> getAllActive(){
-        return accountRepository.findByActive(true);
-    }
-
-    public Account getByIban(String iban){
-        return accountRepository.findByIban(iban);
-    }
-
     public List<Account> getByUserId(long id){
-        return accountRepository.findByuserReferenceId(id);
+        if(authUser(id)){
+            return accountRepository.findByuserReferenceId(id);
+        }
+        else{
+            return null;
+        }
+
+    }
+
+    private boolean authUser(long id){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        User user = userService.getUserByUsername(currentPrincipalName);
+        if(user.getRole().toString().equals("ROLE_ADMIN")){
+            return true;
+        } else return user.getId() == id;
+
     }
 
     public returnAccountDTO add(newAccountDTO account){
+        if(!checkUserHasAccount(account.getUserReferenceId())){
+            updateUserAccountStatus(account.getUserReferenceId());
+        }
+        Account newAccount = setAccount(account);
+        Account accountFromRepo = accountRepository.save(newAccount);
+        return new returnAccountDTO(accountFromRepo.getIban(), accountFromRepo.getAccountType());
+
+    }
+    private Account setAccount(newAccountDTO account){
         Account newAccount = new Account();
         newAccount.setIban(generateIban());
         newAccount.setBalance(0);
@@ -77,10 +98,18 @@ public class AccountService extends BaseService{
         newAccount.setAccountType(account.getAccountType());
         newAccount.setAbsoluteLimit(account.getAbsoluteLimit());
         newAccount.setUserReferenceId(account.getUserReferenceId());
+        return newAccount;
+    }
 
-        Account accountFromRepo = accountRepository.save(newAccount);
-        return new returnAccountDTO(accountFromRepo.getIban(), accountFromRepo.getAccountType());
+    private boolean checkUserHasAccount(long id){
+        User user = userService.getById(id);
+        return user.isHasAccount();
+    }
 
+    private void updateUserAccountStatus(long id){
+        User user = userService.getById(id);
+        user.setHasAccount(true);
+        userService.update(user);
     }
 
     public returnAccountDTO update(patchAccountDTO account){
@@ -99,17 +128,10 @@ public class AccountService extends BaseService{
 
 
         Account account1 = accountRepository.save(accountFromRepo);
-        returnAccountDTO returnAccountDTO;
-        return returnAccountDTO = new returnAccountDTO(account1.getIban(), account1.getAccountType());
+        return new returnAccountDTO(account1.getIban(), account1.getAccountType());
     }
 
-    public void delete(long id){
-        accountRepository.deleteById(id);
-    }
 
-    public void deleteByAccount(Account account){
-        accountRepository.delete(account);
-    }
 
 
 

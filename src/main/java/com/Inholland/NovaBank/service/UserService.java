@@ -50,7 +50,7 @@ public class UserService extends BaseService{
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
         User user = userRepository.findUserByUsername(loginRequestDTO.getUsername()).orElseThrow(() -> new IllegalArgumentException("Username not found"));
         if(bCryptPasswordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
-            String token = jwtTokenProvider.createToken(user.getUsername(), user.getRole());
+            String token = jwtTokenProvider.createToken(user.getUsername(), user.getRole(), user.getId());
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
             loginResponseDTO.setToken(token);
             return loginResponseDTO;
@@ -60,5 +60,9 @@ public class UserService extends BaseService{
 
         }
 
+    }
+
+    public User getUserByUsername(String username){
+        return userRepository.findUserByUsername(username).orElse(null);
     }
 }
