@@ -2,17 +2,20 @@ package com.Inholland.NovaBank.Config;
 
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.Role;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.service.AccountService;
+import com.Inholland.NovaBank.service.TransactionService;
 import com.Inholland.NovaBank.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.Inholland.NovaBank.service.BaseService.generateIban;
@@ -24,6 +27,9 @@ public class DataSeeder implements ApplicationRunner {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private TransactionService transactionService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -38,10 +44,14 @@ public class DataSeeder implements ApplicationRunner {
         userService.addUser(user3);
 
         List<User> users = userService.getAll();
-        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.CHECKING,100));
-        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));
-        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));
-        accountService.add(new newAccountDTO(users.get(1).getId(), AccountType.SAVINGS,100));
+
+        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.CHECKING,100,500,100));
+        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100,500,100));
+        accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100,500,100));
+        accountService.add(new newAccountDTO(users.get(1).getId(), AccountType.SAVINGS,100,500,100));
+
+
+
         List<Account> accounts = accountService.getAll(1000L,0L);
         String id = accounts.get(0).getIban();
         patchAccountDTO patchAccountDTO = new patchAccountDTO();
@@ -60,6 +70,13 @@ public class DataSeeder implements ApplicationRunner {
         System.out.println("Done seeding data");
 
 
+        for (Account account:
+             accounts) {
+            System.out.println(account.getIban());
+        }
+        transactionService.Add(new Transaction(LocalDateTime.now(), accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
+        transactionService.Add(new Transaction(LocalDateTime.now(), accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
+        transactionService.Add(new Transaction(LocalDateTime.now(), accounts.get(0).getIban(), accounts.get(1).getIban(), 10, "Test transaction"));
     }
 
     private void seedBaseAccount(String id){

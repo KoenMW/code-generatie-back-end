@@ -13,13 +13,13 @@ import org.hibernate.annotations.DynamicUpdate;
 public class Account {
     @Id
     private String iban;
-    private float balance;
+    private double balance;
     private long userReferenceId;
     private AccountType accountType;
     private boolean active;
     private float absoluteLimit;
 
-    public Account(String iban, float balance, long userId, AccountType accountType, boolean status, float absoluteLimit) {
+    public Account(String iban, double balance, long userId, AccountType accountType, String currency, boolean status, float absoluteLimit) {
         this.iban = iban;
         this.balance = balance;
         this.userReferenceId = userId;
