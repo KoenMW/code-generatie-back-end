@@ -22,6 +22,10 @@ public class TransactionService extends BaseService {
     @Autowired
     private UserRepository userRepository;
 
+    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository, UserRepository userRepository) {
+        this.transactionRepository = transactionRepository;
+    }
+
     public List<Transaction> GetAll(){
         return (List<Transaction>) transactionRepository.findAll();
     }
@@ -30,7 +34,7 @@ public class TransactionService extends BaseService {
         return transactionRepository.findAllByFromAccountOrToAccount(Iban, Iban);
     }
 
-    public void Add(Transaction transaction) {
+    public Transaction Add(Transaction transaction) {
         if (transaction.getDescription().length() == 0)
             transaction.setDescription("No description");
         Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
@@ -41,6 +45,7 @@ public class TransactionService extends BaseService {
             accountRepository.setBalance(toAccount.getIban(), toAccount.getBalance() + transaction.getAmount());
         }
         transactionRepository.save(transaction);
+        return transaction;
     }
 
     public boolean HasBalance(String Iban, float amount){

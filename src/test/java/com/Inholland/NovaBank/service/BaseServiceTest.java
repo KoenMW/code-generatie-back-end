@@ -1,4 +1,4 @@
-package com.Inholland.NovaBank.services;
+package com.Inholland.NovaBank.service;
 
 import com.Inholland.NovaBank.service.BaseService;
 import org.iban4j.Iban;

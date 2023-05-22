@@ -44,8 +44,8 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<Transaction> Add(@RequestBody Transaction transaction){
         if (transactionService.ValidateTransaction(transaction)){
-            transactionService.Add(transaction);
-            return ResponseEntity.ok().body(transaction);
+            Transaction completedTransaction = transactionService.Add(transaction);
+            return ResponseEntity.ok().body(completedTransaction);
         } else {
             return ResponseEntity.badRequest().build();
         }
