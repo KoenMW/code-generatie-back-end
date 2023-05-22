@@ -1,22 +1,20 @@
 package com.Inholland.NovaBank.service;
-
-        import com.Inholland.NovaBank.model.Account;
-        import com.Inholland.NovaBank.model.AccountType;
-        import com.Inholland.NovaBank.model.Transaction;
-        import com.Inholland.NovaBank.repositorie.AccountRepository;
-        import com.Inholland.NovaBank.repositorie.TransactionRepository;
-        import com.Inholland.NovaBank.repositorie.UserRepository;
-        import org.springframework.beans.factory.annotation.Autowired;
-        import org.springframework.stereotype.Service;
-
-        import java.time.LocalDateTime;
-        import java.util.List;
+import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.Transaction;
+import com.Inholland.NovaBank.repositorie.AccountRepository;
+import com.Inholland.NovaBank.repositorie.TransactionRepository;
+import com.Inholland.NovaBank.repositorie.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TransactionService extends BaseService {
 
     @Autowired
-    private TransactionRepository transactionRepositorie;
+    private TransactionRepository transactionRepository;
 
     @Autowired
     private AccountRepository accountRepository;
@@ -25,11 +23,11 @@ public class TransactionService extends BaseService {
     private UserRepository userRepository;
 
     public List<Transaction> GetAll(){
-        return (List<Transaction>) transactionRepositorie.findAll();
+        return (List<Transaction>) transactionRepository.findAll();
     }
 
     public List<Transaction> GetAllFromIban(String Iban){
-        return transactionRepositorie.findAllByFromAccountOrToAccount(Iban, Iban);
+        return transactionRepository.findAllByFromAccountOrToAccount(Iban, Iban);
     }
 
     public void Add(Transaction transaction) {
@@ -42,7 +40,7 @@ public class TransactionService extends BaseService {
             accountRepository.setBalance(fromAccount.getIban(), fromAccount.getBalance() - transaction.getAmount());
             accountRepository.setBalance(toAccount.getIban(), toAccount.getBalance() + transaction.getAmount());
         }
-        transactionRepositorie.save(transaction);
+        transactionRepository.save(transaction);
     }
 
     public boolean HasBalance(String Iban, float amount){
@@ -75,7 +73,7 @@ public class TransactionService extends BaseService {
 
     //gets a list of transactions from the last 24 hours
     private List<Transaction> GetTransactionsFromLast24Hours(String iban){
-        return transactionRepositorie.findAllByFromAccountOrToAccountAndTimestampAfter(iban, iban, LocalDateTime.now().minusDays(1));
+        return transactionRepository.findAllByFromAccountOrToAccountAndTimestampAfter(iban, iban, LocalDateTime.now().minusDays(1));
     }
 
     //check if the account is a savings account and if it is, check if the user reference id is the same
