@@ -25,7 +25,9 @@ public class WebSecurityConfiguration {
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/login").permitAll()
-                .requestMatchers("/accounts").authenticated();
+                .requestMatchers("/accounts").authenticated()
+                .requestMatchers("/accounts/{userId}").authenticated()
+                .requestMatchers("/users").permitAll();
         httpSecurity.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
