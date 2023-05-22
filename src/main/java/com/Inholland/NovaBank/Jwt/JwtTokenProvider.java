@@ -22,9 +22,10 @@ public class JwtTokenProvider {
     @Autowired
     UserDetailService userDetailService;
 
-    public String createToken(String username, Role role) throws JwtException {
+    public String createToken(String username, Role role,long id) throws JwtException {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("auth", role.name());
+        claims.put("id", id);
         Date now = new Date();
         Date expiration = new Date(now.getTime() + 3600000);
         return Jwts.builder()
@@ -43,6 +44,7 @@ public class JwtTokenProvider {
             return new UsernamePasswordAuthenticationToken(userDetails,
                     ""
                     , userDetails.getAuthorities());
+
         } catch (JwtException | IllegalArgumentException e) {
             throw new JwtException("Bearer token not valid");
         }
