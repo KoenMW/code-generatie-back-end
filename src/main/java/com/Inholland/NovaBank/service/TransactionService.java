@@ -83,4 +83,9 @@ public class TransactionService extends BaseService {
         }
         return CheckDailyLimit(fromAccount.getIban(), fromAccount.getBalance(), userRepository.findUserDailyLimitById(fromAccount.getUserReferenceId()));
     }
+
+    public List<Transaction> GetAllFromUser(long userId){
+        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
+        return transactionRepository.findAllByFromAccountInOrToAccountIn(ibans, ibans);
+    }
 }

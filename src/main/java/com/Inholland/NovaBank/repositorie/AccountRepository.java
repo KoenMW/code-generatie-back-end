@@ -36,4 +36,7 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
     Account findByIban(String iban);
 
     List<Account> findByActive(boolean active);
+
+    //get all ibans from the accounts where the user id is equal to the given id:
+    List<String> findAllIbansByUserReferenceId(long id);
 }

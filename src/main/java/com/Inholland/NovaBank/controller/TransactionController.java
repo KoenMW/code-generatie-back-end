@@ -5,8 +5,11 @@ import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import com.Inholland.NovaBank.model.UserIdRequestBody;
 
 import java.util.List;
 
@@ -17,6 +20,7 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionService;
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<Transaction>> GetAll(){
         return ResponseEntity.ok().body(transactionService.GetAll());
@@ -35,9 +39,11 @@ public class TransactionController {
         return ResponseEntity.noContent().build();
     }
 
+
+
     @PostMapping
     public ResponseEntity<Transaction> Add(@RequestBody Transaction transaction){
-        if (transactionService.ValidateTransaction(transaction) /*&& ValidateAuthorization(transaction.getToken())*/){
+        if (transactionService.ValidateTransaction(transaction)){
             transactionService.Add(transaction);
             return ResponseEntity.ok().body(transaction);
         } else {
@@ -45,10 +51,14 @@ public class TransactionController {
         }
     }
 
-
-    //not implemented yet
-    private boolean ValidateAuthorization(String token){
-        return true;
+    @GetMapping("/byUser")
+    public ResponseEntity<List<Transaction>> GetAllFromUser(@RequestBody UserIdRequestBody id){
+        List<Transaction> transactions = transactionService.GetAllFromUser(id.getUserId());
+        if (transactions.size() > 0)
+        {
+            return ResponseEntity.ok().body(transactions);
+        }
+        return ResponseEntity.noContent().build();
     }
     //haven't implemented withdraw and deposit yet
 }
