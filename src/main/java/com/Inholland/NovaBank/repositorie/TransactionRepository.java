@@ -12,6 +12,7 @@ import java.util.List;
 public interface TransactionRepository extends CrudRepository<Transaction, Long> {
     public List<Transaction> findAllByFromAccountOrToAccount(String fromAccount, String toAccount);
 
-    //find all transactions by fromAccount or toAccount where the localDate is from the last 24 hours:
     public List<Transaction> findAllByFromAccountOrToAccountAndTimestampAfter(String fromAccount, String toAccount, LocalDateTime date);
+
+    public List<Transaction> findAllByFromAccountInOrToAccountIn(List<String> fromAccount, List<String> toAccount);
 }

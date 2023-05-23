@@ -19,7 +19,7 @@ public class Account {
     private boolean active;
     private float absoluteLimit;
 
-    public Account(String iban, double balance, long userId, AccountType accountType, String currency, boolean status, float absoluteLimit) {
+    public Account(String iban, double balance, long userId, AccountType accountType, boolean status, float absoluteLimit) {
         this.iban = iban;
         this.balance = balance;
         this.userReferenceId = userId;
