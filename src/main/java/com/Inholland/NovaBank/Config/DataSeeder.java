@@ -2,6 +2,7 @@ package com.Inholland.NovaBank.Config;
 
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.DTO.newUserDTO;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
@@ -35,13 +36,9 @@ public class DataSeeder implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
 
-        User user = new User("John", "Doe", "JohnDoe", "123h4jg893n", "John@doe.nl", Role.ROLE_ADMIN, 3000, 1500, true);
-        User user2 = new User("Bank", "Bank", "Bank", "123h4jg893n", "novaBank@bank.nl", Role.ROLE_ADMIN, 3000, 1500, true);
-        User user3 = new User("Henk","Blok","henk","1234","henk@gmail.com", Role.ROLE_USER, 3000, 1500, true);
-
-        userService.addUser(user);
-        userService.addUser(user2);
-        userService.addUser(user3);
+        userService.addUser(new newUserDTO("John", "Doe", "JohnDoe", "123h4jg893n", "John@doe.nl"));
+        userService.addUser(new newUserDTO("Bank", "Bank", "Bank", "123h4jg893n", "novaBank@bank.nl"));
+        userService.addUser(new newUserDTO("Henk","Blok","henk","1234","henk@gmail.com"));
 
         List<User> users = userService.getAll();
 

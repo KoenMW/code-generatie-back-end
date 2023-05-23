@@ -60,7 +60,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
     @When("I create an account with userId {int} and accountType {string} and an absoluteLimit of {int}")
     public void iCreateAnAccountWithUserIdAndAccountTypeAndAnAbsoluteLimitOf(int userId, String accountType, int absoluteLimit, int dailyLimit, int transactionLimit) throws JsonProcessingException {
 
-        newAccountDTO dto = new newAccountDTO(userId,AccountType.valueOf(accountType),absoluteLimit, dailyLimit, transactionLimit);
+        newAccountDTO dto = new newAccountDTO(userId, AccountType.valueOf(accountType),absoluteLimit);
         httpHeaders.add("Content-Type", "application/json");
         response = restTemplate.exchange("/accounts",
                 HttpMethod.POST,

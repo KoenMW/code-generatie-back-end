@@ -3,9 +3,9 @@ package com.Inholland.NovaBank.service;
         import com.Inholland.NovaBank.model.Account;
         import com.Inholland.NovaBank.model.AccountType;
         import com.Inholland.NovaBank.model.Transaction;
-        import com.Inholland.NovaBank.repositorie.AccountRepository;
-        import com.Inholland.NovaBank.repositorie.TransactionRepository;
-        import com.Inholland.NovaBank.repositorie.UserRepository;
+        import com.Inholland.NovaBank.repository.AccountRepository;
+        import com.Inholland.NovaBank.repository.TransactionRepository;
+        import com.Inholland.NovaBank.repository.UserRepository;
         import org.springframework.beans.factory.annotation.Autowired;
         import org.springframework.stereotype.Service;
 

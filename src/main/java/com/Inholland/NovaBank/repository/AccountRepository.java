@@ -1,13 +1,9 @@
-package com.Inholland.NovaBank.repositorie;
+package com.Inholland.NovaBank.repository;
 
 import com.Inholland.NovaBank.model.Account;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
-import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
