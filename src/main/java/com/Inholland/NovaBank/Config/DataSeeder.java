@@ -57,6 +57,9 @@ public class DataSeeder implements ApplicationRunner {
         patchAccountDTO.setValue("NL18INHO0363662776");
         patchAccountDTO.setIban(id);
         accountService.update(patchAccountDTO);
+        User user = userService.getById(1L);
+        user.setRole(Role.ROLE_ADMIN);
+        userService.update(user);
         for(Account account : accounts){
             if(account.getUserReferenceId() == 2){
                 seedBaseAccount(account.getIban());
