@@ -1,8 +1,11 @@
 package com.Inholland.NovaBank.service;
 
+import org.iban4j.CountryCode;
+import org.iban4j.Iban;
+
 import java.math.BigInteger;
 
-public class BaseService {
+public abstract class BaseService {
     public static boolean IsValidIban(String iban) {
         if (iban == null || iban.length() < 15 || iban.length() > 34) {
             return false;
@@ -24,9 +27,15 @@ public class BaseService {
         return ibanAsNumber.remainder(BigInteger.valueOf(97)).intValue() == 1;
     }
 
-
-
-
+    public static String generateIban() {
+        int accountNumber = (int) (Math.random() * 1000000000);
+        Iban iban = new Iban.Builder()
+                .countryCode(CountryCode.NL)
+                .bankCode("INHO")
+                .accountNumber(String.format("%010d", accountNumber))
+                .buildRandom();
+        return iban.toString();
+    }
 }
 
 
