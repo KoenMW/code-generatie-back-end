@@ -1,7 +1,12 @@
 package com.Inholland.NovaBank.cucumber.steps;
 
+import com.Inholland.NovaBank.Jwt.JwtTokenProvider;
+import com.Inholland.NovaBank.configuration.JwtCucumberConf;
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
+import com.Inholland.NovaBank.model.Role;
+import com.Inholland.NovaBank.model.User;
+import com.Inholland.NovaBank.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
@@ -13,6 +18,7 @@ import io.cucumber.java.en.When;
 
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
@@ -20,6 +26,7 @@ import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -38,12 +45,21 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
     private TestRestTemplate restTemplate;
 
     private final HttpHeaders httpHeaders = new HttpHeaders();
+    @Autowired
+    private JwtCucumberConf jwtCucumberConf;
+
+
+
+
 
     private ResponseEntity<String> response;
     @Autowired
     private ObjectMapper mapper;
+
+
     @Given("The endpoint for {string} is available for method {string}")
     public void theEndpointForIsAvailableForMethod(String endpoint, String method) {
+        //httpHeaders.add("Authorization", "Bearer " + jwtCucumberConf.jwtToken);
         response = restTemplate
                 .exchange("/" + endpoint,
                         HttpMethod.OPTIONS,
@@ -54,8 +70,12 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
                         .get(0)// The first element is all allowed methods separated by comma
                         .split(","))
                 .toList();
+
         Assertions.assertTrue(options.contains(method.toUpperCase()));
     }
+
+
+
 
     @When("I create an account with userId {int} and accountType {string} and an absoluteLimit of {int}")
     public void iCreateAnAccountWithUserIdAndAccountTypeAndAnAbsoluteLimitOf(int userId, String accountType, int absoluteLimit, int dailyLimit, int transactionLimit) throws JsonProcessingException {
