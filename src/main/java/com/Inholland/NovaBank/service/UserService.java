@@ -7,7 +7,7 @@ import com.Inholland.NovaBank.model.DTO.newUserDTO;
 import com.Inholland.NovaBank.model.DTO.returnUserDTO;
 import com.Inholland.NovaBank.model.Role;
 import com.Inholland.NovaBank.model.User;
-import com.Inholland.NovaBank.repository.UserRepository;
+import com.Inholland.NovaBank.repositorie.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

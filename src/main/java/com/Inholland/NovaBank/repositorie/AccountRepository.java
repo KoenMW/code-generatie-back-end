@@ -1,4 +1,4 @@
-package com.Inholland.NovaBank.repository;
+package com.Inholland.NovaBank.repositorie;
 
 import com.Inholland.NovaBank.model.Account;
 import jakarta.transaction.Transactional;

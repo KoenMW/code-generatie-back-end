@@ -1,7 +1,7 @@
 package com.Inholland.NovaBank.service;
 
 import com.Inholland.NovaBank.model.User;
-import com.Inholland.NovaBank.repository.UserRepository;
+import com.Inholland.NovaBank.repositorie.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
