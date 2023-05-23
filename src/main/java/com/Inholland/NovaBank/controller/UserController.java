@@ -26,10 +26,10 @@ public class UserController {
     private UserService userService;
 
     //role checken?
-    @GetMapping
-    public ResponseEntity<User> getById(long id){
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getById(@PathVariable long userId){
         try{
-            User user = userService.getById(id);
+            User user = userService.getById(userId);
             if(user == null){
                 return ResponseEntity.status(403).body(null);
             }

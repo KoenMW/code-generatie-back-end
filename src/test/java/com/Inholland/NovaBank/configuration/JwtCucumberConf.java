@@ -1,5 +1,7 @@
 package com.Inholland.NovaBank.configuration;
 
+import com.Inholland.NovaBank.model.DTO.newUserDTO;
+import com.Inholland.NovaBank.model.DTO.returnUserDTO;
 import com.Inholland.NovaBank.model.Role;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.service.UserService;
@@ -14,7 +16,8 @@ public class JwtCucumberConf {
     private JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
 
     private UserService userService = new UserService();
-    private final User user = generateUser();
+    private returnUserDTO user2 = generateUser();
+    private User user = userService.getUserByUsername("jan");
 
     public String jwtToken = generateToken();
 
@@ -22,8 +25,8 @@ public class JwtCucumberConf {
         return jwtTokenProvider.createToken(user.getUsername(), user.getRole(), user.getId());
     }
 
-    private User generateUser(){
-        return userService.addUser(new User("Jan", "Bank", "Jan", "1234", "novaBank@bank.nl", Role.ROLE_ADMIN, 3000, 1500, true));
+    private returnUserDTO generateUser(){
+        return userService.addUser(new newUserDTO("jan", "jansen", "jan", "1234", "henk@gmail.com"));
     }
 
 }
