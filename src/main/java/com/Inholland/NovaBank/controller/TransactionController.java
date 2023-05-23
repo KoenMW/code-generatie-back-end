@@ -2,6 +2,7 @@ package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.IBANRequestBody;
 import com.Inholland.NovaBank.model.Transaction;
+import com.Inholland.NovaBank.service.BaseService;
 import com.Inholland.NovaBank.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class TransactionController {
 
     @GetMapping("/byIban")
     public ResponseEntity<List<Transaction>> GetAllFromIban(@RequestBody IBANRequestBody iban){
-        if (!transactionService.IsValidIban(iban.getIban())){
+        if (!BaseService.IsValidIban(iban.getIban())){
             return ResponseEntity.accepted().build();
         }
         List<Transaction> transactions = transactionService.GetAllFromIban(iban.getIban());

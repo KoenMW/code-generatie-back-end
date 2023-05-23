@@ -1,6 +1,7 @@
 package com.Inholland.NovaBank.service;
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.TransactionRepository;
@@ -22,8 +23,14 @@ public class TransactionService extends BaseService {
     @Autowired
     private UserRepository userRepository;
 
-    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository, UserRepository userRepository) {
+    @Autowired
+    private AccountService accountService;
+
+    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository, UserRepository userRepository, AccountService accountService){
         this.transactionRepository = transactionRepository;
+        this.accountRepository = accountRepository;
+        this.userRepository = userRepository;
+        this.accountService = accountService;
     }
 
     public List<Transaction> GetAll(){
@@ -41,11 +48,10 @@ public class TransactionService extends BaseService {
         Account toAccount = accountRepository.findByIban(transaction.getToAccount());
         if (fromAccount != null && toAccount != null)
         {
-            accountRepository.setBalance(fromAccount.getIban(), fromAccount.getBalance() - transaction.getAmount());
-            accountRepository.setBalance(toAccount.getIban(), toAccount.getBalance() + transaction.getAmount());
+            accountService.update(new patchAccountDTO(fromAccount.getIban(), "update", "balance", Double.toString(fromAccount.getBalance() - transaction.getAmount())));
+            accountService.update(new patchAccountDTO(toAccount.getIban(), "update", "balance", Double.toString(toAccount.getBalance() + transaction.getAmount())));
         }
-        transactionRepository.save(transaction);
-        return transaction;
+        return transactionRepository.save(transaction);
     }
 
     public boolean HasBalance(String Iban, float amount){
@@ -61,7 +67,7 @@ public class TransactionService extends BaseService {
         if (AccountExists(transaction.getFromAccount()) && AccountExists(transaction.getToAccount())){
             Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
             Account toAccount = accountRepository.findByIban(transaction.getToAccount());
-            return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && userRepository.findUserTransactionLimitById(fromAccount.getUserReferenceId()) >= transaction.getAmount() && CheckForSavingsAccount(fromAccount, toAccount);
+            return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && userRepository.findUserTransactionLimitById(fromAccount.getUserReferenceId()) >= transaction.getAmount() && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0;
         }
         return false;
     }

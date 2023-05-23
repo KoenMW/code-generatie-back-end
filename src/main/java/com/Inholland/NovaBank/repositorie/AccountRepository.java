@@ -20,10 +20,12 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
     List<Account> findByuserReferenceIdAndActive(long id, boolean active);
 
 
+    /*
     @Transactional
     @Modifying
     @Query("update Account a set a.balance = :balance where a.iban = :iban")
-    void setBalance(@Param("iban") String iban, @Param("balance") double balance);
+    void setBalance(@Param("iban") String iban, @Param("balance") double balance);*/
+    //kan zijn dat transaction niet werkt want @Transactional staat niet bij de update
 
     @Query("SELECT a FROM Account a ORDER BY a.iban")
     List<Account> findAllAccounts(Pageable pageable);
@@ -37,6 +39,5 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
 
     List<Account> findByActive(boolean active);
 
-    //get all ibans from the accounts where the user id is equal to the given id:
     List<String> findAllIbansByUserReferenceId(long id);
 }
