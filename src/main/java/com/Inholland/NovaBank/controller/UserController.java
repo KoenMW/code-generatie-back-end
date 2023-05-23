@@ -1,6 +1,8 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.DTO.newUserDTO;
+import com.Inholland.NovaBank.model.DTO.returnUserDTO;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -10,9 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestOperations;
 
 import java.util.List;
@@ -20,14 +21,54 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     @Autowired
     private UserService userService;
 
+    //role checken?
+    @GetMapping
+    public ResponseEntity<User> getById(long id){
+        try{
+            User user = userService.getById(id);
+            if(user == null){
+                return ResponseEntity.status(403).body(null);
+            }
+            else{
+                return ResponseEntity.status(200).body(user);
+            }
+        }catch (Exception e) {
+            return ResponseEntity.status(404).body(null);
+        }
+    }
 
+    public ResponseEntity<User> getUserByUsername(String username){
+        try{
+            User user = userService.getUserByUsername(username);
+            if(user == null){
+                return ResponseEntity.status(403).body(null);
+            }
+            else{
+                return ResponseEntity.status(200).body(user);
+            }
+        }catch (Exception e) {
+            return ResponseEntity.status(404).body(null);
+        }
+    }
 
     @GetMapping
     public List<User> getAll(){
         return userService.getAll();
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    public ResponseEntity<returnUserDTO>add(@RequestBody newUserDTO user){
+        try{
+            return ResponseEntity.status(200).body(userService.addUser(user));
+        }catch (Exception e) {
+            return ResponseEntity.status(404).body(null);
+        }
+    }
+    //andere controllers
 
 }

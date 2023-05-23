@@ -23,6 +23,4 @@ public class UserDetailService implements UserDetailsService {
                         .build();
         return userDetails;
     }
-
-
 }

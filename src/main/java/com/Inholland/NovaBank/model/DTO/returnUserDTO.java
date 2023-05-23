@@ -1,40 +1,30 @@
-package com.Inholland.NovaBank.model;
+package com.Inholland.NovaBank.model.DTO;
 
-import jakarta.persistence.*;
+import com.Inholland.NovaBank.model.Role;
 import lombok.Data;
 
-@Entity
 @Data
-@Table(name="\"Users\"")
-public class User {
-
-    @GeneratedValue
-    @Id
-    private Long id;
+public class returnUserDTO {
     private String firstName;
     private String lastName;
-
     private String username;
-    private String password;
     private String email;
     private Role role;
     private int dayLimit;
     private int transactionLimit;
     private boolean hasAccount;
 
-    public User(String firstName, String lastName, String username, String password, String email, Role role, int dayLimit, int transactionLimit, boolean hasAccount) {
+    public returnUserDTO(String firstName, String lastName, String username, String email, Role role, int dayLimit, int transactionLimit, boolean hasAccount) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
-        this.password = password;
         this.email = email;
         this.role = role;
         this.dayLimit = dayLimit;
         this.transactionLimit = transactionLimit;
         this.hasAccount = hasAccount;
     }
-
-    public User() {
+    public returnUserDTO() {
 
     }
 }
