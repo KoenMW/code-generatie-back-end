@@ -14,7 +14,7 @@ import com.Inholland.NovaBank.model.UserIdRequestBody;
 
 import java.util.List;
 
-@RequestMapping("/transaction")
+@RequestMapping("/transactions")
 @Controller
 public class TransactionController {
 
