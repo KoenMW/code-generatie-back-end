@@ -27,7 +27,7 @@ public class JwtTokenProvider {
         claims.put("auth", role.name());
         claims.put("id", id);
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + 3600000);
+        Date expiration = new Date(now.getTime() + 360000000);
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
