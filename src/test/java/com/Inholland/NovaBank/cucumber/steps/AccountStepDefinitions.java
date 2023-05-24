@@ -1,16 +1,9 @@
 package com.Inholland.NovaBank.cucumber.steps;
 
-import com.Inholland.NovaBank.Jwt.JwtTokenProvider;
-import com.Inholland.NovaBank.configuration.JwtCucumberConf;
-import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
-import com.Inholland.NovaBank.model.Role;
-import com.Inholland.NovaBank.model.User;
-import com.Inholland.NovaBank.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -18,24 +11,17 @@ import io.cucumber.java.en.When;
 
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-
+import java.util.Map;
 
 
 public class AccountStepDefinitions extends BaseStepDefinitions{
@@ -45,8 +31,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
     private TestRestTemplate restTemplate;
 
     private final HttpHeaders httpHeaders = new HttpHeaders();
-    @Autowired
-    private JwtCucumberConf jwtCucumberConf;
+    private String jwtToken;
 
 
 
@@ -59,7 +44,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
 
     @Given("The endpoint for {string} is available for method {string}")
     public void theEndpointForIsAvailableForMethod(String endpoint, String method) {
-        //httpHeaders.add("Authorization", "Bearer " + jwtCucumberConf.jwtToken);
+        httpHeaders.add("Authorization", "Bearer " + jwtToken);
         response = restTemplate
                 .exchange("/" + endpoint,
                         HttpMethod.OPTIONS,
@@ -74,12 +59,24 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
         Assertions.assertTrue(options.contains(method.toUpperCase()));
     }
 
+    @Given("The user is logged in with username {string} and password {string}")
+    public void theUserIsLoggedInWithUsernameAndPassword(String username, String password) throws JsonProcessingException {
+        httpHeaders.add("Content-Type", "application/json");
+        response = restTemplate.exchange("/login",
+                HttpMethod.POST,
+                new HttpEntity<>(
+                        mapper.writeValueAsString(Map.of("username", username, "password", password)),
+                        httpHeaders
+                ), String.class);
+        jwtToken = JsonPath.read(response.getBody(), "$.token");
+    }
+
 
 
 
     @When("I create an account with userId {int} and accountType {string} and an absoluteLimit of {int}")
-    public void iCreateAnAccountWithUserIdAndAccountTypeAndAnAbsoluteLimitOf(int userId, String accountType, int absoluteLimit, int dailyLimit, int transactionLimit) throws JsonProcessingException {
-
+    public void iCreateAnAccountWithUserIdAndAccountTypeAndAnAbsoluteLimitOf(int userId, String accountType, int absoluteLimit) throws JsonProcessingException {
+        httpHeaders.add("Authorization", "Bearer " + jwtToken);
         newAccountDTO dto = new newAccountDTO(userId, AccountType.valueOf(accountType),absoluteLimit);
         httpHeaders.add("Content-Type", "application/json");
         response = restTemplate.exchange("/accounts",
@@ -110,19 +107,23 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
 
     @When("I retrieve all accounts")
     public void iRetrieveAllAccounts() {
+        httpHeaders.add("Authorization", "Bearer " + jwtToken);
         response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts", HttpMethod.GET, new HttpEntity<>(null, new HttpHeaders()), String.class);
     }
 
     @Then("I should receive all accounts")
     public void iShouldReceiveAllAccounts() {
-        int actual = JsonPath.read(response.getBody(), "$.size()");
-        Assertions.assertEquals(3, actual);
         Assertions.assertEquals(200, response.getStatusCode().value());
+        int actual = JsonPath.read(response.getBody(), "$.size()");
+
+        Assertions.assertEquals(3, actual);
+
     }
 
 
     @When("I retrieve the account with userReferenceId {int}")
     public void iRetrieveTheAccountWithUserReferenceId(int userId) {
+        httpHeaders.add("Authorization", "Bearer " + jwtToken);
         response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts/" + userId, HttpMethod.GET, new HttpEntity<>(null, new HttpHeaders()), String.class);
     }
 
