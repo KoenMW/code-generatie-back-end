@@ -36,7 +36,7 @@ public class DataSeeder implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
 
-        userService.addUser(new newUserDTO("John", "Doe", "JohnDoe", "123h4jg893n", "John@doe.nl"));
+        userService.addUser(new newUserDTO("John", "Doe", "JohnDoe", "1234", "John@doe.nl"));
         userService.addUser(new newUserDTO("Bank", "Bank", "Bank", "123h4jg893n", "novaBank@bank.nl"));
         userService.addUser(new newUserDTO("Henk","Blok","henk","1234","henk@gmail.com"));
 

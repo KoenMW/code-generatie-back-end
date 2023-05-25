@@ -2,6 +2,7 @@ package com.Inholland.NovaBank.Jwt;
 
 import com.Inholland.NovaBank.model.Role;
 import com.Inholland.NovaBank.service.UserDetailService;
+import com.google.gson.stream.JsonReader;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -38,6 +39,7 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         try {
+
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(keyProvider.getPrivateKey()).build().parseClaimsJws(token);
             String username = claims.getBody().getSubject();
             UserDetails userDetails = userDetailService.loadUserByUsername(username);
