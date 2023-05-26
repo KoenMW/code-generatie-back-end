@@ -73,4 +73,8 @@ public class UserService extends BaseService{
             throw new IllegalArgumentException("Password is incorrect");
         }
     }
+
+    UserService(UserRepository userRepository){
+        this.userRepository = userRepository;
+    }
 }

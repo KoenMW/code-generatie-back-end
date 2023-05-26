@@ -76,7 +76,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
 
     @When("I create an account with userId {int} and accountType {string} and an absoluteLimit of {int}")
     public void iCreateAnAccountWithUserIdAndAccountTypeAndAnAbsoluteLimitOf(int userId, String accountType, int absoluteLimit) throws JsonProcessingException {
-        httpHeaders.add("Authorization", "Bearer " + jwtToken);
+
         newAccountDTO dto = new newAccountDTO(userId, AccountType.valueOf(accountType),absoluteLimit);
         httpHeaders.add("Content-Type", "application/json");
         response = restTemplate.exchange("/accounts",
@@ -107,7 +107,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
 
     @When("I retrieve all accounts")
     public void iRetrieveAllAccounts() {
-        httpHeaders.add("Authorization", "Bearer " + jwtToken);
+
         response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts", HttpMethod.GET, new HttpEntity<>(null, new HttpHeaders()), String.class);
     }
 
@@ -123,7 +123,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
 
     @When("I retrieve the account with userReferenceId {int}")
     public void iRetrieveTheAccountWithUserReferenceId(int userId) {
-        httpHeaders.add("Authorization", "Bearer " + jwtToken);
+
         response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts/" + userId, HttpMethod.GET, new HttpEntity<>(null, new HttpHeaders()), String.class);
     }
 

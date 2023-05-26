@@ -7,6 +7,7 @@ import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
+import com.Inholland.NovaBank.repositorie.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -55,7 +56,7 @@ public class AccountService extends BaseService{
         return accountRepository.findAllAccounts(getPageable(limit, offset));
     }
 
-    private Pageable getPageable(Long limit, Long offset) {
+    public Pageable getPageable(Long limit, Long offset) {
         return new OffsetBasedPageRequest(offset.intValue(), limit.intValue());
     }
 
@@ -127,6 +128,11 @@ public class AccountService extends BaseService{
 
         Account account1 = accountRepository.save(accountFromRepo);
         return new returnAccountDTO(account1.getIban(), account1.getAccountType());
+    }
+
+    public AccountService(AccountRepository accountRepository, UserRepository userRepository,UserService userService){
+        this.accountRepository = accountRepository;
+        this.userService = userService;
     }
 
 
