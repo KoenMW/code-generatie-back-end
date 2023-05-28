@@ -4,6 +4,7 @@ import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.DTO.newUserDTO;
 import com.Inholland.NovaBank.model.DTO.returnUserDTO;
 import com.Inholland.NovaBank.model.User;
+import com.Inholland.NovaBank.service.TransactionService;
 import com.Inholland.NovaBank.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TransactionService transactionService;
 
     //role checken?
     @GetMapping("/{userId}")
@@ -69,6 +73,22 @@ public class UserController {
             return ResponseEntity.status(404).body(null);
         }
     }
+
+
+    @GetMapping("/dailylimit/{userId}")
+    public ResponseEntity<Float> getRemainingDailyLimit(@PathVariable long userId){
+        try{
+            System.out.println("test");
+            System.out.println(userId);
+            System.out.println(transactionService.getRemainingLimit(userId));
+            return ResponseEntity.status(200).body(transactionService.getRemainingLimit(userId));
+        }
+        catch (Exception e){
+            return ResponseEntity.status(404).body(null);
+        }
+    }
+
+
     //andere controllers
 
 }
