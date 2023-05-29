@@ -3,6 +3,7 @@ import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
+import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.TransactionRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
@@ -82,9 +83,34 @@ public class TransactionService extends BaseService {
         return totalAmount + amount <= dailyLimit;
     }
 
+    public float GetRemainingDailyLimit(String iban){
+        List<Transaction> transactions = GetTransactionsFromLast24Hours(iban);
+        float totalAmount = 0;
+        for (Transaction transaction : transactions){
+            totalAmount += transaction.getAmount();
+        }
+        return userRepository.findUserDayLimitById(accountRepository.findByIban(iban).getUserReferenceId()) - totalAmount;
+    }
+
     //gets a list of transactions from the last 24 hours
     private List<Transaction> GetTransactionsFromLast24Hours(String iban){
         return transactionRepository.findAllByFromAccountOrToAccountAndTimestampAfter(iban, iban, LocalDateTime.now().minusDays(1));
+    }
+
+    private List<Transaction> GetTransactionsFromLast24HoursByUser(long userId){
+        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
+        return transactionRepository.findAllByFromAccountAndTimestampAfterAndFromAccountNotInOrToAccountNotIn(ibans.get(0), LocalDateTime.now().minusDays(1), ibans, ibans);
+    }
+
+
+    public float getRemainingLimit(long id){
+        long dailyLimit = userRepository.findUserDayLimitById(id);
+        List<Transaction> transactions = GetTransactionsFromLast24HoursByUser(id);
+        float sum = 0;
+        for (Transaction transaction : transactions) {
+            sum += transaction.getAmount();
+        }
+        return dailyLimit - sum;
     }
 
     //check if the account is a savings account and if it is, check if the user reference id is the same
@@ -92,7 +118,7 @@ public class TransactionService extends BaseService {
         if (fromAccount.getAccountType() == AccountType.SAVINGS || toAccount.getAccountType() == AccountType.SAVINGS) {
             return fromAccount.getUserReferenceId() == toAccount.getUserReferenceId();
         }
-        return CheckDailyLimit(fromAccount.getIban(), fromAccount.getBalance(), userRepository.findUserDailyLimitById(fromAccount.getUserReferenceId()));
+        return CheckDailyLimit(fromAccount.getIban(), fromAccount.getBalance(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId()));
     }
 
     public List<Transaction> GetAllFromUser(long userId){

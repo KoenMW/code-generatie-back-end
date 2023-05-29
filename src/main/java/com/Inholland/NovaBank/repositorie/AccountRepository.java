@@ -35,5 +35,6 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
 
     List<Account> findByActive(boolean active);
 
+    @Query("SELECT a.iban FROM Account a WHERE a.userReferenceId = ?1")
     List<String> findAllIbansByUserReferenceId(long id);
 }
