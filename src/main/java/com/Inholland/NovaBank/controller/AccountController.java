@@ -6,6 +6,8 @@ import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.service.AccountService;
+import com.Inholland.NovaBank.service.TransactionService;
+import com.Inholland.NovaBank.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -82,9 +84,5 @@ public class AccountController {
 
 
     }
-
-
-
-
 
 }
