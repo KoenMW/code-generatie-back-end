@@ -10,6 +10,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 
+
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -17,6 +18,11 @@ import org.springframework.http.*;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,11 +30,15 @@ import java.util.List;
 import java.util.Map;
 
 
+
+
 public class AccountStepDefinitions extends BaseStepDefinitions{
 
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+
 
     private final HttpHeaders httpHeaders = new HttpHeaders();
     private String jwtToken;
@@ -69,6 +79,9 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
                         httpHeaders
                 ), String.class);
         jwtToken = JsonPath.read(response.getBody(), "$.token");
+        httpHeaders.add("Authorization", "Bearer " + jwtToken);
+
+
     }
 
 
@@ -76,8 +89,24 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
 
     @When("I create an account with userId {int} and accountType {string} and an absoluteLimit of {int}")
     public void iCreateAnAccountWithUserIdAndAccountTypeAndAnAbsoluteLimitOf(int userId, String accountType, int absoluteLimit) throws JsonProcessingException {
-
         newAccountDTO dto = new newAccountDTO(userId, AccountType.valueOf(accountType),absoluteLimit);
+        WebClient client = WebClient.builder()
+                .baseUrl(restTemplate.getRootUri() + "/accounts")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken)
+                .build();
+
+        response = (ResponseEntity<String>) client.post()
+                .body(BodyInserters.fromValue(dto))
+                .exchange()
+                .block()
+                .toEntity(String.class)
+                .block();
+
+
+
+        /*newAccountDTO dto = new newAccountDTO(userId, AccountType.valueOf(accountType),absoluteLimit);
+        System.out.println(dto);
         httpHeaders.add("Content-Type", "application/json");
         response = restTemplate.exchange("/accounts",
                 HttpMethod.POST,
@@ -85,6 +114,8 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
                         mapper.writeValueAsString(dto),
                         httpHeaders
                 ), String.class);
+
+         */
     }
 
 
@@ -108,7 +139,8 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
     @When("I retrieve all accounts")
     public void iRetrieveAllAccounts() {
 
-        response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts", HttpMethod.GET, new HttpEntity<>(null, new HttpHeaders()), String.class);
+        response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts", HttpMethod.GET, new HttpEntity<>(null, httpHeaders), String.class);
+
     }
 
     @Then("I should receive all accounts")
@@ -116,7 +148,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
         Assertions.assertEquals(200, response.getStatusCode().value());
         int actual = JsonPath.read(response.getBody(), "$.size()");
 
-        Assertions.assertEquals(3, actual);
+        Assertions.assertEquals(6, actual);
 
     }
 
@@ -124,7 +156,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
     @When("I retrieve the account with userReferenceId {int}")
     public void iRetrieveTheAccountWithUserReferenceId(int userId) {
 
-        response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts/" + userId, HttpMethod.GET, new HttpEntity<>(null, new HttpHeaders()), String.class);
+        response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts/" + userId, HttpMethod.GET, new HttpEntity<>(null, httpHeaders), String.class);
     }
 
     @And("There is an account with property {string}")
@@ -142,9 +174,19 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
         dto.setOp("update");
         dto.setIban(iban);
 
+        WebClient client = WebClient.builder()
+                .baseUrl(restTemplate.getRootUri() + "/accounts")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken)
+                .build();
 
-
-
+        response = (ResponseEntity<String>) client.patch()
+                .body(BodyInserters.fromValue(dto))
+                .exchange()
+                .block()
+                .toEntity(String.class)
+                .block();
+        System.out.println(response.getBody());
     }
 
     @And("The response body is a JSON object containing a property {string}")
@@ -157,6 +199,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
         }
         assert account != null;
         Assertions.assertNotNull(account.getIban());
+        Assertions.assertEquals(response.getStatusCode().value(), 200);
     }
 }
 
