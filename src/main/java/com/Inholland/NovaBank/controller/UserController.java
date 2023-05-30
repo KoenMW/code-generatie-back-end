@@ -76,12 +76,9 @@ public class UserController {
 
 
     @GetMapping("/dailylimit/{userId}")
-    public ResponseEntity<Float> getRemainingDailyLimit(@PathVariable long userId){
+    public ResponseEntity<Double> getRemainingDailyLimit(@PathVariable long userId){
         try{
-            System.out.println("test");
-            System.out.println(userId);
-            System.out.println(transactionService.getRemainingLimit(userId));
-            return ResponseEntity.status(200).body(transactionService.getRemainingLimit(userId));
+            return ResponseEntity.status(200).body(userService.getRemainingDailyLimit(userId));
         }
         catch (Exception e){
             return ResponseEntity.status(404).body(null);

@@ -97,20 +97,9 @@ public class TransactionService extends BaseService {
         return transactionRepository.findAllByFromAccountOrToAccountAndTimestampAfter(iban, iban, LocalDateTime.now().minusDays(1));
     }
 
-    private List<Transaction> GetTransactionsFromLast24HoursByUser(long userId){
+    public List<Transaction> GetTransactionsFromLast24HoursByUser(long userId){
         List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
         return transactionRepository.findAllByFromAccountAndTimestampAfterAndFromAccountNotInOrToAccountNotIn(ibans.get(0), LocalDateTime.now().minusDays(1), ibans, ibans);
-    }
-
-
-    public float getRemainingLimit(long id){
-        long dailyLimit = userRepository.findUserDayLimitById(id);
-        List<Transaction> transactions = GetTransactionsFromLast24HoursByUser(id);
-        float sum = 0;
-        for (Transaction transaction : transactions) {
-            sum += transaction.getAmount();
-        }
-        return dailyLimit - sum;
     }
 
     //check if the account is a savings account and if it is, check if the user reference id is the same

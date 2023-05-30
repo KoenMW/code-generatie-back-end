@@ -6,12 +6,16 @@ import com.Inholland.NovaBank.model.DTO.LoginResponseDTO;
 import com.Inholland.NovaBank.model.DTO.newUserDTO;
 import com.Inholland.NovaBank.model.DTO.returnUserDTO;
 import com.Inholland.NovaBank.model.Role;
+import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.model.User;
+import com.Inholland.NovaBank.repositorie.AccountRepository;
+import com.Inholland.NovaBank.repositorie.TransactionRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -23,6 +27,12 @@ public class UserService extends BaseService{
     private JwtTokenProvider jwtTokenProvider;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    AccountRepository accountRepository;
 
 
     public User getById(long id){
@@ -72,5 +82,18 @@ public class UserService extends BaseService{
         } else {
             throw new IllegalArgumentException("Password is incorrect");
         }
+    }
+
+
+    public double GetSumOfAllTransactionsFromAccountOfLast24Hours(long userId){
+        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
+        return transactionRepository.findSumOfAllTransactionsFromAccount(ibans.get(0), LocalDateTime.now().minusDays(1), ibans);
+    }
+
+
+
+    public double getRemainingDailyLimit(long id){
+        long dailyLimit = userRepository.findUserDayLimitById(id);
+        return (dailyLimit - GetSumOfAllTransactionsFromAccountOfLast24Hours(id));
     }
 }
