@@ -1,13 +1,13 @@
 package com.Inholland.NovaBank.service;
 
+import com.Inholland.NovaBank.Jwt.JwtTokenProvider;
 import com.Inholland.NovaBank.configuration.ApiTestConfiguration;
 import com.Inholland.NovaBank.controller.AccountController;
-import com.Inholland.NovaBank.model.Account;
-import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.*;
+import com.Inholland.NovaBank.model.DTO.LoginRequestDTO;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
-import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
 import com.Inholland.NovaBank.service.AccountService;
@@ -24,6 +24,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,6 +38,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+
 @ExtendWith(MockitoExtension.class)
 public class AccountServiceTest {
 
@@ -44,6 +49,10 @@ public class AccountServiceTest {
     private UserService userService;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Mock
+    private JwtTokenProvider jwttokenprovider;
 
 
     @InjectMocks
@@ -53,6 +62,7 @@ public class AccountServiceTest {
     void setUp() {
 
         accountService = new AccountService(accountRepository, userRepository, userService);
+        userService = new UserService(userRepository,bCryptPasswordEncoder, jwttokenprovider);
 
     }
 
@@ -105,24 +115,55 @@ public class AccountServiceTest {
                         new Account("NL01INHO0000000002", 200,2, AccountType.SAVINGS,true,200)
                 )
         );
+        doReturn(Optional.of(new User("henk", "tarp", "henk", "1234", "henk@gmail.com", Role.ROLE_ADMIN, 200, 200, true)))
+                .when(userRepository)
+                .findUserByUsername("henk");
+        User user = new User("henk", "tarp", "henk", "1234", "henk@gmail.com", Role.ROLE_ADMIN, 200, 200, true);
+        Authentication authentication = Mockito.mock(Authentication.class);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+        when(userService.getUserByUsername("henk")).thenReturn(user);
 
         List<Account> accounts = accountService.getByUserId(2);
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
     }
 
-    void authUser(){
-
-
+    @Test
+    void checkLimit(){
+        assertTrue(accountService.checkLimit(200));
 
     }
+
+    @Test
+    void checkLimitFalse(){
+        assertFalse(accountService.checkLimit(-200));
+
+    }
+
+    @Test
+    void checkLimitFalse2(){
+        assertTrue(accountService.checkLimit(0));
+
+    }
+
+    @Test
+    void checkLimitFalse3(){
+        assertFalse(accountService.checkLimit(1000000000));
+
+    }
+
+
+
 
     @Test
     void add() {
         doReturn(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200))
                 .when(accountRepository)
                 .save(Mockito.any(Account.class));
-
+        User user = new User("henk","tarp","henk","1234","henk@gmail.com", Role.ROLE_ADMIN,200,200,true);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
 
         returnAccountDTO account = accountService.add(new newAccountDTO(2, AccountType.SAVINGS,200));
         assertNotNull(account);
@@ -133,6 +174,9 @@ public class AccountServiceTest {
     void update() {
         when(accountRepository.save(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,250))).thenReturn(
                 new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,250)
+        );
+        when(accountRepository.findByIban("NL01INHO0000000001")).thenReturn(
+                new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)
         );
         returnAccountDTO account = accountService.update(new patchAccountDTO("NL01INHO0000000001","update","absoluteLimit","250"));
         assertNotNull(account);

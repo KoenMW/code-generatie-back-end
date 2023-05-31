@@ -74,7 +74,11 @@ public class UserService extends BaseService{
         }
     }
 
-    UserService(UserRepository userRepository){
+    UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider){
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
+
+
 }

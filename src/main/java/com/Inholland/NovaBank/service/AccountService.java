@@ -78,10 +78,16 @@ public class AccountService extends BaseService{
         if(!checkUserHasAccount(account.getUserReferenceId())){
             updateUserAccountStatus(account.getUserReferenceId());
         }
+        if(!checkLimit(account.getAbsoluteLimit())){
+            throw new IllegalArgumentException("Limit must be greater than 0");
+        }
         Account newAccount = setAccount(account);
         Account accountFromRepo = accountRepository.save(newAccount);
         return new returnAccountDTO(accountFromRepo.getIban(), accountFromRepo.getAccountType());
 
+    }
+    public Boolean checkLimit(float limit){
+        return limit >= 0 && limit < 1000000;
     }
     private Account setAccount(newAccountDTO account){
         Account newAccount = new Account();
