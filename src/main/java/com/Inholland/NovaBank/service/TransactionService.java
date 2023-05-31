@@ -1,6 +1,7 @@
 package com.Inholland.NovaBank.service;
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.DTO.DepositWithdrawDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.model.User;
@@ -113,5 +114,25 @@ public class TransactionService extends BaseService {
     public List<Transaction> GetAllFromUser(long userId){
         List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
         return transactionRepository.findAllByFromAccountInOrToAccountIn(ibans, ibans);
+    }
+
+    public boolean ValidateWithdraw(DepositWithdrawDTO dto){
+        return HasBalance(dto.getIban(), dto.getAmount()) && accountRepository.findByIban(dto.getIban()).getAbsoluteLimit() <= accountRepository.findByIban(dto.getIban()).getBalance() - dto.getAmount() && dto.getAmount() > 0;
+    }
+
+    public void withdraw(DepositWithdrawDTO dto){
+        Account account = accountRepository.findByIban(dto.getIban());
+        accountService.update(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() - dto.getAmount())));
+        transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw"));
+    }
+
+    public boolean ValidateDeposit(DepositWithdrawDTO dto){
+        return dto.getAmount() > 0;
+    }
+
+    public void deposit(DepositWithdrawDTO dto){
+        Account account = accountRepository.findByIban(dto.getIban());
+        accountService.update(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
+        transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit"));
     }
 }
