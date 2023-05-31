@@ -95,5 +95,8 @@ public class UserService extends BaseService{
     public double getRemainingDailyLimit(long id){
         long dailyLimit = userRepository.findUserDayLimitById(id);
         return (dailyLimit - GetSumOfAllTransactionsFromAccountOfLast24Hours(id));
+        
+    UserService(UserRepository userRepository){
+        this.userRepository = userRepository;
     }
 }
