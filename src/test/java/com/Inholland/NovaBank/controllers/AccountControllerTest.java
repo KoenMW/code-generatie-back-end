@@ -18,11 +18,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -61,8 +63,7 @@ public class AccountControllerTest {
         // Arrange
         when(accountService
                 .getAll(1000L, 0L))
-                .thenReturn(List.of(
-                        new Account("NL18INHO0363662776", 1000, 1L, AccountType.SAVINGS, true, 100)));
+                .thenReturn(List.of(new Account("NL18INHO0363662776", 1000, 1, AccountType.SAVINGS, true, 100)));
 
 
 

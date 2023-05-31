@@ -33,11 +33,16 @@
 			<version>${cucumber.version}</version>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>io.cucumber</groupId>
 			<artifactId>cucumber-spring</artifactId>
 			<version>${cucumber.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.github.java-json-tools</groupId>
@@ -108,6 +113,11 @@
 			<version>4.13.2</version>
 
 
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.14</version>
 		</dependency>
 	</dependencies>
 
