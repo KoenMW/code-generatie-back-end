@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
 
-    Optional<User> findUserByUsername(String username);
+    User findUserByUsername(String username);
 
 
     @Query("SELECT u.dayLimit FROM User u WHERE u.id = ?1")
