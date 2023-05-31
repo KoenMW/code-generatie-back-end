@@ -29,14 +29,14 @@ public class UserService extends BaseService{
         return userRepository.findById(id).orElse(null);
     }
     public User getUserByUsername(String username){
-        return userRepository.findUserByUsername(username).orElse(null);
+        return userRepository.findUserByUsername(username);
     }
     public List<User> getAll(){
         return (List<User>) userRepository.findAll();
     }
 
     public returnUserDTO addUser(newUserDTO user) {
-        if (userRepository.findUserByUsername(user.getUsername()).isEmpty()) {
+        if (userRepository.findUserByUsername(user.getUsername()) == null) {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             User newUser = createUser(user);
             User savedUser = userRepository.save(newUser);
@@ -63,7 +63,10 @@ public class UserService extends BaseService{
         return userRepository.save(user);
     }
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
-        User user = userRepository.findUserByUsername(loginRequestDTO.getUsername()).orElseThrow(() -> new IllegalArgumentException("Username not found"));
+        User user = userRepository.findUserByUsername(loginRequestDTO.getUsername());
+        if(user == null) {
+            throw new IllegalArgumentException("Username is incorrect");
+        }
         if(bCryptPasswordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
             String token = jwtTokenProvider.createToken(user.getUsername(), user.getRole(), user.getId());
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
