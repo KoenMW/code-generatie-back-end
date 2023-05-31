@@ -61,8 +61,8 @@ public class AccountServiceTest {
     @BeforeEach
     void setUp() {
 
-        accountService = new AccountService(accountRepository, userRepository, userService);
         userService = new UserService(userRepository,bCryptPasswordEncoder, jwttokenprovider);
+        accountService = new AccountService(accountRepository, userRepository, userService);
 
     }
 
@@ -115,20 +115,18 @@ public class AccountServiceTest {
                         new Account("NL01INHO0000000002", 200,2, AccountType.SAVINGS,true,200)
                 )
         );
-        doReturn(Optional.of(new User("henk", "tarp", "henk", "1234", "henk@gmail.com", Role.ROLE_ADMIN, 200, 200, true)))
-                .when(userRepository)
-                .findUserByUsername("henk");
-        User user = new User("henk", "tarp", "henk", "1234", "henk@gmail.com", Role.ROLE_ADMIN, 200, 200, true);
         Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        when(userService.getUserByUsername("henk")).thenReturn(new User("henk", "tarp", "henk", "1234", "henk", Role.ROLE_ADMIN, 200, 200, true));
+        when(authentication.getName()).thenReturn("henk");
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);;
         Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
-        when(userService.getUserByUsername("henk")).thenReturn(user);
-
         List<Account> accounts = accountService.getByUserId(2);
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
     }
+
+
 
     @Test
     void checkLimit(){

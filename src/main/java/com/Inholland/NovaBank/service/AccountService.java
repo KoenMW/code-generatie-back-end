@@ -66,6 +66,14 @@ public class AccountService extends BaseService{
 
     public boolean authUser(long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("authUser");
+        System.out.println("id:");
+        System.out.println(id);
+        System.out.println("authentication:");
+        System.out.println(authentication);
+        System.out.println("authentication.getName():");
+        System.out.println(authentication.getName());
+        System.out.println(userService);
         String currentPrincipalName = authentication.getName();
         User user = userService.getUserByUsername(currentPrincipalName);
         if(user.getRole().toString().equals("ROLE_ADMIN")){
