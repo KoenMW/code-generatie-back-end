@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class returnUserDTO {
+    private Long id;
     private String firstName;
     private String lastName;
     private String username;
@@ -14,7 +15,8 @@ public class returnUserDTO {
     private int transactionLimit;
     private boolean hasAccount;
 
-    public returnUserDTO(String firstName, String lastName, String username, String email, Role role, int dayLimit, int transactionLimit, boolean hasAccount) {
+    public returnUserDTO(Long id, String firstName, String lastName, String username, String email, Role role, int dayLimit, int transactionLimit, boolean hasAccount) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;

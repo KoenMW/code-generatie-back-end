@@ -2,8 +2,10 @@ package com.Inholland.NovaBank.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
+@DynamicUpdate
 @Data
 @Table(name="\"Users\"")
 public class User {
