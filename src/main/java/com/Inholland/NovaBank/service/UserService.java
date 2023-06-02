@@ -27,9 +27,11 @@ public class UserService extends BaseService{
     public returnUserDTO getById(long id){
         return transformUser(userRepository.findById(id).orElse(null));
     }
+
     private returnUserDTO transformUser(User user){
         return new returnUserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(), user.getRole(), user.getDayLimit(), user.getTransactionLimit(), user.isHasAccount());
-    }
+
+    
     public returnUserDTO getUserByUsername(String username){
         return transformUser(userRepository.findUserByUsername(username));
     }
@@ -91,6 +93,7 @@ public class UserService extends BaseService{
     }
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
         User user = userRepository.findUserByUsername(loginRequestDTO.getUsername());
+
         if(bCryptPasswordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
             String token = jwtTokenProvider.createToken(user.getUsername(), user.getRole(), user.getId());
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
@@ -101,7 +104,11 @@ public class UserService extends BaseService{
         }
     }
 
-    UserService(UserRepository userRepository){
+    UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider){
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
+
+
 }

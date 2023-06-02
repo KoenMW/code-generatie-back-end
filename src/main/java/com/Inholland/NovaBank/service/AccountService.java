@@ -64,6 +64,14 @@ public class AccountService extends BaseService{
 
     public boolean authUser(long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("authUser");
+        System.out.println("id:");
+        System.out.println(id);
+        System.out.println("authentication:");
+        System.out.println(authentication);
+        System.out.println("authentication.getName():");
+        System.out.println(authentication.getName());
+        System.out.println(userService);
         String currentPrincipalName = authentication.getName();
         returnUserDTO user = userService.getUserByUsername(currentPrincipalName);
         if(user.getRole().toString().equals("ROLE_ADMIN")){
@@ -76,10 +84,16 @@ public class AccountService extends BaseService{
         if(!checkUserHasAccount(account.getUserReferenceId())){
             updateUserAccountStatus(account.getUserReferenceId());
         }
+        if(!checkLimit(account.getAbsoluteLimit())){
+            throw new IllegalArgumentException("Limit must be greater than 0");
+        }
         Account newAccount = setAccount(account);
         Account accountFromRepo = accountRepository.save(newAccount);
         return new returnAccountDTO(accountFromRepo.getIban(), accountFromRepo.getAccountType());
 
+    }
+    public Boolean checkLimit(float limit){
+        return limit >= 0 && limit < 1000000;
     }
     private Account setAccount(newAccountDTO account){
         Account newAccount = new Account();

@@ -15,7 +15,10 @@ public class UserDetailService implements UserDetailsService {
     private UserRepository userRepository;
     @Override
     public UserDetails loadUserByUsername(String username) {
+
         User user = userRepository.findUserByUsername(username);
+
+
         UserDetails userDetails =
                 org.springframework.security.core.userdetails.User
                         .withUsername(user.getUsername())
