@@ -2,9 +2,7 @@ package com.Inholland.NovaBank.service;
 
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
-import com.Inholland.NovaBank.model.DTO.newAccountDTO;
-import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
-import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
+import com.Inholland.NovaBank.model.DTO.*;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
@@ -67,7 +65,7 @@ public class AccountService extends BaseService{
     public boolean authUser(long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentPrincipalName = authentication.getName();
-        User user = userService.getUserByUsername(currentPrincipalName);
+        returnUserDTO user = userService.getUserByUsername(currentPrincipalName);
         if(user.getRole().toString().equals("ROLE_ADMIN")){
             return true;
         } else return user.getId() == id;
@@ -95,14 +93,18 @@ public class AccountService extends BaseService{
     }
 
     private boolean checkUserHasAccount(long id){
-        User user = userService.getById(id);
+        returnUserDTO user = userService.getById(id);
         return user.isHasAccount();
     }
 
     private void updateUserAccountStatus(long id){
-        User user = userService.getById(id);
-        user.setHasAccount(true);
-        userService.update(user);
+        returnUserDTO user = userService.getById(id);
+        patchUserDTO patchUserDTO = new patchUserDTO();
+        patchUserDTO.setKey("hasAccount");
+        patchUserDTO.setValue("true");
+        patchUserDTO.setId(id);
+        patchUserDTO.setOp("update");
+        userService.update(patchUserDTO);
     }
 
     public returnAccountDTO update(patchAccountDTO account){
