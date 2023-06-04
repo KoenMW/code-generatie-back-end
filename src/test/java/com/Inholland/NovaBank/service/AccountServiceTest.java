@@ -4,10 +4,7 @@ import com.Inholland.NovaBank.Jwt.JwtTokenProvider;
 import com.Inholland.NovaBank.configuration.ApiTestConfiguration;
 import com.Inholland.NovaBank.controller.AccountController;
 import com.Inholland.NovaBank.model.*;
-import com.Inholland.NovaBank.model.DTO.LoginRequestDTO;
-import com.Inholland.NovaBank.model.DTO.newAccountDTO;
-import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
-import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
+import com.Inholland.NovaBank.model.DTO.*;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
 import com.Inholland.NovaBank.service.AccountService;
@@ -116,7 +113,7 @@ public class AccountServiceTest {
                 )
         );
         Authentication authentication = Mockito.mock(Authentication.class);
-        when(userService.getUserByUsername("henk")).thenReturn(new User("henk", "tarp", "henk", "1234", "henk", Role.ROLE_ADMIN, 200, 200, true));
+        when(userService.getUserByUsername("henk")).thenReturn(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true));
         when(authentication.getName()).thenReturn("henk");
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);;
         Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -131,9 +128,10 @@ public class AccountServiceTest {
                 null
         );
         Authentication authentication = Mockito.mock(Authentication.class);
-        when(userService.getUserByUsername("henk")).thenReturn(new User("henk", "tarp", "henk", "1234", "henk", Role.ROLE_ADMIN, 200, 200, true));
+        when(userService.getUserByUsername("henk")).thenReturn(new returnUserDTO(2L,"henk", "tarp", "henk",  "henk", Role.ROLE_ADMIN, 200, 200, true));
+        when(userService.transformUsers(List.of(new User("henk","tarp", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)))).thenReturn(List.of(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)));
         when(authentication.getName()).thenReturn("henk");
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);;
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
         List<Account> accounts = accountService.getByUserId(2);
