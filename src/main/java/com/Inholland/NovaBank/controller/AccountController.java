@@ -4,35 +4,30 @@ import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
-import com.Inholland.NovaBank.model.Transaction;
+
 import com.Inholland.NovaBank.service.AccountService;
-import com.Inholland.NovaBank.service.TransactionService;
-import com.Inholland.NovaBank.service.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
+
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
     @Autowired
     private AccountService accountService;
-    @Autowired
-    private ObjectMapper objectMapper;
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<Account>> getAll(@RequestParam (required = false) boolean isActive,@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
         try{
-            return accountService.getAll(isActive, limit, offset);
+            return ResponseEntity.status(200).body(accountService.getAll(isActive, limit, offset));
         }catch (Exception e) {
             return ResponseEntity.status(404).body(null);
         }
@@ -43,8 +38,9 @@ public class AccountController {
     public ResponseEntity<List<Account>> getByUserId(@PathVariable long userId){
         try{
             List<Account> accounts = accountService.getByUserId(userId);
-            if(accounts == null){
-                return ResponseEntity.status(403).body(null);
+
+            if(accounts.isEmpty()){
+                return ResponseEntity.status(404).body(null);
             }
             else{
                 return ResponseEntity.status(200).body(accounts);
