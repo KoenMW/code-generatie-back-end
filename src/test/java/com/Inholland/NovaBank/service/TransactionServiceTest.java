@@ -2,6 +2,7 @@ package com.Inholland.NovaBank.service;
 
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.DTO.DepositWithdrawDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
@@ -155,5 +156,88 @@ class TransactionServiceTest {
         assertNotNull(transaction);
         assertEquals(2, transaction.size());
 
+    }
+
+
+    @Test
+    void getTransactionsFromLast24HoursByUser() {
+        when(accountRepository.findAllIbansByUserReferenceId(1)).thenReturn(
+                List.of(
+                        "NL01INHO0000000001",
+                        "NL01INHO0000000002"
+                )
+        );
+        when(transactionRepository.findAllByFromAccountAndTimestampAfterAndFromAccountNotInOrToAccountNotIn("NL01INHO0000000001", LocalDateTime.now().minusDays(1), List.of("NL01INHO0000000001", "NL01INHO0000000002"), List.of("NL01INHO0000000001", "NL01INHO0000000002"))).thenReturn(
+                List.of(
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
+                )
+
+        );
+        List<Transaction> transactions = transactionService.GetTransactionsFromLast24HoursByUser(1);
+        assertEquals(2, transactions.size());
+        assertEquals("NL01INHO0000000001", transactions.get(0).getFromAccount());
+
+    }
+
+
+    @Test
+    void validateWithdraw() {
+        when(accountRepository.findByIban("NL01INHO0000000001")).thenReturn(
+                new Account("NL01INHO0000000001", 1000, 1, AccountType.SAVINGS, true, 10)
+        );
+        boolean validateWithdraw = transactionService.ValidateWithdraw(new DepositWithdrawDTO("NL01INHO0000000001", 100));
+        assertTrue(validateWithdraw);
+    }
+
+    @Test
+    void withdraw() {
+        when(accountRepository.findByIban("NL01INHO0000000001")).thenReturn(
+                new Account("NL01INHO0000000001", 1000, 1, AccountType.SAVINGS, true, 10)
+        );
+
+        when(accountService.update(Mockito.any(patchAccountDTO.class))).thenReturn(
+                new returnAccountDTO("NL01INHO0000000001", AccountType.CHECKING)
+        );
+        when(transactionRepository.save(Mockito.any(Transaction.class))).thenReturn(
+                new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "withdraw", 100, "withdraw")
+        );
+        transactionService.withdraw(new DepositWithdrawDTO("NL01INHO0000000001", 100));
+        Transaction transaction = transactionService.withdraw(new DepositWithdrawDTO("NL01INHO0000000001", 100));
+
+        assertNotNull(transaction);
+        assertEquals("NL01INHO0000000001", transaction.getFromAccount());
+        assertEquals("withdraw", transaction.getToAccount());
+        assertEquals(100, transaction.getAmount());
+        assertEquals("withdraw", transaction.getDescription());
+    }
+
+
+    @Test
+    void validateDeposit() {
+        assertTrue(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", 100)));
+        assertFalse(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", -100)));
+    }
+
+    @Test
+    void deposit() {
+        when(accountRepository.findByIban("NL01INHO0000000001")).thenReturn(
+                new Account("NL01INHO0000000001", 1000, 1, AccountType.SAVINGS, true, 10)
+        );
+
+        when(accountService.update(Mockito.any(patchAccountDTO.class))).thenReturn(
+                new returnAccountDTO("NL01INHO0000000001", AccountType.CHECKING)
+        );
+        when(transactionRepository.save(Mockito.any(Transaction.class))).thenReturn(
+                new Transaction(LocalDateTime.now(),"deposit", "NL01INHO0000000001", 100, "deposit")
+        );
+        transactionService.deposit(new DepositWithdrawDTO("NL01INHO0000000001", 100));
+        Transaction transaction = transactionService.deposit(new DepositWithdrawDTO("NL01INHO0000000001", 100));
+
+        assertNotNull(transaction);
+        assertEquals("deposit", transaction.getFromAccount());
+        assertEquals("NL01INHO0000000001", transaction.getToAccount());
+        assertEquals(100, transaction.getAmount());
+        assertEquals("deposit", transaction.getDescription());
     }
 }

@@ -84,14 +84,6 @@ public class TransactionService extends BaseService {
         return totalAmount + amount <= dailyLimit;
     }
 
-    public float GetRemainingDailyLimit(String iban){
-        List<Transaction> transactions = GetTransactionsFromLast24Hours(iban);
-        float totalAmount = 0;
-        for (Transaction transaction : transactions){
-            totalAmount += transaction.getAmount();
-        }
-        return userRepository.findUserDayLimitById(accountRepository.findByIban(iban).getUserReferenceId()) - totalAmount;
-    }
 
     //gets a list of transactions from the last 24 hours
     private List<Transaction> GetTransactionsFromLast24Hours(String iban){
@@ -120,19 +112,19 @@ public class TransactionService extends BaseService {
         return HasBalance(dto.getIban(), dto.getAmount()) && accountRepository.findByIban(dto.getIban()).getAbsoluteLimit() <= accountRepository.findByIban(dto.getIban()).getBalance() - dto.getAmount() && dto.getAmount() > 0;
     }
 
-    public void withdraw(DepositWithdrawDTO dto){
+    public Transaction withdraw(DepositWithdrawDTO dto){
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.update(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() - dto.getAmount())));
-        transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw"));
+        return transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw"));
     }
 
     public boolean ValidateDeposit(DepositWithdrawDTO dto){
         return dto.getAmount() > 0;
     }
 
-    public void deposit(DepositWithdrawDTO dto){
+    public Transaction deposit(DepositWithdrawDTO dto){
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.update(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
-        transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit"));
+        return transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit"));
     }
 }
