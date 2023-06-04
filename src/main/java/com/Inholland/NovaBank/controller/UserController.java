@@ -2,6 +2,7 @@ package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.DTO.newUserDTO;
+import com.Inholland.NovaBank.model.DTO.patchUserDTO;
 import com.Inholland.NovaBank.model.DTO.returnUserDTO;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.service.TransactionService;
@@ -29,11 +30,11 @@ public class UserController {
     @Autowired
     private TransactionService transactionService;
 
-    //role checken?
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getById(@PathVariable long userId){
+    public ResponseEntity<returnUserDTO> getById(@PathVariable long userId){
         try{
-            User user = userService.getById(userId);
+            returnUserDTO user = userService.getById(userId);
             if(user == null){
                 return ResponseEntity.status(403).body(null);
             }
@@ -45,25 +46,25 @@ public class UserController {
         }
     }
 
-    public ResponseEntity<User> getUserByUsername(String username){
-        try{
-            User user = userService.getUserByUsername(username);
-            if(user == null){
-                return ResponseEntity.status(403).body(null);
-            }
-            else{
-                return ResponseEntity.status(200).body(user);
-            }
-        }catch (Exception e) {
-            return ResponseEntity.status(404).body(null);
-        }
-    }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public List<User> getAll(){
-        return userService.getAll();
+    public ResponseEntity<List<returnUserDTO>> getAll(){
+        try {
+            return ResponseEntity.status(200).body(userService.getAll());
+        }catch (Exception e) {
+            return ResponseEntity.status(404).body(null);
+        }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping
+    public ResponseEntity<returnUserDTO> update(@RequestBody patchUserDTO user){
+        try{
+            return ResponseEntity.status(200).body(userService.update(user));
+        }catch (Exception e) {
+            return ResponseEntity.status(404).body(null);
+        }
+    }
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<returnUserDTO>add(@RequestBody newUserDTO user){
@@ -74,7 +75,6 @@ public class UserController {
         }
     }
 
-
     @GetMapping("/dailylimit/{userId}")
     public ResponseEntity<Double> getRemainingDailyLimit(@PathVariable long userId){
         try{
@@ -84,8 +84,4 @@ public class UserController {
             return ResponseEntity.status(404).body(null);
         }
     }
-
-
-    //andere controllers
-
 }

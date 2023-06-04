@@ -2,10 +2,8 @@ package com.Inholland.NovaBank.Config;
 
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
-import com.Inholland.NovaBank.model.DTO.newUserDTO;
+import com.Inholland.NovaBank.model.DTO.*;
 import com.Inholland.NovaBank.model.Transaction;
-import com.Inholland.NovaBank.model.DTO.newAccountDTO;
-import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.Role;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.service.AccountService;
@@ -40,7 +38,7 @@ public class DataSeeder implements ApplicationRunner {
         userService.addUser(new newUserDTO("Bank", "Bank", "Bank", "123h4jg893n", "novaBank@bank.nl"));
         userService.addUser(new newUserDTO("Henk","Blok","henk","1234","henk@gmail.com"));
 
-        List<User> users = userService.getAll();
+        List<returnUserDTO> users = userService.getAll();
 
         accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.CHECKING,100));
         accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));
@@ -57,9 +55,13 @@ public class DataSeeder implements ApplicationRunner {
         patchAccountDTO.setValue("NL18INHO0363662776");
         patchAccountDTO.setIban(id);
         accountService.update(patchAccountDTO);
-        User user = userService.getById(1L);
-        user.setRole(Role.ROLE_ADMIN);
-        userService.update(user);
+        returnUserDTO user = userService.getById(1L);
+        patchUserDTO patchUserDTO = new patchUserDTO();
+        patchUserDTO.setKey("role");
+        patchUserDTO.setValue("ROLE_ADMIN");
+        patchUserDTO.setId(user.getId());
+        patchUserDTO.setOp("update");
+        userService.update(patchUserDTO);
         for(Account account : accounts){
             if(account.getUserReferenceId() == 2){
                 seedBaseAccount(account.getIban());
@@ -86,8 +88,5 @@ public class DataSeeder implements ApplicationRunner {
         patchAccountDTO.setValue("NL01INHO0000000001");
         patchAccountDTO.setIban(id);
         accountService.update(patchAccountDTO);
-
     }
-
-
 }
