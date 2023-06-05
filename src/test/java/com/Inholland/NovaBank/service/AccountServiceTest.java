@@ -29,8 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -90,6 +89,14 @@ public class AccountServiceTest {
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
     }
+    @Test
+    void getAllActiveInvalid() {
+        when(accountRepository.findAllAccountsActive(accountService.getPageable(2L,0L),true)).thenReturn(
+                null
+        );
+        List<Account> accounts = accountService.getAllActive(2L,0L,true);
+        assertNull(accounts);
+    }
 
     @Test
     void testGetAll() {
@@ -105,6 +112,15 @@ public class AccountServiceTest {
     }
 
     @Test
+    void testGetAllInvalid(){
+        when(accountRepository.findAllAccounts(accountService.getPageable(2L,0L))).thenReturn(
+                null
+        );
+        List<Account> accounts = accountService.getAll(2L,0L);
+        assertNull(accounts);
+    }
+
+    @Test
     void getByUserId() {
         when(accountRepository.findByuserReferenceId(2)).thenReturn(
                 List.of(
@@ -112,12 +128,15 @@ public class AccountServiceTest {
                         new Account("NL01INHO0000000002", 200,2, AccountType.SAVINGS,true,200)
                 )
         );
-        Authentication authentication = Mockito.mock(Authentication.class);
+        UserService userService = Mockito.mock(UserService.class);
+        when(userService.transformUsers(List.of(new User("henk","henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)))).thenReturn(List.of(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)));
         when(userService.getUserByUsername("henk")).thenReturn(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true));
+        Authentication authentication = Mockito.mock(Authentication.class);
         when(authentication.getName()).thenReturn("henk");
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);;
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
+
         List<Account> accounts = accountService.getByUserId(2);
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
@@ -186,6 +205,16 @@ public class AccountServiceTest {
     }
 
     @Test
+    void addInvalid(){
+        AccountService accountService = mock(AccountService.class);
+
+        doThrow(IllegalArgumentException.class).when(accountService).add(any());
+
+        assertThrows(IllegalArgumentException.class, () -> accountService.add(new newAccountDTO(3, AccountType.SAVINGS,200)));
+    }
+
+
+    @Test
     void update() {
         when(accountRepository.save(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,250))).thenReturn(
                 new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,250)
@@ -197,5 +226,12 @@ public class AccountServiceTest {
         assertNotNull(account);
         assertEquals("NL01INHO0000000001", account.getIban());
 
+    }
+
+    @Test
+    void updateInvalid(){
+        AccountService accountService = mock(AccountService.class);
+        doThrow(IllegalArgumentException.class).when(accountService).update(any());
+        assertThrows(IllegalArgumentException.class, () -> accountService.update(new patchAccountDTO("NL01INHO0000000001","update","absoluteLimit","250")));
     }
 }
