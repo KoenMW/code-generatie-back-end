@@ -52,6 +52,8 @@ public class WebSecurityConfiguration {
                 .requestMatchers("/transactions").authenticated()
                 .requestMatchers("/transactions/byUser").authenticated()
                 .requestMatchers("/transactions/byIban").authenticated()
+                .requestMatchers("/transactions/withdraw").authenticated()
+                .requestMatchers("/transactions/deposit").authenticated()
                 .requestMatchers("/users/dailylimit/{accountId}").authenticated();
 
         httpSecurity.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);

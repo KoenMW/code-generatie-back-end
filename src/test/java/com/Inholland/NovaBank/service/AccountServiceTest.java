@@ -129,9 +129,11 @@ public class AccountServiceTest {
                 )
         );
         UserService userService = Mockito.mock(UserService.class);
-        when(userService.transformUsers(List.of(new User("henk","henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)))).thenReturn(List.of(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)));
-        when(userService.getUserByUsername("henk")).thenReturn(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true));
+        when(userRepository.findUserByUsername("henk")).thenReturn(new User("henk", "tarp", "henk", "1234", "henk", Role.ROLE_ADMIN, 200, 200, true));
+        //when(userService.transformUsers(List.of(new User("henk","henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)))).thenReturn(List.of(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)));
+        //when(userService.getUserByUsername("henk")).thenReturn(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true));
         Authentication authentication = Mockito.mock(Authentication.class);
+        //when(userService.getUserByUsername("henk")).thenReturn(new User("henk", "tarp", "henk", "1234", "henk", Role.ROLE_ADMIN, 200, 200, true));
         when(authentication.getName()).thenReturn("henk");
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -147,8 +149,9 @@ public class AccountServiceTest {
                 null
         );
         Authentication authentication = Mockito.mock(Authentication.class);
-        when(userService.getUserByUsername("henk")).thenReturn(new returnUserDTO(2L,"henk", "tarp", "henk",  "henk", Role.ROLE_ADMIN, 200, 200, true));
-        when(userService.transformUsers(List.of(new User("henk","tarp", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)))).thenReturn(List.of(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)));
+        when(userRepository.findUserByUsername("henk")).thenReturn(new User("henk", "tarp", "henk", "1234", "henk", Role.ROLE_ADMIN, 200, 200, true));
+        //when(userService.getUserByUsername("henk")).thenReturn(new returnUserDTO(2L,"henk", "tarp", "henk",  "henk", Role.ROLE_ADMIN, 200, 200, true));
+        //when(userService.transformUsers(List.of(new User("henk","tarp", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)))).thenReturn(List.of(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)));
         when(authentication.getName()).thenReturn("henk");
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);

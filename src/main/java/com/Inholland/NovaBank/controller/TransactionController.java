@@ -1,5 +1,6 @@
 package com.Inholland.NovaBank.controller;
 
+import com.Inholland.NovaBank.model.DTO.DepositWithdrawDTO;
 import com.Inholland.NovaBank.model.IBANRequestBody;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.service.BaseService;
@@ -62,4 +63,25 @@ public class TransactionController {
         return ResponseEntity.noContent().build();
     }
     //haven't implemented withdraw and deposit yet
+
+    @PostMapping("/withdraw")
+    public ResponseEntity<DepositWithdrawDTO> Withdraw(@RequestBody DepositWithdrawDTO dto){
+        if (transactionService.ValidateWithdraw(dto)){
+            transactionService.withdraw(dto);
+            return ResponseEntity.ok().body(dto);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/deposit")
+    public ResponseEntity<DepositWithdrawDTO> Deposit(@RequestBody DepositWithdrawDTO dto){
+        if (transactionService.ValidateDeposit(dto)){
+            transactionService.deposit(dto);
+            return ResponseEntity.ok().body(dto);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

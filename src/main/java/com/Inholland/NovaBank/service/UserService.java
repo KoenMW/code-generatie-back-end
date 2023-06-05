@@ -3,7 +3,10 @@ package com.Inholland.NovaBank.service;
 import com.Inholland.NovaBank.Jwt.JwtTokenProvider;
 import com.Inholland.NovaBank.model.DTO.*;
 import com.Inholland.NovaBank.model.Role;
+import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.model.User;
+import com.Inholland.NovaBank.repositorie.AccountRepository;
+import com.Inholland.NovaBank.repositorie.TransactionRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +29,13 @@ public class UserService extends BaseService{
     private JwtTokenProvider jwtTokenProvider;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    AccountRepository accountRepository;
+
 
     public returnUserDTO getByIdDataSeeder(long id){
         return transformUser(userRepository.findById(id).orElse(null));
@@ -50,6 +61,7 @@ public class UserService extends BaseService{
     private returnUserDTO transformUser(User user) {
         return new returnUserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(), user.getRole(), user.getDayLimit(), user.getTransactionLimit(), user.isHasAccount());
     }
+
     public returnUserDTO getUserByUsername(String username){
         return transformUser(userRepository.findUserByUsername(username));
     }
@@ -142,11 +154,30 @@ public class UserService extends BaseService{
         }
     }
 
+
+    public double GetSumOfAllTransactionsFromAccountOfLast24Hours(long userId){
+        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
+        double sum;
+        if (transactionRepository.findAllByFromAccountAndTimestampAfterAndFromAccountNotInOrToAccountNotIn(ibans.get(0), LocalDateTime.now().minusDays(1), ibans, ibans).isEmpty())
+            sum = 0;
+        else
+        {
+            sum = transactionRepository.findSumOfAllTransactionsFromAccount(ibans.get(0), LocalDateTime.now().minusDays(1), ibans);
+        }
+        return sum;
+    }
+
+
+
+    public double getRemainingDailyLimit(long id) {
+        long dailyLimit = userRepository.findUserDayLimitById(id);
+        System.out.println(dailyLimit);
+        return (dailyLimit - GetSumOfAllTransactionsFromAccountOfLast24Hours(id));
+    }
+
     UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider){
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
     }
-
-
 }
