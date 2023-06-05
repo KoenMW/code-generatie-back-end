@@ -100,12 +100,12 @@ public class AccountService extends BaseService{
     }
 
     private boolean checkUserHasAccount(long id){
-        returnUserDTO user = userService.getById(id);
+        returnUserDTO user = userService.getByIdDataSeeder(id);
         return user.isHasAccount();
     }
 
     private void updateUserAccountStatus(long id){
-        returnUserDTO user = userService.getById(id);
+        returnUserDTO user = userService.getByIdDataSeeder(id);
         patchUserDTO patchUserDTO = new patchUserDTO();
         patchUserDTO.setKey("hasAccount");
         patchUserDTO.setValue("true");

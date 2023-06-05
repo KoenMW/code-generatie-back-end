@@ -12,7 +12,6 @@ import java.util.List;
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
 
-
     @Query("SELECT u FROM User u WHERE u.hasAccount = ?1 ORDER BY u.id")
     List<User> findAllUsersWithoutAccount(Pageable pageable, boolean active);
 
