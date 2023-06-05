@@ -45,13 +45,10 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<Transaction> Add(@RequestBody Transaction transaction){
-        System.out.println("Transaction received");
         if (transactionService.ValidateTransaction(transaction)){
-            System.out.println("Transaction valid");
             Transaction completedTransaction = transactionService.Add(transaction);
             return ResponseEntity.ok().body(completedTransaction);
         } else {
-            System.out.println("Transaction not valid");
             return ResponseEntity.badRequest().build();
         }
     }

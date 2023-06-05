@@ -66,20 +66,11 @@ public class TransactionService extends BaseService {
 
     //checks if the account exists and if the account has enough balance to make the transaction and if the absolute limit is not exceeded
     public boolean ValidateTransaction(Transaction transaction){
-        System.out.println("test");
-        System.out.println(AccountExists(transaction.getFromAccount()) && AccountExists(transaction.getToAccount()));
         if (AccountExists(transaction.getFromAccount()) && AccountExists(transaction.getToAccount())){
             Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
             Account toAccount = accountRepository.findByIban(transaction.getToAccount());
-            System.out.println("Checking everything");
-            System.out.println("Has balance: " + HasBalance(transaction.getFromAccount(), transaction.getAmount()));
-            System.out.println("Absolute limit: " + (fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount()));
-            System.out.println("Daily limit: " + CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())));
-            System.out.println("Savings account: " + CheckForSavingsAccount(fromAccount, toAccount));
-            System.out.println("Amount > 0: " + (transaction.getAmount() > 0));
 
             return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())) && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0;
-            //return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && userRepository.findUserTransactionLimitById(fromAccount.getUserReferenceId()) >= transaction.getAmount() && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0;
         }
         return false;
     }
