@@ -10,6 +10,8 @@ import com.Inholland.NovaBank.repositorie.TransactionRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,15 +37,31 @@ public class UserService extends BaseService{
     AccountRepository accountRepository;
 
 
-    public returnUserDTO getById(long id){
+    public returnUserDTO getByIdDataSeeder(long id){
         return transformUser(userRepository.findById(id).orElse(null));
+    }
+    public returnUserDTO getById(long id){
+        if (authUser(id)) {
+            return transformUser(userRepository.findById(id).orElse(null));
+        }
+        else {
+            throw new IllegalArgumentException("Not authorized");
+        }
+    }
+    private boolean authUser(long id){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String currentPrincipalName = authentication.getName();
+        returnUserDTO user = getUserByUsername(currentPrincipalName);
+        if(user.getRole().toString().equals("ROLE_ADMIN")){
+            return true;
+        } else return user.getId() == id;
     }
 
     private returnUserDTO transformUser(User user) {
         return new returnUserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(), user.getRole(), user.getDayLimit(), user.getTransactionLimit(), user.isHasAccount());
     }
 
-    
     public returnUserDTO getUserByUsername(String username){
         return transformUser(userRepository.findUserByUsername(username));
     }

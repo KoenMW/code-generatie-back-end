@@ -38,7 +38,7 @@ public class DataSeeder implements ApplicationRunner {
         userService.addUser(new newUserDTO("Bank", "Bank", "Bank", "123h4jg893n", "novaBank@bank.nl"));
         userService.addUser(new newUserDTO("Henk","Blok","henk","1234","henk@gmail.com"));
 
-        List<returnUserDTO> users = userService.getAll(false, 1000L, 0L);
+        List<returnUserDTO> users = userService.getAll(1000L, 0L);
 
         accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.CHECKING,100));
         accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));
@@ -55,7 +55,7 @@ public class DataSeeder implements ApplicationRunner {
         patchAccountDTO.setValue("NL18INHO0363662776");
         patchAccountDTO.setIban(id);
         accountService.update(patchAccountDTO);
-        returnUserDTO user = userService.getById(1L);
+        returnUserDTO user = userService.getByIdDataSeeder(1L);
         patchUserDTO patchUserDTO = new patchUserDTO();
         patchUserDTO.setKey("role");
         patchUserDTO.setValue("ROLE_ADMIN");

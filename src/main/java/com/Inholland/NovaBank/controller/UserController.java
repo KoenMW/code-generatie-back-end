@@ -30,7 +30,7 @@ public class UserController {
     @Autowired
     private TransactionService transactionService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')" + " || hasRole('USER')")
     @GetMapping("/{userId}")
     public ResponseEntity<returnUserDTO> getById(@PathVariable long userId){
         try{
