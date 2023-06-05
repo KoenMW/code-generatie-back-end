@@ -118,13 +118,21 @@ public class UserService extends BaseService{
 
     public double GetSumOfAllTransactionsFromAccountOfLast24Hours(long userId){
         List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
-        return transactionRepository.findSumOfAllTransactionsFromAccount(ibans.get(0), LocalDateTime.now().minusDays(1), ibans);
+        double sum;
+        if (transactionRepository.findAllByFromAccountAndTimestampAfterAndFromAccountNotInOrToAccountNotIn(ibans.get(0), LocalDateTime.now().minusDays(1), ibans, ibans).isEmpty())
+            sum = 0;
+        else
+        {
+            sum = transactionRepository.findSumOfAllTransactionsFromAccount(ibans.get(0), LocalDateTime.now().minusDays(1), ibans);
+        }
+        return sum;
     }
 
 
 
     public double getRemainingDailyLimit(long id) {
         long dailyLimit = userRepository.findUserDayLimitById(id);
+        System.out.println(dailyLimit);
         return (dailyLimit - GetSumOfAllTransactionsFromAccountOfLast24Hours(id));
     }
 
