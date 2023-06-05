@@ -38,7 +38,7 @@ public class UserService extends BaseService{
         return transformUser(userRepository.findById(id).orElse(null));
     }
 
-    private returnUserDTO transformUser(User user){
+    private returnUserDTO transformUser(User user) {
         return new returnUserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(), user.getRole(), user.getDayLimit(), user.getTransactionLimit(), user.isHasAccount());
     }
 
@@ -50,7 +50,7 @@ public class UserService extends BaseService{
         List <User> users = (List<User>) userRepository.findAll();
         return transformUsers(users);
     }
-    private List<returnUserDTO> transformUsers (List<User> users){
+    public List<returnUserDTO> transformUsers (List<User> users){
         List <returnUserDTO> userDTOList = new ArrayList<>();
         for (User user: users) {
              userDTOList.add(new returnUserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(), user.getRole(), user.getDayLimit(), user.getTransactionLimit(), user.isHasAccount()));
