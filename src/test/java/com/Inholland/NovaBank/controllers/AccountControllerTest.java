@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,6 +30,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -50,6 +52,8 @@ public class AccountControllerTest {
     private AccountService accountService;
 
 
+
+
     @BeforeEach
     void setUp() {
 
@@ -61,13 +65,11 @@ public class AccountControllerTest {
     void getAll() throws Exception {
 
         // Arrange
-        when(accountService
-                .getAll(1000L, 0L))
-                .thenReturn(List.of(new Account("NL18INHO0363662776", 1000, 1, AccountType.SAVINGS, true, 100)));
+        when(accountService.getAll(false,1000L,0L))
+                .thenReturn(List.of(new Account("NL18INHO0363662776",200,2,AccountType.SAVINGS,true,200)));
 
 
-
-        this.mockMvc.perform(get("/accounts?offset=1000&limit=0")).andDo(print())
+        this.mockMvc.perform(get("/accounts?offset=1000&limit=0&isActive=false")).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].iban").value("NL18INHO0363662776"));
@@ -96,4 +98,6 @@ public class AccountControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.accountType").value("SAVINGS"));
     }
+
+
 }

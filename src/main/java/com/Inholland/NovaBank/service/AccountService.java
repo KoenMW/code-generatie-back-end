@@ -22,7 +22,7 @@ public class AccountService extends BaseService{
     @Autowired
     private UserService userService;
 
-    public ResponseEntity<List<Account>> getAll(boolean isActive, Long limit, Long offset){
+    public List<Account> getAll(boolean isActive, Long limit, Long offset){
 
         if (limit == null) {
             limit = 1000L;
@@ -32,9 +32,9 @@ public class AccountService extends BaseService{
         }
 
         if (isActive) {
-            return ResponseEntity.status(200).body(getAllActive(limit, offset, isActive));
+            return getAllActive(limit, offset, true);
         } else {
-            return ResponseEntity.status(200).body(getAll(limit, offset));
+            return getAll(limit, offset);
         }
 
 
@@ -57,21 +57,14 @@ public class AccountService extends BaseService{
             return accountRepository.findByuserReferenceId(id);
         }
         else{
-            return null;
+            throw new IllegalArgumentException("Not authorized");
         }
 
     }
 
     public boolean authUser(long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("authUser");
-        System.out.println("id:");
-        System.out.println(id);
-        System.out.println("authentication:");
-        System.out.println(authentication);
-        System.out.println("authentication.getName():");
-        System.out.println(authentication.getName());
-        System.out.println(userService);
+
         String currentPrincipalName = authentication.getName();
         returnUserDTO user = userService.getUserByUsername(currentPrincipalName);
         if(user.getRole().toString().equals("ROLE_ADMIN")){
