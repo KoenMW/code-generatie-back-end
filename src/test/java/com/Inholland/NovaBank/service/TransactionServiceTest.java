@@ -128,7 +128,7 @@ class TransactionServiceTest {
         when(accountRepository.findByIban("NL01INHO0000000002")).thenReturn(
                 new Account("NL01INHO0000000002", 1000, 1, AccountType.SAVINGS, true, 10)
         );
-        when(userRepository.findUserTransactionLimitById(1L)).thenReturn(100);
+        when(userRepository.findUserDayLimitById(1l)).thenReturn(1000);
         boolean validateTransaction = transactionService.ValidateTransaction(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
         assertTrue(validateTransaction);
         validateTransaction = transactionService.ValidateTransaction(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 1000, "test"));

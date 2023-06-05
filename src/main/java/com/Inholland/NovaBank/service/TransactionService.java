@@ -69,7 +69,6 @@ public class TransactionService extends BaseService {
         if (AccountExists(transaction.getFromAccount()) && AccountExists(transaction.getToAccount())){
             Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
             Account toAccount = accountRepository.findByIban(transaction.getToAccount());
-
             return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())) && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0;
         }
         return false;
