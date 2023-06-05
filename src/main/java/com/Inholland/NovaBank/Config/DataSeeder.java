@@ -38,7 +38,7 @@ public class DataSeeder implements ApplicationRunner {
         userService.addUser(new newUserDTO("Bank", "Bank", "Bank", "123h4jg893n", "novaBank@bank.nl"));
         userService.addUser(new newUserDTO("Henk","Blok","henk","1234","henk@gmail.com"));
 
-        List<returnUserDTO> users = userService.getAll();
+        List<returnUserDTO> users = userService.getAll(false, 1000L, 0L);
 
         accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.CHECKING,100));
         accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));

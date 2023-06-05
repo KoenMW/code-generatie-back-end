@@ -6,6 +6,7 @@ import com.Inholland.NovaBank.model.Role;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.repositorie.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,9 +36,29 @@ public class UserService extends BaseService{
     public returnUserDTO getUserByUsername(String username){
         return transformUser(userRepository.findUserByUsername(username));
     }
-    public List<returnUserDTO> getAll(){
-        List <User> users = (List<User>) userRepository.findAll();
+    public List<returnUserDTO> getAll(boolean isActive, Long limit, Long offset){
+        if (limit == null) {
+            limit = 1000L;
+        }
+        if (offset == null) {
+            offset = 0L;
+        }
+
+        if (isActive) {
+            return AllUsersWithoutAccount(limit, offset, true);
+        } else {
+            return getAll(limit, offset);
+        }
+    }
+    public List<returnUserDTO> getAll(Long limit, Long offset){
+        List <User> users = (List <User>) userRepository.getAll(getPageable(limit, offset));
         return transformUsers(users);
+    }
+    public List<returnUserDTO> AllUsersWithoutAccount(Long limit, Long offset, boolean active){
+        return transformUsers(userRepository.findAllUsersWithoutAccount(getPageable(limit, offset), active));
+    }
+    private Pageable getPageable(Long limit, Long offset) {
+        return new OffsetBasedPageRequest(offset.intValue(), limit.intValue());
     }
     public List<returnUserDTO> transformUsers (List<User> users){
         List <returnUserDTO> userDTOList = new ArrayList<>();
