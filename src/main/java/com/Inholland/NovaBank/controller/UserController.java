@@ -48,9 +48,9 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<returnUserDTO>> getAll(){
+    public ResponseEntity<List<returnUserDTO>> getAll(@RequestParam (required = false) boolean isActive,@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
         try {
-            return ResponseEntity.status(200).body(userService.getAll());
+            return ResponseEntity.status(200).body(userService.getAll(isActive, limit, offset));
         }catch (Exception e) {
             return ResponseEntity.status(404).body(null);
         }
