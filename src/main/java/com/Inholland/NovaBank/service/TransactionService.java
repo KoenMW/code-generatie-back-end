@@ -1,6 +1,7 @@
 package com.Inholland.NovaBank.service;
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.DTO.DepositWithdrawDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.model.User;
@@ -68,7 +69,7 @@ public class TransactionService extends BaseService {
         if (AccountExists(transaction.getFromAccount()) && AccountExists(transaction.getToAccount())){
             Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
             Account toAccount = accountRepository.findByIban(transaction.getToAccount());
-            return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && userRepository.findUserTransactionLimitById(fromAccount.getUserReferenceId()) >= transaction.getAmount() && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0;
+            return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())) && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0;
         }
         return false;
     }
@@ -83,34 +84,15 @@ public class TransactionService extends BaseService {
         return totalAmount + amount <= dailyLimit;
     }
 
-    public float GetRemainingDailyLimit(String iban){
-        List<Transaction> transactions = GetTransactionsFromLast24Hours(iban);
-        float totalAmount = 0;
-        for (Transaction transaction : transactions){
-            totalAmount += transaction.getAmount();
-        }
-        return userRepository.findUserDayLimitById(accountRepository.findByIban(iban).getUserReferenceId()) - totalAmount;
-    }
 
     //gets a list of transactions from the last 24 hours
     private List<Transaction> GetTransactionsFromLast24Hours(String iban){
         return transactionRepository.findAllByFromAccountOrToAccountAndTimestampAfter(iban, iban, LocalDateTime.now().minusDays(1));
     }
 
-    private List<Transaction> GetTransactionsFromLast24HoursByUser(long userId){
+    public List<Transaction> GetTransactionsFromLast24HoursByUser(long userId){
         List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
         return transactionRepository.findAllByFromAccountAndTimestampAfterAndFromAccountNotInOrToAccountNotIn(ibans.get(0), LocalDateTime.now().minusDays(1), ibans, ibans);
-    }
-
-
-    public float getRemainingLimit(long id){
-        long dailyLimit = userRepository.findUserDayLimitById(id);
-        List<Transaction> transactions = GetTransactionsFromLast24HoursByUser(id);
-        float sum = 0;
-        for (Transaction transaction : transactions) {
-            sum += transaction.getAmount();
-        }
-        return dailyLimit - sum;
     }
 
     //check if the account is a savings account and if it is, check if the user reference id is the same
@@ -118,11 +100,31 @@ public class TransactionService extends BaseService {
         if (fromAccount.getAccountType() == AccountType.SAVINGS || toAccount.getAccountType() == AccountType.SAVINGS) {
             return fromAccount.getUserReferenceId() == toAccount.getUserReferenceId();
         }
-        return CheckDailyLimit(fromAccount.getIban(), fromAccount.getBalance(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId()));
+        return true;
     }
 
     public List<Transaction> GetAllFromUser(long userId){
         List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
         return transactionRepository.findAllByFromAccountInOrToAccountIn(ibans, ibans);
+    }
+
+    public boolean ValidateWithdraw(DepositWithdrawDTO dto){
+        return HasBalance(dto.getIban(), dto.getAmount()) && accountRepository.findByIban(dto.getIban()).getAbsoluteLimit() <= accountRepository.findByIban(dto.getIban()).getBalance() - dto.getAmount() && dto.getAmount() > 0;
+    }
+
+    public Transaction withdraw(DepositWithdrawDTO dto){
+        Account account = accountRepository.findByIban(dto.getIban());
+        accountService.update(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() - dto.getAmount())));
+        return transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw"));
+    }
+
+    public boolean ValidateDeposit(DepositWithdrawDTO dto){
+        return dto.getAmount() > 0;
+    }
+
+    public Transaction deposit(DepositWithdrawDTO dto){
+        Account account = accountRepository.findByIban(dto.getIban());
+        accountService.update(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
+        return transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit"));
     }
 }
