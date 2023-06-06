@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AccountService extends BaseService{
@@ -33,9 +34,11 @@ public class AccountService extends BaseService{
 
         if (isActive) {
             return getAllActive(limit, offset, true);
+
         } else {
             return getAll(limit, offset);
         }
+
 
 
     }
@@ -71,6 +74,13 @@ public class AccountService extends BaseService{
             return true;
         } else return user.getId() == id;
 
+    }
+
+    public boolean checkAdmin(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        returnUserDTO user = userService.getUserByUsername(currentPrincipalName);
+        return user.getRole().toString().equals("ROLE_ADMIN");
     }
 
     public returnAccountDTO add(newAccountDTO account){
@@ -120,7 +130,15 @@ public class AccountService extends BaseService{
             case "iban" -> accountFromRepo.setIban(account.getValue());
             case "active" -> accountFromRepo.setActive(Boolean.parseBoolean(account.getValue()));
             case "accountType" -> accountFromRepo.setAccountType(AccountType.valueOf(account.getValue()));
-            case "absoluteLimit" -> accountFromRepo.setAbsoluteLimit((float) Double.parseDouble(account.getValue()));
+            case "absoluteLimit" -> {
+                if(checkLimit(Float.parseFloat(account.getValue()))){
+                    accountFromRepo.setAbsoluteLimit((float) Double.parseDouble(account.getValue()));
+                }
+                else{
+                    throw new IllegalArgumentException("Limit must be greater than 0");
+                }
+
+            }
             case "balance" -> accountFromRepo.setBalance((float) Double.parseDouble(account.getValue()));
             case "userReferenceId" -> accountFromRepo.setUserReferenceId(Long.parseLong(account.getValue()));
             default -> {

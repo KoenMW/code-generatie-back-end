@@ -45,9 +45,10 @@ public class WebSecurityConfiguration {
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/login").permitAll()
+                .requestMatchers("/auth/login").permitAll()
                 .requestMatchers("/accounts").authenticated()
                 .requestMatchers("/accounts/{userId}").authenticated()
-                .requestMatchers("/users").permitAll()
+                .requestMatchers("/users").authenticated()
                 .requestMatchers("/users/{userId}").authenticated()
                 .requestMatchers("/transactions").authenticated()
                 .requestMatchers("/transactions/byUser").authenticated()
