@@ -8,6 +8,7 @@ import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
 import com.Inholland.NovaBank.service.AccountService;
+import com.Inholland.NovaBank.service.OffsetBasedPageRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,11 +66,11 @@ public class AccountControllerTest {
     void getAll() throws Exception {
 
         // Arrange
-        when(accountService.getAll(false,1000L,0L))
+        when(accountService.getAll(true,1000L,0L))
                 .thenReturn(List.of(new Account("NL18INHO0363662776",200,2,AccountType.SAVINGS,true,200)));
+        
 
-
-        this.mockMvc.perform(get("/accounts?offset=1000&limit=0&isActive=false")).andDo(print())
+        this.mockMvc.perform(get("/accounts?offset=1000&limit=0&isActive=true")).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].iban").value("NL18INHO0363662776"));

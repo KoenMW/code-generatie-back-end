@@ -74,7 +74,7 @@ public class UserService extends BaseService{
         }
 
         if (isActive) {
-            return AllUsersWithoutAccount(limit, offset, true);
+            return AllUsersWithoutAccount(limit, offset, false);
         } else {
             return getAll(limit, offset);
         }

@@ -46,7 +46,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')" + " || hasRole('USER')")
     @GetMapping
     public ResponseEntity<List<returnUserDTO>> getAll(@RequestParam (required = false) boolean isActive,@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
         try {
@@ -65,7 +65,7 @@ public class UserController {
             return ResponseEntity.status(404).body(null);
         }
     }
-    @PreAuthorize("hasRole('ADMIN')")
+
     @PostMapping
     public ResponseEntity<returnUserDTO>add(@RequestBody newUserDTO user){
         try{
