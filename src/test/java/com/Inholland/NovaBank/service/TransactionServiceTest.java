@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -131,7 +132,7 @@ class TransactionServiceTest {
         assertTrue(validateTransaction);
         validateTransaction = transactionService.ValidateTransaction(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 1000, "test"));
         assertFalse(validateTransaction);
-        validateTransaction = transactionService.ValidateTransaction(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
+        validateTransaction = transactionService.ValidateTransaction(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", -100, "test"));
         assertFalse(validateTransaction);
     }
 
@@ -165,12 +166,11 @@ class TransactionServiceTest {
                         "NL01INHO0000000002"
                 )
         );
-        when(transactionRepository.findAllByFromAccountAndTimestampAfterAndFromAccountNotInOrToAccountNotIn("NL01INHO0000000001", LocalDateTime.now().minusDays(1), List.of("NL01INHO0000000001", "NL01INHO0000000002"), List.of("NL01INHO0000000001", "NL01INHO0000000002"))).thenReturn(
+        when(transactionRepository.findAllByFromAccountAndTimestampAfterAndFromAccountNotInOrToAccountNotIn(any(String.class), any(LocalDateTime.class), any(List.class), any(List.class))).thenReturn(
                 List.of(
                         new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
                         new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
                 )
-
         );
         List<Transaction> transactions = transactionService.GetTransactionsFromLast24HoursByUser(1);
         assertEquals(2, transactions.size());

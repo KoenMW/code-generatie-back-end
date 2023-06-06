@@ -57,6 +57,7 @@ public class TransactionController {
 
     @GetMapping("/byUser")
     public ResponseEntity<List<Transaction>> GetAllFromUser(@RequestBody UserIdRequestBody id){
+        System.out.println(id.getUserId());
         List<Transaction> transactions = transactionService.GetAllFromUser(id.getUserId());
         if (transactions.size() > 0)
         {
@@ -64,7 +65,6 @@ public class TransactionController {
         }
         return ResponseEntity.noContent().build();
     }
-    //haven't implemented withdraw and deposit yet
 
     @PostMapping("/withdraw")
     public ResponseEntity<DepositWithdrawDTO> Withdraw(@RequestBody DepositWithdrawDTO dto){
