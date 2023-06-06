@@ -2,9 +2,7 @@ package com.Inholland.NovaBank.service;
 
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
-import com.Inholland.NovaBank.model.DTO.DepositWithdrawDTO;
-import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
-import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
+import com.Inholland.NovaBank.model.DTO.*;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.TransactionRepository;
@@ -89,7 +87,7 @@ class TransactionServiceTest {
         doReturn(new returnAccountDTO()).when(accountService).update(new patchAccountDTO("NL01INHO0000000001", "update", "balance", "900.0"));
         doReturn(new returnAccountDTO()).when(accountService).update(new patchAccountDTO("NL01INHO0000000002", "update", "balance", "1100.0"));
 
-        Transaction transaction = transactionService.Add(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
+        TransactionResponceDTO transaction = transactionService.Add(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
         assertNotNull(transaction);
         assertEquals("NL01INHO0000000001", transaction.getFromAccount());
         assertEquals("NL01INHO0000000002", transaction.getToAccount());
@@ -129,11 +127,11 @@ class TransactionServiceTest {
                 new Account("NL01INHO0000000002", 1000, 1, AccountType.SAVINGS, true, 10)
         );
         when(userRepository.findUserDayLimitById(1l)).thenReturn(1000);
-        boolean validateTransaction = transactionService.ValidateTransaction(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
+        boolean validateTransaction = transactionService.ValidateTransaction(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
         assertTrue(validateTransaction);
-        validateTransaction = transactionService.ValidateTransaction(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 1000, "test"));
+        validateTransaction = transactionService.ValidateTransaction(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 1000, "test"));
         assertFalse(validateTransaction);
-        validateTransaction = transactionService.ValidateTransaction(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", -100, "test"));
+        validateTransaction = transactionService.ValidateTransaction(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
         assertFalse(validateTransaction);
     }
 
