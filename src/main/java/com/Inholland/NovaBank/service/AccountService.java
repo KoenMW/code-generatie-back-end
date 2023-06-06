@@ -130,7 +130,15 @@ public class AccountService extends BaseService{
             case "iban" -> accountFromRepo.setIban(account.getValue());
             case "active" -> accountFromRepo.setActive(Boolean.parseBoolean(account.getValue()));
             case "accountType" -> accountFromRepo.setAccountType(AccountType.valueOf(account.getValue()));
-            case "absoluteLimit" -> accountFromRepo.setAbsoluteLimit((float) Double.parseDouble(account.getValue()));
+            case "absoluteLimit" -> {
+                if(checkLimit(Float.parseFloat(account.getValue()))){
+                    accountFromRepo.setAbsoluteLimit((float) Double.parseDouble(account.getValue()));
+                }
+                else{
+                    throw new IllegalArgumentException("Limit must be greater than 0");
+                }
+
+            }
             case "balance" -> accountFromRepo.setBalance((float) Double.parseDouble(account.getValue()));
             case "userReferenceId" -> accountFromRepo.setUserReferenceId(Long.parseLong(account.getValue()));
             default -> {
