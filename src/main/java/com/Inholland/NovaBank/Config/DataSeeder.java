@@ -76,9 +76,9 @@ public class DataSeeder implements ApplicationRunner {
              accounts) {
             System.out.println(account.getIban());
         }
-        transactionService.Add(new Transaction(LocalDateTime.now(), accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
-        transactionService.Add(new Transaction(LocalDateTime.now(), accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
-        transactionService.Add(new Transaction(LocalDateTime.now(), accounts.get(0).getIban(), accounts.get(1).getIban(), 10, "Test transaction"));
+        transactionService.Add(new TransactionRequestDTO(accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
+        transactionService.Add(new TransactionRequestDTO(accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
+        transactionService.Add(new TransactionRequestDTO(accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
     }
 
     private void seedBaseAccount(String id){

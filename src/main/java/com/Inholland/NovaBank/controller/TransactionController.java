@@ -1,6 +1,8 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.DTO.DepositWithdrawDTO;
+import com.Inholland.NovaBank.model.DTO.TransactionRequestDTO;
+import com.Inholland.NovaBank.model.DTO.TransactionResponceDTO;
 import com.Inholland.NovaBank.model.IBANRequestBody;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.service.BaseService;
@@ -15,6 +17,7 @@ import com.Inholland.NovaBank.model.UserIdRequestBody;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RequestMapping("/transactions")
 @Controller
 public class TransactionController {
@@ -44,10 +47,9 @@ public class TransactionController {
 
 
     @PostMapping
-    public ResponseEntity<Transaction> Add(@RequestBody Transaction transaction){
+    public ResponseEntity<TransactionResponceDTO> Add(@RequestBody TransactionRequestDTO transaction){
         if (transactionService.ValidateTransaction(transaction)){
-            Transaction completedTransaction = transactionService.Add(transaction);
-            return ResponseEntity.ok().body(completedTransaction);
+            return ResponseEntity.ok().body(transactionService.Add(transaction));
         } else {
             return ResponseEntity.badRequest().build();
         }

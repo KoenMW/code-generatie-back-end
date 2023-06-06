@@ -2,6 +2,8 @@ package com.Inholland.NovaBank.service;
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.DepositWithdrawDTO;
+import com.Inholland.NovaBank.model.DTO.TransactionRequestDTO;
+import com.Inholland.NovaBank.model.DTO.TransactionResponceDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.model.User;
@@ -43,7 +45,7 @@ public class TransactionService extends BaseService {
         return transactionRepository.findAllByFromAccountOrToAccount(Iban, Iban);
     }
 
-    public Transaction Add(Transaction transaction) {
+    public TransactionResponceDTO Add(TransactionRequestDTO transaction) {
         if (transaction.getDescription().length() == 0)
             transaction.setDescription("No description");
         Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
@@ -53,7 +55,8 @@ public class TransactionService extends BaseService {
             accountService.update(new patchAccountDTO(fromAccount.getIban(), "update", "balance", Double.toString(fromAccount.getBalance() - transaction.getAmount())));
             accountService.update(new patchAccountDTO(toAccount.getIban(), "update", "balance", Double.toString(toAccount.getBalance() + transaction.getAmount())));
         }
-        return transactionRepository.save(transaction);
+        Transaction saved = transactionRepository.save(new Transaction(LocalDateTime.now(), transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription()));
+        return new TransactionResponceDTO(saved.getFromAccount(), saved.getToAccount(), saved.getAmount(), saved.getDescription(), saved.getTimestamp());
     }
 
     public boolean HasBalance(String Iban, float amount){
@@ -65,7 +68,7 @@ public class TransactionService extends BaseService {
     }
 
     //checks if the account exists and if the account has enough balance to make the transaction and if the absolute limit is not exceeded
-    public boolean ValidateTransaction(Transaction transaction){
+    public boolean ValidateTransaction(TransactionRequestDTO transaction){
         if (AccountExists(transaction.getFromAccount()) && AccountExists(transaction.getToAccount())){
             Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
             Account toAccount = accountRepository.findByIban(transaction.getToAccount());
