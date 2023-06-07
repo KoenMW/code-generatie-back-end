@@ -4,7 +4,7 @@ import com.Inholland.NovaBank.model.Role;
 import lombok.Data;
 
 @Data
-public class returnUserDTO {
+public class returnUserDTO extends BaseDTO {
     private Long id;
     private String firstName;
     private String lastName;

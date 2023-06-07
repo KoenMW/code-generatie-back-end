@@ -4,7 +4,7 @@ import com.Inholland.NovaBank.model.AccountType;
 import lombok.Data;
 
 @Data
-public class returnAccountDTO {
+public class returnAccountDTO extends BaseDTO {
     private String iban;
     private AccountType accountType;
 

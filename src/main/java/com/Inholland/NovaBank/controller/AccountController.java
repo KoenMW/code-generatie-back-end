@@ -1,6 +1,7 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.DTO.BaseDTO;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
@@ -55,7 +56,7 @@ public class AccountController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<returnAccountDTO>add(@RequestBody newAccountDTO account){
+    public ResponseEntity<BaseDTO>add(@RequestBody newAccountDTO account){
         try{
             return ResponseEntity.status(201).body(accountService.add(account));
         }catch (Exception e){
@@ -65,7 +66,7 @@ public class AccountController {
     }
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping ()
-    public ResponseEntity<returnAccountDTO> update(@RequestBody patchAccountDTO account){
+    public ResponseEntity<BaseDTO> update(@RequestBody patchAccountDTO account){
     try{
         if(account.getOp().equalsIgnoreCase("update")){
             return ResponseEntity.status(200).body(accountService.update(account));

@@ -3,7 +3,7 @@ package com.Inholland.NovaBank.model.DTO;
 import lombok.Data;
 
 @Data
-public class TransactionRequestDTO {
+public class TransactionRequestDTO extends BaseDTO {
     private String fromAccount;
     private String toAccount;
     private float amount;

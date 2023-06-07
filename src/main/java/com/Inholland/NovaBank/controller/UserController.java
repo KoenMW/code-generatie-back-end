@@ -1,6 +1,7 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.DTO.BaseDTO;
 import com.Inholland.NovaBank.model.DTO.newUserDTO;
 import com.Inholland.NovaBank.model.DTO.patchUserDTO;
 import com.Inholland.NovaBank.model.DTO.returnUserDTO;
@@ -32,7 +33,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')" + " || hasRole('USER')")
     @GetMapping("/{userId}")
-    public ResponseEntity<returnUserDTO> getById(@PathVariable long userId){
+    public ResponseEntity<BaseDTO> getById(@PathVariable long userId){
         try{
 
             returnUserDTO user = userService.getById(userId);
@@ -63,7 +64,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping
-    public ResponseEntity<returnUserDTO> update(@RequestBody patchUserDTO user){
+    public ResponseEntity<BaseDTO> update(@RequestBody patchUserDTO user){
         try{
             return ResponseEntity.status(200).body(userService.update(user));
         }catch (Exception e) {

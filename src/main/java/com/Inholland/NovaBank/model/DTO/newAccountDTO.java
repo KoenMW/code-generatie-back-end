@@ -5,7 +5,7 @@ import lombok.Data;
 
 
 @Data
-public class newAccountDTO {
+public class newAccountDTO extends BaseDTO {
     private long userReferenceId;
     private AccountType accountType;
     private float absoluteLimit;
