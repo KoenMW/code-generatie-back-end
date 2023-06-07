@@ -45,8 +45,6 @@ public class DataSeeder implements ApplicationRunner {
         accountService.add(new newAccountDTO(users.get(0).getId(), AccountType.SAVINGS,100));
         accountService.add(new newAccountDTO(users.get(1).getId(), AccountType.SAVINGS,100));
 
-
-
         List<Account> accounts = accountService.getAll(1000L,0L);
         String id = accounts.get(0).getIban();
         patchAccountDTO patchAccountDTO = new patchAccountDTO();
@@ -68,7 +66,6 @@ public class DataSeeder implements ApplicationRunner {
             }
         }
 
-
         System.out.println("Done seeding data");
 
 
@@ -76,9 +73,9 @@ public class DataSeeder implements ApplicationRunner {
              accounts) {
             System.out.println(account.getIban());
         }
-        transactionService.Add(new TransactionRequestDTO(accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
-        transactionService.Add(new TransactionRequestDTO(accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
-        transactionService.Add(new TransactionRequestDTO(accounts.get(0).getIban(), accounts.get(1).getIban(), 100, "Test transaction"));
+        transactionService.deposit(new DepositWithdrawDTO(accounts.get(0).getIban(), 200));
+        transactionService.deposit(new DepositWithdrawDTO(accounts.get(1).getIban(), 50));
+        transactionService.deposit(new DepositWithdrawDTO(accounts.get(2).getIban(), 150));
     }
 
     private void seedBaseAccount(String id){
