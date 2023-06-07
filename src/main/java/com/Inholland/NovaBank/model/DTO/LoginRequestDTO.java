@@ -3,7 +3,7 @@ package com.Inholland.NovaBank.model.DTO;
 import lombok.Data;
 
 @Data
-public class LoginRequestDTO {
+public class LoginRequestDTO extends BaseDTO{
     private String username;
     private String password;
 

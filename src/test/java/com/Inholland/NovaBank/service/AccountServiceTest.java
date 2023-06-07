@@ -159,8 +159,6 @@ public class AccountServiceTest {
         List<Account> accounts = accountService.getByUserId(2);
         //check if null
         assertNull(accounts);
-
-
     }
 
 

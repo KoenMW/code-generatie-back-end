@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class TransactionResponceDTO {
+public class TransactionResponceDTO extends BaseDTO {
     private String fromAccount;
     private String toAccount;
     private float amount;

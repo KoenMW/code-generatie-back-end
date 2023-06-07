@@ -3,7 +3,7 @@ package com.Inholland.NovaBank.model.DTO;
 import lombok.Data;
 
 @Data
-public class DepositWithdrawDTO {
+public class DepositWithdrawDTO extends BaseDTO {
     private String iban;
     private float amount;
 

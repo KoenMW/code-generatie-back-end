@@ -4,7 +4,7 @@ import com.Inholland.NovaBank.model.Role;
 import lombok.Data;
 
 @Data
-public class patchUserDTO {
+public class patchUserDTO  extends BaseDTO{
     private Long id;
     private String op;
     private String key;

@@ -1,5 +1,6 @@
 package com.Inholland.NovaBank.controller;
 
+import com.Inholland.NovaBank.model.DTO.BaseDTO;
 import com.Inholland.NovaBank.model.DTO.LoginRequestDTO;
 import com.Inholland.NovaBank.model.DTO.LoginResponseDTO;
 import com.Inholland.NovaBank.service.UserService;
@@ -19,7 +20,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<BaseDTO> login(@RequestBody LoginRequestDTO loginRequestDTO) {
         try{
             return ResponseEntity.ok().body(userService.login(loginRequestDTO));
         } catch (Exception e) {

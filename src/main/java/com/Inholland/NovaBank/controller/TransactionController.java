@@ -1,5 +1,6 @@
 package com.Inholland.NovaBank.controller;
 
+import com.Inholland.NovaBank.model.DTO.BaseDTO;
 import com.Inholland.NovaBank.model.DTO.DepositWithdrawDTO;
 import com.Inholland.NovaBank.model.DTO.TransactionRequestDTO;
 import com.Inholland.NovaBank.model.DTO.TransactionResponceDTO;
@@ -10,10 +11,8 @@ import com.Inholland.NovaBank.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.Inholland.NovaBank.model.UserIdRequestBody;
 
 import java.util.List;
 
@@ -47,7 +46,7 @@ public class TransactionController {
 
 
     @PostMapping
-    public ResponseEntity<TransactionResponceDTO> Add(@RequestBody TransactionRequestDTO transaction){
+    public ResponseEntity<BaseDTO> Add(@RequestBody TransactionRequestDTO transaction){
         if (transactionService.ValidateTransaction(transaction)){
             return ResponseEntity.ok().body(transactionService.Add(transaction));
         } else {
@@ -58,20 +57,17 @@ public class TransactionController {
     @PreAuthorize("hasRole('USER')" + " || hasRole('ADMIN')")
     @GetMapping("/byUser/{userId}")
     public ResponseEntity<List<Transaction>> GetAllFromUser(@PathVariable String userId){
-        System.out.println("test");
         long id = Long.parseLong(userId);
-        System.out.println(id);
         List<Transaction> transactions = transactionService.GetAllFromUser(id);
         if (transactions.size() > 0)
         {
-            System.out.println(transactions);
             return ResponseEntity.ok().body(transactions);
         }
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/withdraw")
-    public ResponseEntity<DepositWithdrawDTO> Withdraw(@RequestBody DepositWithdrawDTO dto){
+    public ResponseEntity<BaseDTO> Withdraw(@RequestBody DepositWithdrawDTO dto){
         if (transactionService.ValidateWithdraw(dto)){
             transactionService.withdraw(dto);
             return ResponseEntity.ok().body(dto);
@@ -81,7 +77,7 @@ public class TransactionController {
     }
 
     @PostMapping("/deposit")
-    public ResponseEntity<DepositWithdrawDTO> Deposit(@RequestBody DepositWithdrawDTO dto){
+    public ResponseEntity<BaseDTO> Deposit(@RequestBody DepositWithdrawDTO dto){
         if (transactionService.ValidateDeposit(dto)){
             transactionService.deposit(dto);
             return ResponseEntity.ok().body(dto);
