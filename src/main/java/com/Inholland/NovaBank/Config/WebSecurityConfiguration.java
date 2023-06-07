@@ -51,7 +51,7 @@ public class WebSecurityConfiguration {
                 .requestMatchers("/users").authenticated()
                 .requestMatchers("/users/{userId}").authenticated()
                 .requestMatchers("/transactions").authenticated()
-                .requestMatchers("/transactions/byUser").authenticated()
+                .requestMatchers("/transactions/byUser/{userId}").authenticated()
                 .requestMatchers("/transactions/byIban").authenticated()
                 .requestMatchers("/transactions/withdraw").authenticated()
                 .requestMatchers("/transactions/deposit").authenticated()

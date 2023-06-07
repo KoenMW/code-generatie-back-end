@@ -55,12 +55,16 @@ public class TransactionController {
         }
     }
 
-    @GetMapping("/byUser")
-    public ResponseEntity<List<Transaction>> GetAllFromUser(@RequestBody UserIdRequestBody id){
-        System.out.println(id.getUserId());
-        List<Transaction> transactions = transactionService.GetAllFromUser(id.getUserId());
+    @PreAuthorize("hasRole('USER')" + " || hasRole('ADMIN')")
+    @GetMapping("/byUser/{userId}")
+    public ResponseEntity<List<Transaction>> GetAllFromUser(@PathVariable String userId){
+        System.out.println("test");
+        long id = Long.parseLong(userId);
+        System.out.println(id);
+        List<Transaction> transactions = transactionService.GetAllFromUser(id);
         if (transactions.size() > 0)
         {
+            System.out.println(transactions);
             return ResponseEntity.ok().body(transactions);
         }
         return ResponseEntity.noContent().build();
