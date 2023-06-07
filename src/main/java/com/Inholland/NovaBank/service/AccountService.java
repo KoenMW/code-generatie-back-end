@@ -1,5 +1,6 @@
 package com.Inholland.NovaBank.service;
 
+import com.Inholland.NovaBank.customExceptions.InvalidAbsoluteLimit;
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.*;
@@ -88,7 +89,7 @@ public class AccountService extends BaseService{
             updateUserAccountStatus(account.getUserReferenceId());
         }
         if(!checkLimit(account.getAbsoluteLimit())){
-            throw new IllegalArgumentException("Limit must be greater than 0");
+            throw new IllegalArgumentException("Limit must be greater than or equal to 0 and less than 1000000");
         }
         Account newAccount = setAccount(account);
         Account accountFromRepo = accountRepository.save(newAccount);
@@ -124,8 +125,11 @@ public class AccountService extends BaseService{
         userService.update(patchUserDTO);
     }
 
-    public returnAccountDTO update(patchAccountDTO account){
+    public returnAccountDTO update(patchAccountDTO account)  {
         Account accountFromRepo = accountRepository.findByIban(account.getIban());
+        /*if(ownership(accountFromRepo)){
+            throw new IllegalArgumentException("Not authorized");
+        }*/
         switch (account.getKey()) {
             case "iban" -> accountFromRepo.setIban(account.getValue());
             case "active" -> accountFromRepo.setActive(Boolean.parseBoolean(account.getValue()));
@@ -135,7 +139,7 @@ public class AccountService extends BaseService{
                     accountFromRepo.setAbsoluteLimit((float) Double.parseDouble(account.getValue()));
                 }
                 else{
-                    throw new IllegalArgumentException("Limit must be greater than 0");
+                    throw new IllegalArgumentException("Invalid limit, must be greater or equal to 0 and less than 1000000");
                 }
 
             }
@@ -149,6 +153,28 @@ public class AccountService extends BaseService{
 
         Account account1 = accountRepository.save(accountFromRepo);
         return new returnAccountDTO(account1.getIban(), account1.getAccountType());
+    }
+
+    public returnAccountDTO updateBalance(patchAccountDTO account){
+        Account accountFromRepo = accountRepository.findByIban(account.getIban());
+        accountFromRepo.setBalance(accountFromRepo.getBalance() + Float.parseFloat(account.getValue()));
+        Account account1 = accountRepository.save(accountFromRepo);
+        return new returnAccountDTO(account1.getIban(), account1.getAccountType());
+    }
+
+
+    public boolean ownership(Account account){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        returnUserDTO user = userService.getUserByUsername(username);
+        if(user.getId().equals(account.getUserReferenceId()) || user.getUsername().equalsIgnoreCase("Bank")){
+            return false;
+        }
+        else{
+            return true;
+        }
+
+
     }
 
     public AccountService(AccountRepository accountRepository, UserRepository userRepository,UserService userService){
