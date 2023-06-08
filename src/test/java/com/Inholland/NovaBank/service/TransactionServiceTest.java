@@ -151,7 +151,7 @@ class TransactionServiceTest {
                 )
 
         );
-        List<Transaction> transaction = transactionService.GetAllFromUser(1);
+        List<TransactionResponceDTO> transaction = transactionService.GetAllFromUser(1);
         assertNotNull(transaction);
         assertEquals(2, transaction.size());
 

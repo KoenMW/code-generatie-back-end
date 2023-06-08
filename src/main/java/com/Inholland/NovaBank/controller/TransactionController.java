@@ -31,11 +31,11 @@ public class TransactionController {
     }
 
     @GetMapping("/byIban")
-    public ResponseEntity<List<Transaction>> GetAllFromIban(@RequestBody IBANRequestBody iban){
+    public ResponseEntity<List<TransactionResponceDTO>> GetAllFromIban(@RequestBody IBANRequestBody iban){
         if (!BaseService.IsValidIban(iban.getIban())){
             return ResponseEntity.accepted().build();
         }
-        List<Transaction> transactions = transactionService.GetAllFromIban(iban.getIban());
+        List<TransactionResponceDTO> transactions = transactionService.GetAllFromIban(iban.getIban());
         if (transactions.size() > 0)
         {
             return ResponseEntity.ok().body(transactions);
@@ -56,9 +56,9 @@ public class TransactionController {
 
     @PreAuthorize("hasRole('USER')" + " || hasRole('ADMIN')")
     @GetMapping("/byUser/{userId}")
-    public ResponseEntity<List<Transaction>> GetAllFromUser(@PathVariable String userId){
+    public ResponseEntity<List<TransactionResponceDTO>> GetAllFromUser(@PathVariable String userId){
         long id = Long.parseLong(userId);
-        List<Transaction> transactions = transactionService.GetAllFromUser(id);
+        List<TransactionResponceDTO> transactions = transactionService.GetAllFromUser(id);
         if (transactions.size() > 0)
         {
             return ResponseEntity.ok().body(transactions);

@@ -13,6 +13,7 @@ import com.Inholland.NovaBank.repositorie.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,8 +42,8 @@ public class TransactionService extends BaseService {
         return (List<Transaction>) transactionRepository.findAll();
     }
 
-    public List<Transaction> GetAllFromIban(String Iban){
-        return transactionRepository.findAllByFromAccountOrToAccount(Iban, Iban);
+    public List<TransactionResponceDTO> GetAllFromIban(String Iban){
+        return ConvertToResponce(transactionRepository.findAllByFromAccountOrToAccount(Iban, Iban));
     }
 
     public TransactionResponceDTO Add(TransactionRequestDTO transaction) {
@@ -56,11 +57,18 @@ public class TransactionService extends BaseService {
             accountService.update(new patchAccountDTO(toAccount.getIban(), "update", "balance", Double.toString(toAccount.getBalance() + transaction.getAmount())));
         }
         Transaction saved = transactionRepository.save(new Transaction(LocalDateTime.now(), transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription()));
-        return new TransactionResponceDTO(saved.getFromAccount(), saved.getToAccount(), saved.getAmount(), saved.getDescription(), saved.getTimestamp());
+        return ConvertToResponce(saved);
     }
 
     public boolean HasBalance(String Iban, float amount){
         return accountRepository.findByIban(Iban).getBalance() >= amount;
+    }
+
+    private String GetDirection(String FromIban, Long userid){
+        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userid);
+        if (ibans.contains(FromIban))
+            return "-";
+        return "+";
     }
 
     public boolean AccountExists(String Iban){
@@ -106,9 +114,9 @@ public class TransactionService extends BaseService {
         return true;
     }
 
-    public List<Transaction> GetAllFromUser(long userId){
+    public List<TransactionResponceDTO> GetAllFromUser(long userId){
         List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
-        return transactionRepository.findAllByFromAccountInOrToAccountIn(ibans, ibans);
+        return ConvertToResponce(transactionRepository.findAllByFromAccountInOrToAccountIn(ibans, ibans));
     }
 
     public boolean ValidateWithdraw(DepositWithdrawDTO dto){
@@ -129,5 +137,20 @@ public class TransactionService extends BaseService {
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.update(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
         return transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit"));
+    }
+
+    private TransactionResponceDTO ConvertToResponce(Transaction transaction){
+        if (transaction.getFromAccount() == "deposit")
+            return new TransactionResponceDTO(transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription(), transaction.getTimestamp(), "+" );
+        Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
+        return new TransactionResponceDTO(transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription(), transaction.getTimestamp(), GetDirection(transaction.getFromAccount(), fromAccount.getUserReferenceId()));
+    }
+
+    private List<TransactionResponceDTO> ConvertToResponce(List<Transaction> transactions) {
+        List<TransactionResponceDTO> responce = new ArrayList<>();
+        for (Transaction transaction : transactions) {
+            responce.add(ConvertToResponce(transaction));
+        }
+        return responce;
     }
 }
