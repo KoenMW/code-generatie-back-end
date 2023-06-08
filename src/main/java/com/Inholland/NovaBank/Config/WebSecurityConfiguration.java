@@ -47,6 +47,7 @@ public class WebSecurityConfiguration {
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/auth/login").permitAll()
                 .requestMatchers("/accounts").authenticated()
+                .requestMatchers("/accounts/search").authenticated()
                 .requestMatchers("/accounts/{userId}").authenticated()
                 .requestMatchers("/users").authenticated()
                 .requestMatchers("/users/{userId}").authenticated()

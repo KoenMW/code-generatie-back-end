@@ -52,8 +52,8 @@ public class TransactionService extends BaseService {
         Account toAccount = accountRepository.findByIban(transaction.getToAccount());
         if (fromAccount != null && toAccount != null)
         {
-            accountService.update(new patchAccountDTO(fromAccount.getIban(), "update", "balance", Double.toString(fromAccount.getBalance() - transaction.getAmount())));
-            accountService.update(new patchAccountDTO(toAccount.getIban(), "update", "balance", Double.toString(toAccount.getBalance() + transaction.getAmount())));
+            accountService.updateBalance(new patchAccountDTO(fromAccount.getIban(), "update", "balance", Double.toString(fromAccount.getBalance() - transaction.getAmount())));
+            accountService.updateBalance(new patchAccountDTO(toAccount.getIban(), "update", "balance", Double.toString(toAccount.getBalance() + transaction.getAmount())));
         }
         Transaction saved = transactionRepository.save(new Transaction(LocalDateTime.now(), transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription()));
         return new TransactionResponceDTO(saved.getFromAccount(), saved.getToAccount(), saved.getAmount(), saved.getDescription(), saved.getTimestamp());
@@ -117,7 +117,7 @@ public class TransactionService extends BaseService {
 
     public Transaction withdraw(DepositWithdrawDTO dto){
         Account account = accountRepository.findByIban(dto.getIban());
-        accountService.update(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() - dto.getAmount())));
+        accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() - dto.getAmount())));
         return transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw"));
     }
 
@@ -127,7 +127,7 @@ public class TransactionService extends BaseService {
 
     public Transaction deposit(DepositWithdrawDTO dto){
         Account account = accountRepository.findByIban(dto.getIban());
-        accountService.update(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
+        accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
         return transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit"));
     }
 }

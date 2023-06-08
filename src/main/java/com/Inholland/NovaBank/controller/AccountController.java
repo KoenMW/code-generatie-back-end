@@ -1,10 +1,7 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.Account;
-import com.Inholland.NovaBank.model.DTO.BaseDTO;
-import com.Inholland.NovaBank.model.DTO.newAccountDTO;
-import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
-import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
+import com.Inholland.NovaBank.model.DTO.*;
 
 import com.Inholland.NovaBank.service.AccountService;
 
@@ -24,7 +21,7 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @PreAuthorize("hasRole('USER')" + " || hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<Account>> getAll(@RequestParam (required = false) boolean isActive,@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
         try{
@@ -33,6 +30,19 @@ public class AccountController {
             return ResponseEntity.status(404).body(null);
         }
     }
+
+    @PreAuthorize("hasRole('USER')" + " || hasRole('ADMIN')")
+    @GetMapping("/search")
+    public ResponseEntity<List<searchAccountDTO>> getAllSearch(@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
+        try{
+            System.out.println("test");
+            return ResponseEntity.status(200).body(accountService.getAllSearch(limit, offset));
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(404).body(null);
+        }
+    }
+
 
     @PreAuthorize("hasRole('USER')" + " || hasRole('ADMIN')")
     @GetMapping("/{userId}")
@@ -60,7 +70,8 @@ public class AccountController {
         try{
             return ResponseEntity.status(201).body(accountService.add(account));
         }catch (Exception e){
-            return ResponseEntity.status(400).body(null);
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(400).body(new ErrorDTO(e.getMessage(), "400"));
         }
 
     }
@@ -72,11 +83,11 @@ public class AccountController {
             return ResponseEntity.status(200).body(accountService.update(account));
         }
         else{
-            return ResponseEntity.status(404).body(null);
+            return ResponseEntity.status(404).body(new ErrorDTO("Operation not found", "404"));
         }
     }
     catch (Exception e){
-        return ResponseEntity.status(404).body(null);
+        return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(), "404"));
     }
 
 
