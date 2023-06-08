@@ -162,6 +162,19 @@ public class AccountServiceTest {
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
     }
+
+    @Test
+    void getByUserId2(){
+        when(accountServiceMock.getByUserId(2)).thenReturn(
+                List.of(
+                        new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200),
+                        new Account("NL01INHO0000000002", 200,2, AccountType.SAVINGS,true,200)
+                )
+        );
+        List<Account> accounts = accountServiceMock.getByUserId(2);
+        assertNotNull(accounts);
+        assertEquals(2, accounts.size());
+    }
     @Test
     void getByUserIdInvalid() {
         when(accountRepository.findByuserReferenceId(2)).thenReturn(

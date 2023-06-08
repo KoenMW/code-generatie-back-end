@@ -7,6 +7,7 @@ import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.newAccountDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
+import com.Inholland.NovaBank.model.DTO.searchAccountDTO;
 import com.Inholland.NovaBank.service.AccountService;
 import com.Inholland.NovaBank.service.OffsetBasedPageRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,15 +62,41 @@ public class AccountControllerTest {
     @Test
     @WithMockUser(username = "JohnDoe", password = "123h4jg893n",roles = "ADMIN")
     void getAll() throws Exception {
-        given(accountService.getAll(1000L,0L)).willReturn(List.of(new Account("NL18INHO0363662776",200,2,AccountType.SAVINGS,true,200)));
+        when(accountService.getAll(true,100L,0L)).thenReturn(List.of(new Account("NL18INHO0363662776",200,2,AccountType.SAVINGS,true,200)));
+
+        MockHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.get("/accounts")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .param("limit", "100")
+                        .param("offset", "0")
+                        .param("isActive", "true");
 
 
-        
+        this.mockMvc.perform(builder).andDo(print())
 
-        this.mockMvc.perform(get("/accounts")).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].iban").value("NL18INHO0363662776"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAllWithIncorrect() throws Exception {
+        // Arrange
+        when(accountService.getAll(true,100L,0L)).thenReturn(null);
+
+        // Act & Assert
+        MockHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.get("/accounts")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .param("limit", "100")
+                        .param("offset", "0")
+                        .param("isActive", "true");
+
+        this.mockMvc.perform(builder).andDo(print())
+                .andExpect(jsonPath("$").doesNotExist());
     }
 
     @Test
@@ -129,6 +156,7 @@ public class AccountControllerTest {
         // Act & Assert
         MockHttpServletRequestBuilder builder =
                 MockMvcRequestBuilders.patch("/accounts")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .accept(MediaType.APPLICATION_JSON_VALUE)
                         .content("""
@@ -145,6 +173,33 @@ public class AccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountType").value("SAVINGS"));
 
+
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void updateWithIncorrect() throws Exception {
+        // Arrange
+        when(accountService.update(any(patchAccountDTO.class))).thenReturn(null);
+
+        // Act & Assert
+        MockHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.patch("/accounts")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .content("""
+                                 {
+                                    "iban": "NL18INHO0363662776",
+                                    "op": "update",
+                                    "key": "accountType",
+                                    "value": "
+                                  }
+                                """);
+
+        this.mockMvc.perform(builder)
+                .andDo(print())
+                .andExpect(status().isBadRequest());
 
     }
 
@@ -168,5 +223,28 @@ public class AccountControllerTest {
 
     }
 
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAllSearch() throws Exception {
+        given(accountService.getAllSearch(100L, 0L)).willReturn(List.of(new searchAccountDTO("NL18INHO0363662776",2,AccountType.SAVINGS)));
+        MockHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.get("/accounts/search")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .param("limit", "100")
+                        .param("offset", "0");
 
+        this.mockMvc.perform(builder).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].iban").value("NL18INHO0363662776"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getAllSearchInvalide() throws Exception {
+        given(accountService.getAllSearch(1000L, 0L)).willReturn(List.of());
+        this.mockMvc.perform(get("/accounts/search")).andDo(print())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
 }

@@ -96,12 +96,7 @@ public class AccountService extends BaseService{
 
     }
 
-    public boolean checkAdmin(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
-        returnUserDTO user = userService.getUserByUsername(currentPrincipalName);
-        return user.getRole().toString().equals("ROLE_ADMIN");
-    }
+
 
     public returnAccountDTO add(newAccountDTO account){
         if(!checkUserHasAccount(account.getUserReferenceId())){
@@ -179,21 +174,6 @@ public class AccountService extends BaseService{
         accountFromRepo.setBalance(accountFromRepo.getBalance() + Float.parseFloat(account.getValue()));
         Account account1 = accountRepository.save(accountFromRepo);
         return new returnAccountDTO(account1.getIban(), account1.getAccountType());
-    }
-
-
-    public boolean ownership(Account account){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        returnUserDTO user = userService.getUserByUsername(username);
-        if(user.getId().equals(account.getUserReferenceId()) || user.getUsername().equalsIgnoreCase("Bank")){
-            return false;
-        }
-        else{
-            return true;
-        }
-
-
     }
 
     public AccountService(AccountRepository accountRepository, UserRepository userRepository,UserService userService){

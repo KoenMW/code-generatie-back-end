@@ -1,29 +1,24 @@
 package com.Inholland.NovaBank.service;
 
-import com.Inholland.NovaBank.Jwt.JwtKeyProvider;
 import com.Inholland.NovaBank.Jwt.JwtTokenProvider;
 import com.Inholland.NovaBank.model.Role;
 import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.Authentication;
-
-import java.security.Key;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+@ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
-public class JwtTest {
-    @Mock
-    private JwtKeyProvider keyProvider;
-    @Mock
-    private UserDetailService userDetailService;
+public class JwtTokenProviderTest {
 
-    @Mock
+
+    @MockBean
     private JwtTokenProvider jwtTokenProvider;
     @Test
     public void createToken(){
