@@ -7,6 +7,7 @@ import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.model.Role;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.repositorie.TransactionRepository;
+import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.service.AccountService;
 import com.Inholland.NovaBank.service.TransactionService;
 import com.Inholland.NovaBank.service.UserService;
@@ -34,6 +35,9 @@ public class DataSeeder implements ApplicationRunner {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
@@ -50,13 +54,9 @@ public class DataSeeder implements ApplicationRunner {
         accountService.add(new newAccountDTO(users.get(1).getId(), AccountType.SAVINGS,100));
 
         List<Account> accounts = accountService.getAll(1000L,0L);
-        String id = accounts.get(0).getIban();
-        patchAccountDTO patchAccountDTO = new patchAccountDTO();
-        patchAccountDTO.setOp("update");
-        patchAccountDTO.setKey("iban");
-        patchAccountDTO.setValue("NL18INHO0363662776");
-        patchAccountDTO.setIban(id);
-        accountService.update(patchAccountDTO);
+
+        accountRepository.save(new Account("NL18INHO0363662776", 0, 2, AccountType.SAVINGS, true,100));
+
         returnUserDTO user = userService.getByIdDataSeeder(1L);
         patchUserDTO patchUserDTO = new patchUserDTO();
         patchUserDTO.setKey("role");
@@ -66,7 +66,7 @@ public class DataSeeder implements ApplicationRunner {
         userService.update(patchUserDTO);
         for(Account account : accounts){
             if(account.getUserReferenceId() == 2){
-                seedBaseAccount(account.getIban());
+                seedBaseAccount(account.getUserReferenceId());
             }
         }
 
@@ -88,12 +88,8 @@ public class DataSeeder implements ApplicationRunner {
         transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(2), accounts.get(0).getIban(), accounts.get(2).getIban(), 50, "test"));
     }
 
-    private void seedBaseAccount(String id){
-        patchAccountDTO patchAccountDTO = new patchAccountDTO();
-        patchAccountDTO.setOp("update");
-        patchAccountDTO.setKey("iban");
-        patchAccountDTO.setValue("NL01INHO0000000001");
-        patchAccountDTO.setIban(id);
-        accountService.update(patchAccountDTO);
+    private void seedBaseAccount(Long id){
+
+        accountRepository.save(new Account("NL01INHO0000000001", 0, id, AccountType.SAVINGS, true,100));
     }
 }

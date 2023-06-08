@@ -13,6 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
-
+@ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceTest {
 
@@ -38,6 +40,9 @@ class TransactionServiceTest {
     private AccountService accountService;
 
     private TransactionService transactionService;
+
+    @MockBean
+    private TransactionService transactionServiceMock;
 
     @BeforeEach
     void setUp() {
@@ -94,6 +99,17 @@ class TransactionServiceTest {
         assertEquals("NL01INHO0000000002", transaction.getToAccount());
         assertEquals(100, transaction.getAmount());
         assertEquals("test", transaction.getDescription());
+    }
+
+    @Test
+    void add2(){
+        when(transactionServiceMock.Add(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test"))).thenReturn(
+                new TransactionResponceDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test", LocalDateTime.now())
+        );
+        TransactionResponceDTO transaction = transactionServiceMock.Add(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
+        assertNotNull(transaction);
+        assertEquals("NL01INHO0000000001", transaction.getFromAccount());
+        assertEquals("NL01INHO0000000002", transaction.getToAccount());
     }
 
 
@@ -203,11 +219,23 @@ class TransactionServiceTest {
         transactionService.withdraw(new DepositWithdrawDTO("NL01INHO0000000001", 100));
         Transaction transaction = transactionService.withdraw(new DepositWithdrawDTO("NL01INHO0000000001", 100));
 
+
         assertNotNull(transaction);
         assertEquals("NL01INHO0000000001", transaction.getFromAccount());
         assertEquals("withdraw", transaction.getToAccount());
         assertEquals(100, transaction.getAmount());
         assertEquals("withdraw", transaction.getDescription());
+    }
+
+    @Test
+    void withdraw2(){
+        when(transactionServiceMock.withdraw(new DepositWithdrawDTO("NL01INHO0000000001", 100))).thenReturn(
+                new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "withdraw", 100, "withdraw")
+        );
+        Transaction transaction = transactionServiceMock.withdraw(new DepositWithdrawDTO("NL01INHO0000000001", 100));
+        assertNotNull(transaction);
+        assertEquals("NL01INHO0000000001", transaction.getFromAccount());
+        assertEquals("withdraw", transaction.getToAccount());
     }
 
 
@@ -237,5 +265,16 @@ class TransactionServiceTest {
         assertEquals("NL01INHO0000000001", transaction.getToAccount());
         assertEquals(100, transaction.getAmount());
         assertEquals("deposit", transaction.getDescription());
+    }
+
+    @Test
+    void deposit2(){
+        when(transactionServiceMock.deposit(new DepositWithdrawDTO("NL01INHO0000000001", 100))).thenReturn(
+                new Transaction(LocalDateTime.now(),"deposit", "NL01INHO0000000001", 100, "deposit")
+        );
+        Transaction transaction = transactionServiceMock.deposit(new DepositWithdrawDTO("NL01INHO0000000001", 100));
+        assertNotNull(transaction);
+        assertEquals("deposit", transaction.getFromAccount());
+        assertEquals("NL01INHO0000000001", transaction.getToAccount());
     }
 }
