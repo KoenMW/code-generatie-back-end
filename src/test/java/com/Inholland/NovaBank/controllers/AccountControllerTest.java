@@ -12,25 +12,22 @@ import com.Inholland.NovaBank.service.OffsetBasedPageRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -64,13 +61,12 @@ public class AccountControllerTest {
     @Test
     @WithMockUser(username = "JohnDoe", password = "123h4jg893n",roles = "ADMIN")
     void getAll() throws Exception {
+        given(accountService.getAll(1000L,0L)).willReturn(List.of(new Account("NL18INHO0363662776",200,2,AccountType.SAVINGS,true,200)));
 
-        // Arrange
-        when(accountService.getAll(true,1000L,0L))
-                .thenReturn(List.of(new Account("NL18INHO0363662776",200,2,AccountType.SAVINGS,true,200)));
+
         
 
-        this.mockMvc.perform(get("/accounts?offset=1000&limit=0&isActive=true")).andDo(print())
+        this.mockMvc.perform(get("/accounts")).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].iban").value("NL18INHO0363662776"));
@@ -98,6 +94,78 @@ public class AccountControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.accountType").value("SAVINGS"));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void addWithIncorrect() throws Exception {
+        // Arrange
+        when(accountService.add(any(newAccountDTO.class))).thenReturn(null);
+
+        // Act & Assert
+        this.mockMvc.perform(post("/accounts").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        /// String literals in Java 17: enclose in """
+                        .content("""
+                                 {
+                                    "userReferenceId": "1",
+                                    "accountType": "",
+                                    "absoluteLimit": "100"
+                                  }
+                                """))
+                // But since we used any(Car.class) a simple {} should be enough
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void update() throws Exception {
+
+        // Arrange
+        when(accountService.update(any(patchAccountDTO.class))).thenReturn(new returnAccountDTO("NL18INHO0363662776",AccountType.SAVINGS));
+
+        // Act & Assert
+        MockHttpServletRequestBuilder builder =
+                MockMvcRequestBuilders.patch("/accounts")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .content("""
+                                 {
+                                    "iban": "NL18INHO0363662776",
+                                    "op": "update",
+                                    "key": "accountType",
+                                    "value": "SAVINGS"
+                                  }
+                                """);
+
+        this.mockMvc.perform(builder)
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountType").value("SAVINGS"));
+
+
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getByuserId() throws Exception {
+        when(accountService.getByUserId(1L)).thenReturn(List.of(new Account("NL18INHO0363662776",200,2,AccountType.SAVINGS,true,200)));
+        this.mockMvc.perform(get("/accounts/1")).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].iban").value("NL18INHO0363662776"));
+
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void getByInvalidUserId() throws Exception {
+        when(accountService.getByUserId(1L)).thenReturn(List.of());
+        this.mockMvc.perform(get("/accounts/1")).andDo(print())
+                .andExpect(status().isNotFound());
+
     }
 
 

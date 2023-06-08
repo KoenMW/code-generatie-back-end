@@ -1,6 +1,6 @@
 package com.Inholland.NovaBank.service;
 
-import com.Inholland.NovaBank.customExceptions.InvalidAbsoluteLimit;
+
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
 import com.Inholland.NovaBank.model.DTO.*;
@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,6 +51,24 @@ public class AccountService extends BaseService{
 
     public List<Account> getAll(Long limit, Long offset){
         return accountRepository.findAllAccounts(getPageable(limit, offset));
+    }
+
+    public List<searchAccountDTO> getAllSearch(Long limit, Long offset){
+        if(limit == null){
+            limit = 1000L;
+        }
+        if(offset == null){
+            offset = 0L;
+        }
+        return transformAccounts(accountRepository.findAllAccounts(getPageable(limit, offset)));
+    }
+
+    public List<searchAccountDTO> transformAccounts(List<Account> accounts){
+        List<searchAccountDTO> searchAccountDTOS = new ArrayList<>();
+        for (Account account : accounts) {
+            searchAccountDTOS.add(new searchAccountDTO(account.getIban(), account.getUserReferenceId(),account.getAccountType()));
+        }
+        return searchAccountDTOS;
     }
 
     public Pageable getPageable(Long limit, Long offset) {

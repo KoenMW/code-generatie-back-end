@@ -21,7 +21,7 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @PreAuthorize("hasRole('USER')" + " || hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<Account>> getAll(@RequestParam (required = false) boolean isActive,@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
         try{
@@ -30,6 +30,19 @@ public class AccountController {
             return ResponseEntity.status(404).body(null);
         }
     }
+
+    @PreAuthorize("hasRole('USER')" + " || hasRole('ADMIN')")
+    @GetMapping("/search")
+    public ResponseEntity<List<searchAccountDTO>> getAllSearch(@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
+        try{
+            System.out.println("test");
+            return ResponseEntity.status(200).body(accountService.getAllSearch(limit, offset));
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(404).body(null);
+        }
+    }
+
 
     @PreAuthorize("hasRole('USER')" + " || hasRole('ADMIN')")
     @GetMapping("/{userId}")
