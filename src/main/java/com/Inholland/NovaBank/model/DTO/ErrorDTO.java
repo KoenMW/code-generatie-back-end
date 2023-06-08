@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class ErrorDTO extends BaseDTO{
     private String message;
-    private String code;
+    private int code;
 
-    public ErrorDTO(String message, String code) {
+    public ErrorDTO(String message, int code) {
         this.message = message;
         this.code = code;
     }
