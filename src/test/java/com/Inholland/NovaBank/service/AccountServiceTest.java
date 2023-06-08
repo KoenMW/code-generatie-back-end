@@ -27,15 +27,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.data.domain.Pageable;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
+@ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
 public class AccountServiceTest {
 
@@ -53,6 +56,9 @@ public class AccountServiceTest {
 
     @InjectMocks
     private AccountService accountService;
+
+    @MockBean
+    private AccountService accountServiceMock;
 
     @BeforeEach
     void setUp() {
@@ -75,6 +81,19 @@ public class AccountServiceTest {
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
 
+    }
+
+    @Test
+    void getAll2(){
+        given(accountServiceMock.getAll(2L,0L)).willReturn(
+                List.of(
+                        new Account("NL01INHO0000000001", 200,1, AccountType.SAVINGS,true,200),
+                        new Account("NL01INHO0000000002", 200,1, AccountType.SAVINGS,true,200)
+                )
+        );
+        List<Account> accounts = accountServiceMock.getAll(2L,0L);
+        assertNotNull(accounts);
+        assertEquals(2, accounts.size());
     }
 
     @Test
@@ -235,4 +254,116 @@ public class AccountServiceTest {
         doThrow(IllegalArgumentException.class).when(accountService).update(any());
         assertThrows(IllegalArgumentException.class, () -> accountService.update(new patchAccountDTO("NL01INHO0000000001","update","absoluteLimit","250")));
     }
+
+    @Test
+    void getAllSearch(){
+        given(accountServiceMock.getAllSearch(1000L,0L)).willReturn(List.of(new searchAccountDTO("NL01INHO0000000001", 2, AccountType.SAVINGS)));
+        List<searchAccountDTO> accounts = accountServiceMock.getAllSearch(1000L,0L);
+        assertNotNull(accounts);
+    }
+
+    @Test
+    void getAllSearchInvalid(){
+        given(accountServiceMock.getAllSearch(1000L,0L)).willReturn(null);
+        List<searchAccountDTO> accounts = accountServiceMock.getAllSearch(1000L,0L);
+        assertNull(accounts);
+    }
+
+    @Test
+    void getPageable(){
+        given(accountServiceMock.getPageable(1000L,0L)).willReturn(new OffsetBasedPageRequest(0,1000));
+        Pageable pageable = accountServiceMock.getPageable(1000L,0L);
+        assertNotNull(pageable);
+    }
+
+    @Test
+    void getInvalidPageable(){
+        given(accountServiceMock.getPageable(1000L,0L)).willReturn(null);
+        Pageable pageable = accountServiceMock.getPageable(1000L,0L);
+        assertNull(pageable);
+    }
+
+    @Test
+    void transformAccounts(){
+        given(accountServiceMock.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)))).willReturn(List.of(new searchAccountDTO("NL01INHO0000000001", 2, AccountType.SAVINGS)));
+        List<searchAccountDTO> accounts = accountServiceMock.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)));
+        assertNotNull(accounts);
+    }
+
+    @Test
+    void transformAccountsInvalid(){
+        given(accountServiceMock.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)))).willReturn(null);
+        List<searchAccountDTO> accounts = accountServiceMock.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)));
+        assertNull(accounts);
+    }
+
+    @Test
+    void authUser(){
+        given(accountServiceMock.authUser(1L)).willReturn(true);
+        boolean auth = accountServiceMock.authUser(1L);
+        assertTrue(auth);
+    }
+
+    @Test
+    void authUserInvalid(){
+        given(accountServiceMock.authUser(1L)).willReturn(false);
+        boolean auth = accountServiceMock.authUser(1L);
+        assertFalse(auth);
+    }
+
+    @Test
+    void setAccount(){
+        given(accountServiceMock.setAccount(new newAccountDTO(2,AccountType.CHECKING,200))).willReturn(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200));
+        Account account = accountServiceMock.setAccount(new newAccountDTO(2,AccountType.CHECKING,200));
+        assertNotNull(account);
+    }
+
+    @Test
+    void setAccountInvalid(){
+        given(accountServiceMock.setAccount(new newAccountDTO(2,AccountType.CHECKING,200))).willReturn(null);
+        Account account = accountServiceMock.setAccount(new newAccountDTO(2,AccountType.CHECKING,200));
+        assertNull(account);
+    }
+
+    @Test
+    void checkUserHasAccount(){
+        given(accountServiceMock.checkUserHasAccount(1L)).willReturn(true);
+        boolean auth = accountServiceMock.checkUserHasAccount(1L);
+        assertTrue(auth);
+    }
+
+    @Test
+    void checkUserHasAccountInvalid(){
+        given(accountServiceMock.checkUserHasAccount(1L)).willReturn(false);
+        boolean auth = accountServiceMock.checkUserHasAccount(1L);
+        assertFalse(auth);
+    }
+
+    @Test
+    void updateUserAccountStatus(){
+        accountServiceMock.updateUserAccountStatus(1L);
+        verify(accountServiceMock, times(1)).updateUserAccountStatus(1L);
+
+    }
+
+    @Test
+    void updateUserAccountStatusInvalid(){
+        doThrow(IllegalArgumentException.class).when(accountServiceMock).updateUserAccountStatus(1L);
+        assertThrows(IllegalArgumentException.class, () -> accountServiceMock.updateUserAccountStatus(1L));
+    }
+
+    @Test
+    void updateBalance(){
+        given(accountServiceMock.updateBalance(new patchAccountDTO("NL01INHO0000000001","update","balance","200"))).willReturn(new returnAccountDTO("NL01INHO0000000001",AccountType.SAVINGS));
+        returnAccountDTO account = accountServiceMock.updateBalance(new patchAccountDTO("NL01INHO0000000001","update","balance","200"));
+        assertNotNull(account);
+    }
+
+    @Test
+    void updateBalanceInvalid(){
+        given(accountServiceMock.updateBalance(new patchAccountDTO("NL01INHO0000000001","update","balance","200"))).willReturn(null);
+        returnAccountDTO account = accountServiceMock.updateBalance(new patchAccountDTO("NL01INHO0000000001","update","balance","200"));
+        assertNull(account);
+    }
+
 }

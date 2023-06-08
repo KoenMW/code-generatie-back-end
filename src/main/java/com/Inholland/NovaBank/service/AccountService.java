@@ -118,7 +118,7 @@ public class AccountService extends BaseService{
     public Boolean checkLimit(float limit){
         return limit >= 0 && limit < 1000000;
     }
-    private Account setAccount(newAccountDTO account){
+    public Account setAccount(newAccountDTO account){
         Account newAccount = new Account();
         newAccount.setIban(generateIban());
         newAccount.setBalance(0);
@@ -129,12 +129,12 @@ public class AccountService extends BaseService{
         return newAccount;
     }
 
-    private boolean checkUserHasAccount(long id){
+    public boolean checkUserHasAccount(long id){
         returnUserDTO user = userService.getByIdDataSeeder(id);
         return user.isHasAccount();
     }
 
-    private void updateUserAccountStatus(long id){
+    public void updateUserAccountStatus(long id){
         returnUserDTO user = userService.getByIdDataSeeder(id);
         patchUserDTO patchUserDTO = new patchUserDTO();
         patchUserDTO.setKey("hasAccount");
