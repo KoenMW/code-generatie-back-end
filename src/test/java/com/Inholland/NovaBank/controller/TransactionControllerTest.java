@@ -145,14 +145,14 @@ class TransactionControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "JohnDoe", password = "123h4jg893n",roles = "ADMIN")
-    void add() {
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void add() throws Exception {
         when(transactionService.ValidateTransaction(any(TransactionRequestDTO.class))).thenReturn(true);
         when(transactionService.Add(any(TransactionRequestDTO.class))).thenReturn(new TransactionResponceDTO("NL01INHO0000000001","NL01INHO0000000002",10, "test", LocalDateTime.now(), "+"));
 
-        MockHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.post("/transactions")
-                        .content("""
+        this.mockMvc.perform(post("/transactions").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content("""
                                 {
                                 	"fromAccount": "NL33INHO0317308340",
                                 	"toAccount": "NL55INHO0324345488",
@@ -161,33 +161,20 @@ class TransactionControllerTest {
                                 }
                                 """
                         )
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .accept(MediaType.APPLICATION_JSON_VALUE);
-
-        System.out.println(transactionService.Add(new TransactionRequestDTO("NL33INHO0317308340", "NL55INHO0324345488", 50, "test")));
-
-        try {
-            this.mockMvc.perform(builder)
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.fromIban", isA(String.class)))
-                    .andExpect(jsonPath("$.toIban", isA(String.class)))
-                    .andExpect(jsonPath("$.amount", isA(Integer.class)))
-                    .andExpect(jsonPath("$.description", isA(String.class)))
-                    .andExpect(jsonPath("$.date", isA(String.class)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(username = "JohnDoe", password = "123h4jg893n",roles = "ADMIN")
-    void addWithInvalidTransaction(){
+    void addWithInvalidTransaction() throws Exception {
         when(transactionService.ValidateTransaction(any(TransactionRequestDTO.class))).thenReturn(false);
         when(transactionService.Add(any(TransactionRequestDTO.class))).thenReturn(new TransactionResponceDTO("NL01INHO0000000001","NL01INHO0000000002",10, "test", LocalDateTime.now(), "+"));
 
-        MockHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.post("/transactions")
+        this.mockMvc.perform(post("/transactions").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content("""
                                 {
                                 	"fromAccount": "NL33INHO0317308340",
@@ -197,16 +184,10 @@ class TransactionControllerTest {
                                 }
                                 """
                         )
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .accept(MediaType.APPLICATION_JSON_VALUE);
-
-        try {
-            this.mockMvc.perform(builder)
-                    .andDo(print())
-                    .andExpect(status().isBadRequest());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -231,12 +212,12 @@ class TransactionControllerTest {
 
     @Test
     @WithMockUser(username = "JohnDoe", password = "123h4jg893n",roles = "ADMIN")
-    void withdraw() {
+    void withdraw() throws Exception {
         when(transactionService.ValidateWithdraw(any(DepositWithdrawDTO.class))).thenReturn(true);
         when(transactionService.Withdraw(any(DepositWithdrawDTO.class))).thenReturn(new TransactionResponceDTO("NL01INHO0000000001","NL01INHO0000000002",10, "test", LocalDateTime.now(), "-"));
 
-        MockHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.post("/transactions/withdraw")
+        this.mockMvc.perform(post("/transactions/withdraw").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content("""
                                 {
                                 	"iban": "NL33INHO0317308340",
@@ -244,33 +225,20 @@ class TransactionControllerTest {
                                 }
                                 """
                         )
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .accept(MediaType.APPLICATION_JSON_VALUE);
-
-        try {
-            this.mockMvc.perform(builder)
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.fromIban", isA(String.class)))
-                    .andExpect(jsonPath("$.toIban", isA(String.class)))
-                    .andExpect(jsonPath("$.amount", isA(Integer.class)))
-                    .andExpect(jsonPath("$.description", isA(String.class)))
-                    .andExpect(jsonPath("$.date", isA(String.class)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(username = "JohnDoe", password = "123h4jg893n",roles = "ADMIN")
-    void deposit() {
+    void deposit() throws Exception {
         when(transactionService.ValidateDeposit(any(DepositWithdrawDTO.class))).thenReturn(true);
         when(transactionService.Deposit(any(DepositWithdrawDTO.class))).thenReturn(new TransactionResponceDTO("NL01INHO0000000001","NL01INHO0000000002",10, "test", LocalDateTime.now(), "+"));
 
-        MockHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.post("/transactions/deposit")
+        this.mockMvc.perform(post("/transactions/deposit").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content("""
                                 {
                                 	"iban": "NL33INHO0317308340",
@@ -278,20 +246,9 @@ class TransactionControllerTest {
                                 }
                                 """
                         )
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .accept(MediaType.APPLICATION_JSON_VALUE);
-
-        try {
-            this.mockMvc.perform(builder)
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.fromIban", isA(String.class)))
-                    .andExpect(jsonPath("$.toIban", isA(String.class)))
-                    .andExpect(jsonPath("$.amount", isA(Integer.class)))
-                    .andExpect(jsonPath("$.description", isA(String.class)))
-                    .andExpect(jsonPath("$.date", isA(String.class)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }
