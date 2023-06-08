@@ -77,9 +77,9 @@ public class DataSeeder implements ApplicationRunner {
              accounts) {
             System.out.println(account.getIban());
         }
-        transactionService.deposit(new DepositWithdrawDTO(accounts.get(0).getIban(), 200));
-        transactionService.deposit(new DepositWithdrawDTO(accounts.get(1).getIban(), 50));
-        transactionService.deposit(new DepositWithdrawDTO(accounts.get(2).getIban(), 150));
+        transactionService.Deposit(new DepositWithdrawDTO(accounts.get(0).getIban(), 200));
+        transactionService.Deposit(new DepositWithdrawDTO(accounts.get(1).getIban(), 50));
+        transactionService.Deposit(new DepositWithdrawDTO(accounts.get(2).getIban(), 150));
 
         transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(1), accounts.get(0).getIban(), accounts.get(1).getIban(), 50, "test"));
         transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(1), accounts.get(0).getIban(), accounts.get(2).getIban(), 50, "test"));

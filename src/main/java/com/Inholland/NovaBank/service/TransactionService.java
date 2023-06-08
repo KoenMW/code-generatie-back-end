@@ -38,8 +38,8 @@ public class TransactionService extends BaseService {
         this.accountService = accountService;
     }
 
-    public List<Transaction> GetAll(){
-        return (List<Transaction>) transactionRepository.findAll();
+    public List<TransactionResponceDTO> GetAll(){
+        return ConvertToResponce((List<Transaction>) transactionRepository.findAll());
     }
 
     public List<TransactionResponceDTO> GetAllFromIban(String Iban){
@@ -71,15 +71,18 @@ public class TransactionService extends BaseService {
         return "+";
     }
 
-    public boolean AccountExists(String Iban){
-        return accountRepository.findByIban(Iban) != null;
-    }
-
     //checks if the account exists and if the account has enough balance to make the transaction and if the absolute limit is not exceeded
     public boolean ValidateTransaction(TransactionRequestDTO transaction){
-        if (AccountExists(transaction.getFromAccount()) && AccountExists(transaction.getToAccount())){
+        if (accountService.AccountExists(transaction.getFromAccount()) && accountService.AccountExists(transaction.getToAccount())){
             Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
             Account toAccount = accountRepository.findByIban(transaction.getToAccount());
+            //check everything in the console
+            System.out.println("HasBalance: " + HasBalance(transaction.getFromAccount(), transaction.getAmount()));
+            System.out.println("AbsoluteLimit: " + fromAccount.getAbsoluteLimit() + " <= " + fromAccount.getBalance() + " - " + transaction.getAmount() + " = " + (fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount()));
+            System.out.println("CheckDailyLimit: " + CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())));
+            System.out.println("CheckForSavingsAccount: " + CheckForSavingsAccount(fromAccount, toAccount));
+            System.out.println("Amount > 0: " + (transaction.getAmount() > 0));
+
             return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())) && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0;
         }
         return false;
@@ -101,11 +104,6 @@ public class TransactionService extends BaseService {
         return transactionRepository.findAllByFromAccountOrToAccountAndTimestampAfter(iban, iban, LocalDateTime.now().minusDays(1));
     }
 
-    public List<Transaction> GetTransactionsFromLast24HoursByUser(long userId){
-        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
-        return transactionRepository.findAllByFromAccountAndTimestampAfterAndFromAccountNotInOrToAccountNotIn(ibans.get(0), LocalDateTime.now().minusDays(1), ibans, ibans);
-    }
-
     //check if the account is a savings account and if it is, check if the user reference id is the same
     private boolean CheckForSavingsAccount(Account fromAccount, Account toAccount){
         if (fromAccount.getAccountType() == AccountType.SAVINGS || toAccount.getAccountType() == AccountType.SAVINGS) {
@@ -123,20 +121,21 @@ public class TransactionService extends BaseService {
         return HasBalance(dto.getIban(), dto.getAmount()) && accountRepository.findByIban(dto.getIban()).getAbsoluteLimit() <= accountRepository.findByIban(dto.getIban()).getBalance() - dto.getAmount() && dto.getAmount() > 0 && CheckDailyLimit(dto.getIban(), dto.getAmount(), userRepository.findUserDayLimitById(accountRepository.findByIban(dto.getIban()).getUserReferenceId()));
     }
 
-    public Transaction withdraw(DepositWithdrawDTO dto){
+    public TransactionResponceDTO Withdraw(DepositWithdrawDTO dto){
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() - dto.getAmount())));
-        return transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw"));
+        //System.out.println(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw"));
+        return ConvertToResponce(transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw")));
     }
 
     public boolean ValidateDeposit(DepositWithdrawDTO dto){
         return dto.getAmount() > 0 && dto.getAmount() <= 1000;
     }
 
-    public Transaction deposit(DepositWithdrawDTO dto){
+    public TransactionResponceDTO Deposit(DepositWithdrawDTO dto){
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
-        return transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit"));
+        return ConvertToResponce(transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit")));
     }
 
     private TransactionResponceDTO ConvertToResponce(Transaction transaction){
