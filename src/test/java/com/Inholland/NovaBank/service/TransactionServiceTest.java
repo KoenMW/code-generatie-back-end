@@ -65,7 +65,7 @@ class TransactionServiceTest {
                         new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
                 )
         );
-        List<Transaction> transactions = transactionService.GetAllFromIban("NL01INHO0000000001");
+        List<TransactionResponceDTO> transactions = transactionService.GetAllFromIban("NL01INHO0000000001");
         assertNotNull(transactions);
         assertEquals(2, transactions.size());
     }

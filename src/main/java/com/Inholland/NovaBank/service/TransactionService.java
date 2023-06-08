@@ -120,7 +120,7 @@ public class TransactionService extends BaseService {
     }
 
     public boolean ValidateWithdraw(DepositWithdrawDTO dto){
-        return HasBalance(dto.getIban(), dto.getAmount()) && accountRepository.findByIban(dto.getIban()).getAbsoluteLimit() <= accountRepository.findByIban(dto.getIban()).getBalance() - dto.getAmount() && dto.getAmount() > 0;
+        return HasBalance(dto.getIban(), dto.getAmount()) && accountRepository.findByIban(dto.getIban()).getAbsoluteLimit() <= accountRepository.findByIban(dto.getIban()).getBalance() - dto.getAmount() && dto.getAmount() > 0 && CheckDailyLimit(dto.getIban(), dto.getAmount(), userRepository.findUserDayLimitById(accountRepository.findByIban(dto.getIban()).getUserReferenceId()));
     }
 
     public Transaction withdraw(DepositWithdrawDTO dto){
@@ -130,7 +130,7 @@ public class TransactionService extends BaseService {
     }
 
     public boolean ValidateDeposit(DepositWithdrawDTO dto){
-        return dto.getAmount() > 0;
+        return dto.getAmount() > 0 && dto.getAmount() <= 1000;
     }
 
     public Transaction deposit(DepositWithdrawDTO dto){
