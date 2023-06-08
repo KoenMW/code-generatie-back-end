@@ -6,6 +6,7 @@ import com.Inholland.NovaBank.model.DTO.*;
 import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.model.Role;
 import com.Inholland.NovaBank.model.User;
+import com.Inholland.NovaBank.repositorie.TransactionRepository;
 import com.Inholland.NovaBank.service.AccountService;
 import com.Inholland.NovaBank.service.TransactionService;
 import com.Inholland.NovaBank.service.UserService;
@@ -29,6 +30,9 @@ public class DataSeeder implements ApplicationRunner {
 
     @Autowired
     private TransactionService transactionService;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -76,6 +80,12 @@ public class DataSeeder implements ApplicationRunner {
         transactionService.deposit(new DepositWithdrawDTO(accounts.get(0).getIban(), 200));
         transactionService.deposit(new DepositWithdrawDTO(accounts.get(1).getIban(), 50));
         transactionService.deposit(new DepositWithdrawDTO(accounts.get(2).getIban(), 150));
+
+        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(1), accounts.get(0).getIban(), accounts.get(1).getIban(), 50, "test"));
+        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(1), accounts.get(0).getIban(), accounts.get(2).getIban(), 50, "test"));
+
+        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(2), accounts.get(0).getIban(), accounts.get(1).getIban(), 50, "test"));
+        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(2), accounts.get(0).getIban(), accounts.get(2).getIban(), 50, "test"));
     }
 
     private void seedBaseAccount(String id){
