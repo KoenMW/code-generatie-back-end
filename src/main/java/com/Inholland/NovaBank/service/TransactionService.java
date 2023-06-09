@@ -122,9 +122,9 @@ public class TransactionService extends BaseService {
     }
 
     public TransactionResponceDTO Withdraw(DepositWithdrawDTO dto){
+        System.out.println(dto);
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() - dto.getAmount())));
-        //System.out.println(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw"));
         return ConvertToResponce(transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw")));
     }
 
@@ -133,6 +133,7 @@ public class TransactionService extends BaseService {
     }
 
     public TransactionResponceDTO Deposit(DepositWithdrawDTO dto){
+        System.out.println(dto);
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
         return ConvertToResponce(transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit")));

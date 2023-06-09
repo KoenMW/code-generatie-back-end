@@ -171,7 +171,7 @@ public class AccountService extends BaseService{
 
     public returnAccountDTO updateBalance(patchAccountDTO account){
         Account accountFromRepo = accountRepository.findByIban(account.getIban());
-        accountFromRepo.setBalance(accountFromRepo.getBalance() + Float.parseFloat(account.getValue()));
+        accountFromRepo.setBalance(Float.parseFloat(account.getValue()));
         Account account1 = accountRepository.save(accountFromRepo);
         return new returnAccountDTO(account1.getIban(), account1.getAccountType());
     }
