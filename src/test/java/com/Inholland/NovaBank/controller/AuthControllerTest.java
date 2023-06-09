@@ -1,4 +1,4 @@
-package com.Inholland.NovaBank.controllers;
+package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.configuration.ApiTestConfiguration;
 import com.Inholland.NovaBank.controller.AuthController;

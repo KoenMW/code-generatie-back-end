@@ -1,7 +1,9 @@
 package com.Inholland.NovaBank.service;
 
+import com.Inholland.NovaBank.repositorie.AccountRepository;
 import org.iban4j.CountryCode;
 import org.iban4j.Iban;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigInteger;
 

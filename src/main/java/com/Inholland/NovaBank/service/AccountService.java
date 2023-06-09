@@ -181,6 +181,10 @@ public class AccountService extends BaseService{
         this.userService = userService;
     }
 
+    public boolean AccountExists(String Iban){
+        return accountRepository.findByIban(Iban) != null;
+    }
+
 
 
 
