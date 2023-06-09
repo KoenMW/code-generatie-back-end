@@ -1,10 +1,7 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.Account;
-import com.Inholland.NovaBank.model.DTO.BaseDTO;
-import com.Inholland.NovaBank.model.DTO.newUserDTO;
-import com.Inholland.NovaBank.model.DTO.patchUserDTO;
-import com.Inholland.NovaBank.model.DTO.returnUserDTO;
+import com.Inholland.NovaBank.model.DTO.*;
 import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.service.TransactionService;
 import com.Inholland.NovaBank.service.UserService;
@@ -68,16 +65,17 @@ public class UserController {
         try{
             return ResponseEntity.status(200).body(userService.update(user));
         }catch (Exception e) {
-            return ResponseEntity.status(404).body(null);
+            return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),404));
         }
     }
 
     @PostMapping
-    public ResponseEntity<returnUserDTO>add(@RequestBody newUserDTO user){
+    public ResponseEntity<BaseDTO>add(@RequestBody newUserDTO user){
         try{
             return ResponseEntity.status(200).body(userService.addUser(user));
         }catch (Exception e) {
-            return ResponseEntity.status(404).body(null);
+            System.out.println(e);
+            return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),404));
         }
     }
 

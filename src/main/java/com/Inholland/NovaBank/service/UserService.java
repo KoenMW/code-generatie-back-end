@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -100,12 +101,20 @@ public class UserService extends BaseService{
 
     public returnUserDTO addUser(newUserDTO user) {
         if (userRepository.findUserByUsername(user.getUsername()) == null) {
+            if(!checkIfNotNull(user)){
+                throw new IllegalArgumentException("Not all fields are filled in");
+            }
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             User newUser = createUser(user);
             User savedUser = userRepository.save(newUser);
             return new returnUserDTO(savedUser.getId(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getRole(), savedUser.getDayLimit(), savedUser.getTransactionLimit(), savedUser.isHasAccount());
         }
         throw new IllegalArgumentException("Username is already taken");
+    }
+
+    public boolean checkIfNotNull(newUserDTO user){
+        return !Objects.equals(user.getFirstName(), "") && !Objects.equals(user.getLastName(), "") && !Objects.equals(user.getUsername(), "") && !Objects.equals(user.getPassword(), "") && !Objects.equals(user.getEmail(), "");
+
     }
 
     private User createUser(newUserDTO user) {
