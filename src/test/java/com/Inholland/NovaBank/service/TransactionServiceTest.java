@@ -44,6 +44,7 @@ class TransactionServiceTest {
 
 
 
+
     @BeforeEach
     void setUp() {
         transactionService = new TransactionService(transactionRepository, accountRepository, userRepository, accountService);
@@ -132,17 +133,6 @@ class TransactionServiceTest {
         given(transactionRepository.save(any(Transaction.class))).willReturn(transaction);
         TransactionResponceDTO transactionResponceDTO = transactionService.Add(transactionRequestDTO);
         assertNotNull(transactionResponceDTO);
-    }
-
-    @Test
-    void add2(){
-        when(transactionServiceMock.Add(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test"))).thenReturn(
-                new TransactionResponceDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test", LocalDateTime.now(),"?")
-        );
-        TransactionResponceDTO transaction = transactionServiceMock.Add(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
-        assertNotNull(transaction);
-        assertEquals("NL01INHO0000000001", transaction.getFromAccount());
-        assertEquals("NL01INHO0000000002", transaction.getToAccount());
     }
 
 
