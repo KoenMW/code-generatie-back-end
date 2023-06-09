@@ -71,7 +71,7 @@ public class AccountController {
             return ResponseEntity.status(201).body(accountService.add(account));
         }catch (Exception e){
             System.out.println(e.getMessage());
-            return ResponseEntity.status(400).body(new ErrorDTO(e.getMessage(), "400"));
+            return ResponseEntity.status(400).body(new ErrorDTO(e.getMessage(), 404));
         }
 
     }
@@ -83,11 +83,11 @@ public class AccountController {
             return ResponseEntity.status(200).body(accountService.update(account));
         }
         else{
-            return ResponseEntity.status(404).body(new ErrorDTO("Operation not found", "404"));
+            return ResponseEntity.status(404).body(new ErrorDTO("Operation not found", 404));
         }
     }
     catch (Exception e){
-        return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(), "404"));
+        return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(), 404));
     }
 
 
