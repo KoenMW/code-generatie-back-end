@@ -135,9 +135,22 @@ class TransactionServiceTest {
     }
 
     @Test
-    void hasBalanceTrue() {
-        Account account = new Account("NL01INHO0000000001", 300, 1l, AccountType.CREDIT, true, 100);
-        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(account);
+    void add2(){
+        when(transactionServiceMock.Add(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test"))).thenReturn(
+                new TransactionResponceDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test", LocalDateTime.now(),"?")
+        );
+        TransactionResponceDTO transaction = transactionServiceMock.Add(new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
+        assertNotNull(transaction);
+        assertEquals("NL01INHO0000000001", transaction.getFromAccount());
+        assertEquals("NL01INHO0000000002", transaction.getToAccount());
+    }
+
+
+    @Test
+    void hasBalance() {
+        when(accountRepository.findByIban("NL01INHO0000000001")).thenReturn(
+                new Account("NL01INHO0000000001", 1000, 1, AccountType.SAVINGS, true, 200)
+        );
         boolean hasBalance = transactionService.HasBalance("NL01INHO0000000001", 100);
         assertTrue(hasBalance);
     }
