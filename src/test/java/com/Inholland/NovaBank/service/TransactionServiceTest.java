@@ -253,7 +253,7 @@ class TransactionServiceTest {
         given(accountService.updateBalance(new patchAccountDTO("NL01INHO0000000001", "update", "balance", "100"))).willReturn(
                 new returnAccountDTO("NL01INHO0000000001",AccountType.CREDIT)
         );
-        given(transactionRepository.save(new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "withdraw", 200, "Withdraw"))).willReturn(
+        given(transactionRepository.save(any(Transaction.class))).willReturn(
                 new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000001", 200, "withdraw")
         );
         TransactionResponceDTO transaction = transactionService.Withdraw(new DepositWithdrawDTO("NL01INHO0000000001", 200));

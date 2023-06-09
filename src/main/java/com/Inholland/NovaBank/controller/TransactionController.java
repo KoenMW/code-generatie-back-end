@@ -24,19 +24,6 @@ public class TransactionController {
     public ResponseEntity<List<TransactionResponceDTO>> GetAll(){
         return ResponseEntity.ok().body(transactionService.GetAll());
     }
-    @PreAuthorize("hasRole('USER') || hasRole('ADMIN')")
-    @GetMapping("/byIban")
-    public ResponseEntity<List<TransactionResponceDTO>> GetAllFromIban(@RequestBody IBANRequestBody iban){
-        if (!BaseService.IsValidIban(iban.getIban())){
-            return ResponseEntity.notFound().build();
-        }
-        List<TransactionResponceDTO> transactions = transactionService.GetAllFromIban(iban.getIban());
-        if (transactions.size() > 0)
-        {
-            return ResponseEntity.ok().body(transactions);
-        }
-        return ResponseEntity.noContent().build();
-    }
 
 
     @PostMapping
