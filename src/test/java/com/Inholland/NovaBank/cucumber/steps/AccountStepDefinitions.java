@@ -72,7 +72,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
     @Given("The user is logged in with username {string} and password {string}")
     public void theUserIsLoggedInWithUsernameAndPassword(String username, String password) throws JsonProcessingException {
         httpHeaders.add("Content-Type", "application/json");
-        response = restTemplate.exchange("/login",
+        response = restTemplate.exchange("/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(
                         mapper.writeValueAsString(Map.of("username", username, "password", password)),

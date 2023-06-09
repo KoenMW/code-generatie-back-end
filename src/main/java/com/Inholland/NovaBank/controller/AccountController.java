@@ -71,7 +71,7 @@ public class AccountController {
             return ResponseEntity.status(201).body(accountService.add(account));
         }catch (Exception e){
             System.out.println(e.getMessage());
-            return ResponseEntity.status(400).body(new ErrorDTO(e.getMessage(), 404));
+            return ResponseEntity.status(400).body(new ErrorDTO(e.getMessage(), 400));
         }
 
     }
