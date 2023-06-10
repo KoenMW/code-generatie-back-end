@@ -176,11 +176,6 @@ public class AccountService extends BaseService{
         return new returnAccountDTO(account1.getIban(), account1.getAccountType());
     }
 
-    public AccountService(AccountRepository accountRepository, UserRepository userRepository,UserService userService){
-        this.accountRepository = accountRepository;
-        this.userService = userService;
-    }
-
     public boolean AccountExists(String Iban){
         return accountRepository.findByIban(Iban) != null;
     }
