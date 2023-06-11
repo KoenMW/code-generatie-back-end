@@ -1,6 +1,8 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.DTO.BaseDTO;
+
+import com.Inholland.NovaBank.model.DTO.ErrorDTO;
 import com.Inholland.NovaBank.model.DTO.LoginRequestDTO;
 import com.Inholland.NovaBank.model.DTO.LoginResponseDTO;
 import com.Inholland.NovaBank.service.UserService;
@@ -24,7 +26,7 @@ public class AuthController {
         try{
             return ResponseEntity.ok().body(userService.login(loginRequestDTO));
         } catch (Exception e) {
-            return ResponseEntity.status(404).body(null);
+            return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),403));
         }
 
 
