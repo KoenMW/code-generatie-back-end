@@ -141,9 +141,9 @@ public class AccountService extends BaseService{
 
     public returnAccountDTO update(patchAccountDTO account)  {
         Account accountFromRepo = accountRepository.findByIban(account.getIban());
-        /*if(ownership(accountFromRepo)){
+        if(ownership(accountFromRepo)){
             throw new IllegalArgumentException("Not authorized");
-        }*/
+        }
         switch (account.getKey()) {
             case "iban" -> accountFromRepo.setIban(account.getValue());
             case "active" -> accountFromRepo.setActive(Boolean.parseBoolean(account.getValue()));
@@ -167,6 +167,10 @@ public class AccountService extends BaseService{
 
         Account account1 = accountRepository.save(accountFromRepo);
         return new returnAccountDTO(account1.getIban(), account1.getAccountType());
+    }
+
+    private boolean ownership(Account accountFromRepo) {
+        return accountFromRepo.getIban().equals("NL01INHO0000000001");
     }
 
     public returnAccountDTO updateBalance(patchAccountDTO account){
