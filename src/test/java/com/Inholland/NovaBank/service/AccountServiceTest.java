@@ -45,6 +45,16 @@ public class AccountServiceTest {
     @MockBean
     private AccountService accountServiceMock;
 
+    @InjectMocks
+    private AccountService accountService;
+
+    @Mock
+    private AccountRepository accountRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private UserService userService;
+
     @BeforeEach
     void setUp() {
 
@@ -52,59 +62,63 @@ public class AccountServiceTest {
 
     @Test
     public void getAll(){
-        given(accountServiceMock.getAll(2L,0L)).willReturn(
+        given(accountService.getAll(2L,0L)).willReturn(
                 List.of(
                         new Account("NL01INHO0000000001", 200,1, AccountType.SAVINGS,true,200),
                         new Account("NL01INHO0000000002", 200,1, AccountType.SAVINGS,true,200)
                 )
         );
-        List<Account> accounts = accountServiceMock.getAll(2L,0L);
+        List<Account> accounts = accountService.getAll(2L,0L);
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
     }
 
+
+
     @Test
     public void getAll2(){
-        given(accountServiceMock.getAll(true,2L,0L)).willReturn(
+        given(accountService.getAll(true,2L,0L)).willReturn(
                 List.of(
                         new Account("NL01INHO0000000001", 200,1, AccountType.SAVINGS,true,200),
                         new Account("NL01INHO0000000002", 200,1, AccountType.SAVINGS,true,200)
                 )
         );
-        List<Account> accounts = accountServiceMock.getAll(true,2L,0L);
+        List<Account> accounts = accountService.getAll(true,2L,0L);
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
     }
 
     @Test
     public void getAllActive(){
-        given(accountServiceMock.getAllActive(2L,0L,true)).willReturn(
+        given(accountService.getAllActive(2L,0L,true)).willReturn(
                 List.of(
                         new Account("NL01INHO0000000001", 200,1, AccountType.SAVINGS,true,200),
                         new Account("NL01INHO0000000002", 200,1, AccountType.SAVINGS,true,200)
                 )
         );
-        List<Account> accounts = accountServiceMock.getAllActive(2L,0L,true);
+        List<Account> accounts = accountService.getAllActive(2L,0L,true);
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
     }
 
+
+
     @Test
     public void getAllActiveInvalid(){
-        given(accountServiceMock.getAllActive(2L,0L,true)).willReturn(
+        given(accountService.getAllActive(2L,0L,true)).willReturn(
                 null
         );
-        List<Account> accounts = accountServiceMock.getAllActive(2L,0L,true);
+        List<Account> accounts = accountService.getAllActive(2L,0L,true);
         assertNull(accounts);
     }
 
 
     @Test
     public void getAllWithActiveInvalid(){
-        given(accountServiceMock.getAll(true,2L,0L)).willReturn(
+        given(accountService.getAll(true,2L,0L)).willReturn(
                 null
         );
-        List<Account> accounts = accountServiceMock.getAll(true,2L,0L);
+        List<Account> accounts = accountService.getAll(true,2L,0L);
         assertNull(accounts);
     }
 
@@ -112,10 +126,10 @@ public class AccountServiceTest {
 
     @Test
     public void getAllInvalid(){
-        given(accountServiceMock.getAll(2L,0L)).willReturn(
+        given(accountService.getAll(2L,0L)).willReturn(
                 null
         );
-        List<Account> accounts = accountServiceMock.getAll(2L,0L);
+        List<Account> accounts = accountService.getAll(2L,0L);
         assertNull(accounts);
     }
 
@@ -129,6 +143,8 @@ public class AccountServiceTest {
                         new Account("NL01INHO0000000002", 200,2, AccountType.SAVINGS,true,200)
                 )
         );
+
+
         List<Account> accounts = accountServiceMock.getByUserId(2);
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
@@ -147,23 +163,21 @@ public class AccountServiceTest {
 
     @Test
     public void checkLimit(){
-        given(accountServiceMock.checkLimit(200)).willReturn(
-                true);
-        assertTrue(accountServiceMock.checkLimit(200));
+
+        assertTrue(accountService.checkLimit(200));
 
     }
 
     @Test
     public void checkLimitFalse(){
-        assertFalse(accountServiceMock.checkLimit(-200));
+        assertFalse(accountService.checkLimit(-200));
 
     }
 
     @Test
     public void checkLimit0(){
-        given(accountServiceMock.checkLimit(0)).willReturn(
-                true);
-        assertTrue(accountServiceMock.checkLimit(0));
+
+        assertTrue(accountService.checkLimit(0));
 
     }
 
@@ -177,6 +191,7 @@ public class AccountServiceTest {
     public void add(){
         given(accountServiceMock.add(new newAccountDTO(2, AccountType.SAVINGS,200))).willReturn(
                 new returnAccountDTO("NL01INHO0000000001",AccountType.SAVINGS));
+
         returnAccountDTO account = accountServiceMock.add(new newAccountDTO(2, AccountType.SAVINGS,200));
         assertNotNull(account);
         assertEquals("NL01INHO0000000001", account.getIban());
@@ -238,8 +253,8 @@ public class AccountServiceTest {
 
     @Test
     public void getPageable(){
-        given(accountServiceMock.getPageable(1000L,0L)).willReturn(new OffsetBasedPageRequest(0,1000));
-        Pageable pageable = accountServiceMock.getPageable(1000L,0L);
+
+        Pageable pageable = accountService.getPageable(1000L,0L);
         assertNotNull(pageable);
     }
 
@@ -252,8 +267,8 @@ public class AccountServiceTest {
 
     @Test
     public void transformAccounts(){
-        given(accountServiceMock.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)))).willReturn(List.of(new searchAccountDTO("NL01INHO0000000001", 2, AccountType.SAVINGS)));
-        List<searchAccountDTO> accounts = accountServiceMock.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)));
+
+        List<searchAccountDTO> accounts = accountService.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)));
         assertNotNull(accounts);
     }
 
@@ -280,8 +295,8 @@ public class AccountServiceTest {
 
     @Test
     public void setAccount(){
-        given(accountServiceMock.setAccount(new newAccountDTO(2,AccountType.CHECKING,200))).willReturn(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200));
-        Account account = accountServiceMock.setAccount(new newAccountDTO(2,AccountType.CHECKING,200));
+
+        Account account = accountService.setAccount(new newAccountDTO(2,AccountType.CHECKING,200));
         assertNotNull(account);
     }
 
