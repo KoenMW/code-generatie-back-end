@@ -2,6 +2,8 @@ package com.Inholland.NovaBank.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +16,8 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class UserDetailServiceTest {
     @MockBean
-    private UserDetailService userDetailService;
+    private UserDetailService userDetailServiceMock;
+
 
     @Test
     void LoadUserByUsername() {
@@ -24,8 +27,8 @@ public class UserDetailServiceTest {
                         .password("1234")
                         .authorities("USER")
                         .build();
-        given(userDetailService.loadUserByUsername("test")).willReturn(userDetails);
-        UserDetails user = userDetailService.loadUserByUsername("test");
+        given(userDetailServiceMock.loadUserByUsername("test")).willReturn(userDetails);
+        UserDetails user = userDetailServiceMock.loadUserByUsername("test");
         assert(user.getUsername().equals("henkie"));
 
     }
@@ -38,10 +41,12 @@ public class UserDetailServiceTest {
                         .password("1234")
                         .authorities("USER")
                         .build();
-        given(userDetailService.loadUserByUsername("test")).willReturn(userDetails);
-        UserDetails user = userDetailService.loadUserByUsername("henkie");
+        given(userDetailServiceMock.loadUserByUsername("test")).willReturn(userDetails);
+        UserDetails user = userDetailServiceMock.loadUserByUsername("henkie");
         assert(user == null);
     }
+
+
 
 
 }

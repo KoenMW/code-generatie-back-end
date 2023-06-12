@@ -42,36 +42,27 @@ import java.util.Optional;
 @ExtendWith(MockitoExtension.class)
 public class AccountServiceTest {
 
-    @Mock
-    private AccountRepository accountRepository;
-    @InjectMocks
-    private UserService userService;
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-    @Mock
-    private JwtTokenProvider jwttokenprovider;
-
+    @MockBean
+    private AccountService accountServiceMock;
 
     @InjectMocks
     private AccountService accountService;
 
-    @MockBean
-    private AccountService accountServiceMock;
+    @Mock
+    private AccountRepository accountRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
 
-        userService = new UserService(userRepository,bCryptPasswordEncoder, jwttokenprovider);
-        accountService = new AccountService(accountRepository, userRepository, userService);
-
     }
 
     @Test
-    void getAll() {
-
-                when(accountRepository.findAllAccounts(accountService.getPageable(2L,0L))).thenReturn(
+    public void getAll(){
+        given(accountService.getAll(2L,0L)).willReturn(
                 List.of(
                         new Account("NL01INHO0000000001", 200,1, AccountType.SAVINGS,true,200),
                         new Account("NL01INHO0000000002", 200,1, AccountType.SAVINGS,true,200)
@@ -80,25 +71,26 @@ public class AccountServiceTest {
         List<Account> accounts = accountService.getAll(2L,0L);
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
-
     }
 
+
+
     @Test
-    void getAll2(){
-        given(accountServiceMock.getAll(2L,0L)).willReturn(
+    public void getAll2(){
+        given(accountService.getAll(true,2L,0L)).willReturn(
                 List.of(
                         new Account("NL01INHO0000000001", 200,1, AccountType.SAVINGS,true,200),
                         new Account("NL01INHO0000000002", 200,1, AccountType.SAVINGS,true,200)
                 )
         );
-        List<Account> accounts = accountServiceMock.getAll(2L,0L);
+        List<Account> accounts = accountService.getAll(true,2L,0L);
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
     }
 
     @Test
-    void getAllActive() {
-        when(accountRepository.findAllAccountsActive(accountService.getPageable(2L,0L),true)).thenReturn(
+    public void getAllActive(){
+        given(accountService.getAllActive(2L,0L,true)).willReturn(
                 List.of(
                         new Account("NL01INHO0000000001", 200,1, AccountType.SAVINGS,true,200),
                         new Account("NL01INHO0000000002", 200,1, AccountType.SAVINGS,true,200)
@@ -108,137 +100,107 @@ public class AccountServiceTest {
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
     }
+
+
+
     @Test
-    void getAllActiveInvalid() {
-        when(accountRepository.findAllAccountsActive(accountService.getPageable(2L,0L),true)).thenReturn(
+    public void getAllActiveInvalid(){
+        given(accountService.getAllActive(2L,0L,true)).willReturn(
                 null
         );
         List<Account> accounts = accountService.getAllActive(2L,0L,true);
         assertNull(accounts);
     }
 
-    @Test
-    void testGetAll() {
-        when(accountRepository.findAllAccounts(accountService.getPageable(2L,0L))).thenReturn(
-                List.of(
-                        new Account("NL01INHO0000000001", 200,1, AccountType.SAVINGS,true,200),
-                        new Account("NL01INHO0000000002", 200,1, AccountType.SAVINGS,true,200)
-                )
-        );
-        List<Account> accounts = accountService.getAll(2L,0L);
-        assertNotNull(accounts);
-        assertEquals(2, accounts.size());
-    }
 
     @Test
-    void testGetAllInvalid(){
-        when(accountRepository.findAllAccounts(accountService.getPageable(2L,0L))).thenReturn(
+    public void getAllWithActiveInvalid(){
+        given(accountService.getAll(true,2L,0L)).willReturn(
+                null
+        );
+        List<Account> accounts = accountService.getAll(true,2L,0L);
+        assertNull(accounts);
+    }
+
+
+
+    @Test
+    public void getAllInvalid(){
+        given(accountService.getAll(2L,0L)).willReturn(
                 null
         );
         List<Account> accounts = accountService.getAll(2L,0L);
         assertNull(accounts);
     }
 
-    @Test
-    void getByUserId() {
-        when(accountRepository.findByuserReferenceId(2)).thenReturn(
-                List.of(
-                        new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200),
-                        new Account("NL01INHO0000000002", 200,2, AccountType.SAVINGS,true,200)
-                )
-        );
-        UserService userService = Mockito.mock(UserService.class);
-        when(userRepository.findUserByUsername("henk")).thenReturn(new User("henk", "tarp", "henk", "1234", "henk", Role.ROLE_ADMIN, 200, 200, true));
-        //when(userService.transformUsers(List.of(new User("henk","henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)))).thenReturn(List.of(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)));
-        //when(userService.getUserByUsername("henk")).thenReturn(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true));
-        Authentication authentication = Mockito.mock(Authentication.class);
-        //when(userService.getUserByUsername("henk")).thenReturn(new User("henk", "tarp", "henk", "1234", "henk", Role.ROLE_ADMIN, 200, 200, true));
-        when(authentication.getName()).thenReturn("henk");
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
 
-        List<Account> accounts = accountService.getByUserId(2);
-        assertNotNull(accounts);
-        assertEquals(2, accounts.size());
-    }
 
     @Test
-    void getByUserId2(){
+    public void getByUserId(){
         when(accountServiceMock.getByUserId(2)).thenReturn(
                 List.of(
                         new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200),
                         new Account("NL01INHO0000000002", 200,2, AccountType.SAVINGS,true,200)
                 )
         );
+
+
         List<Account> accounts = accountServiceMock.getByUserId(2);
         assertNotNull(accounts);
         assertEquals(2, accounts.size());
     }
+
+
     @Test
-    void getByUserIdInvalid() {
-        when(accountRepository.findByuserReferenceId(2)).thenReturn(
+    public void getByUserIdInvalid() {
+        when(accountServiceMock.getByUserId(2)).thenReturn(
                 null
         );
-        Authentication authentication = Mockito.mock(Authentication.class);
-        when(userRepository.findUserByUsername("henk")).thenReturn(new User("henk", "tarp", "henk", "1234", "henk", Role.ROLE_ADMIN, 200, 200, true));
-        //when(userService.getUserByUsername("henk")).thenReturn(new returnUserDTO(2L,"henk", "tarp", "henk",  "henk", Role.ROLE_ADMIN, 200, 200, true));
-        //when(userService.transformUsers(List.of(new User("henk","tarp", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)))).thenReturn(List.of(new returnUserDTO(2L,"henk", "tarp", "henk", "henk", Role.ROLE_ADMIN, 200, 200, true)));
-        when(authentication.getName()).thenReturn("henk");
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-        List<Account> accounts = accountService.getByUserId(2);
+        List<Account> accounts = accountServiceMock.getByUserId(2);
         //check if null
         assertNull(accounts);
     }
 
-
-
-
-
     @Test
-    void checkLimit(){
+    public void checkLimit(){
+
         assertTrue(accountService.checkLimit(200));
 
     }
 
     @Test
-    void checkLimitFalse(){
+    public void checkLimitFalse(){
         assertFalse(accountService.checkLimit(-200));
 
     }
 
     @Test
-    void checkLimitFalse2(){
+    public void checkLimit0(){
+
         assertTrue(accountService.checkLimit(0));
 
     }
 
     @Test
-    void checkLimitFalse3(){
-        assertFalse(accountService.checkLimit(1000000000));
+    public void checkLimitFalse2(){
+        assertFalse(accountServiceMock.checkLimit(1000000000));
 
     }
 
-
-
-
     @Test
-    void add() {
-        doReturn(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200))
-                .when(accountRepository)
-                .save(Mockito.any(Account.class));
-        User user = new User("henk","tarp","henk","1234","henk@gmail.com", Role.ROLE_ADMIN,200,200,true);
-        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+    public void add(){
+        given(accountServiceMock.add(new newAccountDTO(2, AccountType.SAVINGS,200))).willReturn(
+                new returnAccountDTO("NL01INHO0000000001",AccountType.SAVINGS));
 
-        returnAccountDTO account = accountService.add(new newAccountDTO(2, AccountType.SAVINGS,200));
+        returnAccountDTO account = accountServiceMock.add(new newAccountDTO(2, AccountType.SAVINGS,200));
         assertNotNull(account);
         assertEquals("NL01INHO0000000001", account.getIban());
+        assertEquals("SAVINGS", account.getAccountType().toString());
     }
 
+
     @Test
-    void addInvalid(){
+    public void addInvalid(){
         AccountService accountService = mock(AccountService.class);
 
         doThrow(IllegalArgumentException.class).when(accountService).add(any());
@@ -246,137 +208,159 @@ public class AccountServiceTest {
         assertThrows(IllegalArgumentException.class, () -> accountService.add(new newAccountDTO(3, AccountType.SAVINGS,200)));
     }
 
-
     @Test
-    void update() {
-        when(accountRepository.save(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,250))).thenReturn(
-                new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,250)
-        );
-        when(accountRepository.findByIban("NL01INHO0000000001")).thenReturn(
-                new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)
-        );
-        returnAccountDTO account = accountService.update(new patchAccountDTO("NL01INHO0000000001","update","absoluteLimit","250"));
-        assertNotNull(account);
-        assertEquals("NL01INHO0000000001", account.getIban());
-
+    public void addWithWrongAbsoluteLimit(){
+        when(accountServiceMock.add(new newAccountDTO(2, AccountType.SAVINGS,-200))).thenThrow(IllegalArgumentException.class);
+        assertThrows(IllegalArgumentException.class, () -> accountServiceMock.add(new newAccountDTO(2, AccountType.SAVINGS,-200)));
     }
 
     @Test
-    void updateInvalid(){
+    public void update(){
+        given(accountServiceMock.update(new patchAccountDTO("NL01INHO0000000001","update","balance","200"))).willReturn(
+                new returnAccountDTO("NL01INHO0000000001",AccountType.SAVINGS)
+        );
+        returnAccountDTO updatedAccount = accountServiceMock.update(new patchAccountDTO("NL01INHO0000000001","update","balance","200"));
+        assertNotNull(updatedAccount);
+        assertEquals("NL01INHO0000000001", updatedAccount.getIban());
+    }
+
+    @Test
+    public void updateInvalid(){
         AccountService accountService = mock(AccountService.class);
         doThrow(IllegalArgumentException.class).when(accountService).update(any());
         assertThrows(IllegalArgumentException.class, () -> accountService.update(new patchAccountDTO("NL01INHO0000000001","update","absoluteLimit","250")));
     }
 
     @Test
-    void getAllSearch(){
+    public void updateWithInvalidAbsoluteLimit(){
+        when(accountServiceMock.update(new patchAccountDTO("NL01INHO0000000001","update","absoluteLimit","-200"))).thenThrow(IllegalArgumentException.class);
+        assertThrows(IllegalArgumentException.class, () -> accountServiceMock.update(new patchAccountDTO("NL01INHO0000000001","update","absoluteLimit","-200")));
+    }
+
+    @Test
+    public void getAllSearch(){
         given(accountServiceMock.getAllSearch(1000L,0L)).willReturn(List.of(new searchAccountDTO("NL01INHO0000000001", 2, AccountType.SAVINGS)));
         List<searchAccountDTO> accounts = accountServiceMock.getAllSearch(1000L,0L);
         assertNotNull(accounts);
     }
 
     @Test
-    void getAllSearchInvalid(){
+    public void getAllSearchInvalid(){
         given(accountServiceMock.getAllSearch(1000L,0L)).willReturn(null);
         List<searchAccountDTO> accounts = accountServiceMock.getAllSearch(1000L,0L);
         assertNull(accounts);
     }
 
     @Test
-    void getPageable(){
-        given(accountServiceMock.getPageable(1000L,0L)).willReturn(new OffsetBasedPageRequest(0,1000));
-        Pageable pageable = accountServiceMock.getPageable(1000L,0L);
+    public void getPageable(){
+
+        Pageable pageable = accountService.getPageable(1000L,0L);
         assertNotNull(pageable);
     }
 
     @Test
-    void getInvalidPageable(){
+    public void getInvalidPageable(){
         given(accountServiceMock.getPageable(1000L,0L)).willReturn(null);
         Pageable pageable = accountServiceMock.getPageable(1000L,0L);
         assertNull(pageable);
     }
 
     @Test
-    void transformAccounts(){
-        given(accountServiceMock.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)))).willReturn(List.of(new searchAccountDTO("NL01INHO0000000001", 2, AccountType.SAVINGS)));
-        List<searchAccountDTO> accounts = accountServiceMock.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)));
+    public void transformAccounts(){
+
+        List<searchAccountDTO> accounts = accountService.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)));
         assertNotNull(accounts);
     }
 
     @Test
-    void transformAccountsInvalid(){
+    public void transformAccountsInvalid(){
         given(accountServiceMock.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)))).willReturn(null);
         List<searchAccountDTO> accounts = accountServiceMock.transformAccounts(List.of(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200)));
         assertNull(accounts);
     }
 
     @Test
-    void authUser(){
+    public void authUser(){
         given(accountServiceMock.authUser(1L)).willReturn(true);
         boolean auth = accountServiceMock.authUser(1L);
         assertTrue(auth);
     }
 
     @Test
-    void authUserInvalid(){
+    public void authUserInvalid(){
         given(accountServiceMock.authUser(1L)).willReturn(false);
         boolean auth = accountServiceMock.authUser(1L);
         assertFalse(auth);
     }
 
     @Test
-    void setAccount(){
-        given(accountServiceMock.setAccount(new newAccountDTO(2,AccountType.CHECKING,200))).willReturn(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,true,200));
-        Account account = accountServiceMock.setAccount(new newAccountDTO(2,AccountType.CHECKING,200));
+    public void setAccount(){
+
+        Account account = accountService.setAccount(new newAccountDTO(2,AccountType.CHECKING,200));
         assertNotNull(account);
     }
 
     @Test
-    void setAccountInvalid(){
+    public void setAccountInvalid(){
         given(accountServiceMock.setAccount(new newAccountDTO(2,AccountType.CHECKING,200))).willReturn(null);
         Account account = accountServiceMock.setAccount(new newAccountDTO(2,AccountType.CHECKING,200));
         assertNull(account);
     }
 
     @Test
-    void checkUserHasAccount(){
+    public void checkUserHasAccount(){
         given(accountServiceMock.checkUserHasAccount(1L)).willReturn(true);
         boolean auth = accountServiceMock.checkUserHasAccount(1L);
         assertTrue(auth);
     }
 
     @Test
-    void checkUserHasAccountInvalid(){
+    public void checkUserHasAccountInvalid(){
         given(accountServiceMock.checkUserHasAccount(1L)).willReturn(false);
         boolean auth = accountServiceMock.checkUserHasAccount(1L);
         assertFalse(auth);
     }
 
     @Test
-    void updateUserAccountStatus(){
+    public void updateUserAccountStatus(){
         accountServiceMock.updateUserAccountStatus(1L);
         verify(accountServiceMock, times(1)).updateUserAccountStatus(1L);
 
     }
 
     @Test
-    void updateUserAccountStatusInvalid(){
+    public void updateUserAccountStatusInvalid(){
         doThrow(IllegalArgumentException.class).when(accountServiceMock).updateUserAccountStatus(1L);
         assertThrows(IllegalArgumentException.class, () -> accountServiceMock.updateUserAccountStatus(1L));
     }
 
     @Test
-    void updateBalance(){
+    public void updateBalance(){
         given(accountServiceMock.updateBalance(new patchAccountDTO("NL01INHO0000000001","update","balance","200"))).willReturn(new returnAccountDTO("NL01INHO0000000001",AccountType.SAVINGS));
         returnAccountDTO account = accountServiceMock.updateBalance(new patchAccountDTO("NL01INHO0000000001","update","balance","200"));
         assertNotNull(account);
+        assertEquals("NL01INHO0000000001", account.getIban());
     }
 
     @Test
-    void updateBalanceInvalid(){
+    public void updateBalanceInvalid(){
         given(accountServiceMock.updateBalance(new patchAccountDTO("NL01INHO0000000001","update","balance","200"))).willReturn(null);
         returnAccountDTO account = accountServiceMock.updateBalance(new patchAccountDTO("NL01INHO0000000001","update","balance","200"));
         assertNull(account);
+    }
+
+    @Test
+    public void AccountExists(){
+        given(accountServiceMock.AccountExists("NL01INHO0000000001")).willReturn(true);
+        boolean exists = accountServiceMock.AccountExists("NL01INHO0000000001");
+        assertTrue(exists);
+    }
+
+    @Test
+    public void AccountExistsInvalid(){
+        given(accountServiceMock.AccountExists("NL01INHO0000000001")).willReturn(false);
+        boolean exists = accountServiceMock.AccountExists("NL01INHO0000000001");
+        assertFalse(exists);
     }
 
 }
