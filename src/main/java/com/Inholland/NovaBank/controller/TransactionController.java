@@ -1,8 +1,6 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.DTO.*;
-import com.Inholland.NovaBank.model.IBANRequestBody;
-import com.Inholland.NovaBank.service.BaseService;
 import com.Inholland.NovaBank.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

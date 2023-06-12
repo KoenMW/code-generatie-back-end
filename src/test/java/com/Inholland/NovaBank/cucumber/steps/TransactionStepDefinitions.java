@@ -1,7 +1,6 @@
 package com.Inholland.NovaBank.cucumber.steps;
 
 import com.Inholland.NovaBank.model.DTO.TransactionRequestDTO;
-import com.Inholland.NovaBank.model.IBANRequestBody;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import io.cucumber.java.en.Given;

@@ -76,12 +76,6 @@ public class TransactionService extends BaseService {
         if (accountService.AccountExists(transaction.getFromAccount()) && accountService.AccountExists(transaction.getToAccount())){
             Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
             Account toAccount = accountRepository.findByIban(transaction.getToAccount());
-            //check everything in the console
-            System.out.println("HasBalance: " + HasBalance(transaction.getFromAccount(), transaction.getAmount()));
-            System.out.println("AbsoluteLimit: " + fromAccount.getAbsoluteLimit() + " <= " + fromAccount.getBalance() + " - " + transaction.getAmount() + " = " + (fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount()));
-            System.out.println("CheckDailyLimit: " + CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())));
-            System.out.println("CheckForSavingsAccount: " + CheckForSavingsAccount(fromAccount, toAccount));
-            System.out.println("Amount > 0: " + (transaction.getAmount() > 0));
 
             return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())) && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0;
         }
@@ -122,7 +116,6 @@ public class TransactionService extends BaseService {
     }
 
     public TransactionResponceDTO Withdraw(DepositWithdrawDTO dto){
-        System.out.println(dto);
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() - dto.getAmount())));
         return ConvertToResponce(transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw")));
@@ -133,7 +126,6 @@ public class TransactionService extends BaseService {
     }
 
     public TransactionResponceDTO Deposit(DepositWithdrawDTO dto){
-        System.out.println(dto);
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
         return ConvertToResponce(transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit")));
