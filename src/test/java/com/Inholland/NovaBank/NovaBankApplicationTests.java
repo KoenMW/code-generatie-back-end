@@ -10,6 +10,8 @@ class NovaBankApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// This is a test to see if the application context loads
+
 	}
 
 

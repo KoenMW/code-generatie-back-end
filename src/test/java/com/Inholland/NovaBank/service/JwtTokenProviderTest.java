@@ -1,14 +1,18 @@
 package com.Inholland.NovaBank.service;
 
+import com.Inholland.NovaBank.Jwt.JwtKeyProvider;
 import com.Inholland.NovaBank.Jwt.JwtTokenProvider;
 import com.Inholland.NovaBank.model.Role;
 import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.security.Key;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -20,14 +24,18 @@ public class JwtTokenProviderTest {
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
+    @MockBean
+    private JwtKeyProvider jwtKeyProvider;
     @Test
     public void createToken(){
         given(jwtTokenProvider.createToken("test", Role.ROLE_ADMIN,1)).willReturn("test");
+
         String token = jwtTokenProvider.createToken("test", Role.ROLE_ADMIN,1);
 
         assertNotNull(token);
 
     }
+
 
     @Test
     public void createTokenWithNull(){
