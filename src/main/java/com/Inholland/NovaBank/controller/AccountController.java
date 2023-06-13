@@ -35,10 +35,8 @@ public class AccountController {
     @GetMapping("/search")
     public ResponseEntity<List<searchAccountDTO>> getAllSearch(@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
         try{
-            System.out.println("test");
             return ResponseEntity.status(200).body(accountService.getAllSearch(limit, offset));
         }catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.status(404).body(null);
         }
     }
@@ -70,7 +68,6 @@ public class AccountController {
         try{
             return ResponseEntity.status(201).body(accountService.add(account));
         }catch (Exception e){
-            System.out.println(e.getMessage());
             return ResponseEntity.status(400).body(new ErrorDTO(e.getMessage(), 400));
         }
 
@@ -87,7 +84,7 @@ public class AccountController {
         }
     }
     catch (Exception e){
-        return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(), 404));
+        return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(), 400));
     }
 
 
