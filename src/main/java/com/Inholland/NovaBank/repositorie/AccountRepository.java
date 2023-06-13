@@ -1,6 +1,7 @@
 package com.Inholland.NovaBank.repositorie;
 
 import com.Inholland.NovaBank.model.Account;
+import com.Inholland.NovaBank.model.AccountType;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.domain.Pageable;
@@ -37,4 +38,8 @@ public interface AccountRepository extends CrudRepository<Account, Long> {
 
     @Query("SELECT a.iban FROM Account a WHERE a.userReferenceId = ?1")
     List<String> findAllIbansByUserReferenceId(long id);
+
+    @Query("SELECT a.iban FROM Account a WHERE a.userReferenceId = ?1 AND a.accountType = ?2")
+    String findCheckingIbanByUserReferenceIdAndAccountType(long id, AccountType accountType);
+
 }
