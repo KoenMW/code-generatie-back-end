@@ -70,22 +70,20 @@ public class DataSeeder implements ApplicationRunner {
             }
         }
 
-        System.out.println("Done seeding data");
 
 
-        for (Account account:
-             accounts) {
-            System.out.println(account.getIban());
-        }
+
+
         transactionService.Deposit(new DepositWithdrawDTO(accounts.get(0).getIban(), 200));
         transactionService.Deposit(new DepositWithdrawDTO(accounts.get(1).getIban(), 50));
         transactionService.Deposit(new DepositWithdrawDTO(accounts.get(2).getIban(), 150));
 
-        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(1), accounts.get(0).getIban(), accounts.get(1).getIban(), 50, "test"));
-        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(1), accounts.get(0).getIban(), accounts.get(2).getIban(), 50, "test"));
+        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(1), accounts.get(0).getIban(), accounts.get(1).getIban(), 50, "Boodschappen"));
+        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(1), accounts.get(0).getIban(), accounts.get(2).getIban(), 50, "Starbucks"));
 
-        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(2), accounts.get(0).getIban(), accounts.get(1).getIban(), 50, "test"));
-        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(2), accounts.get(0).getIban(), accounts.get(2).getIban(), 50, "test"));
+        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(2), accounts.get(0).getIban(), accounts.get(1).getIban(), 50, "Oma"));
+        transactionRepository.save(new Transaction(LocalDateTime.now().minusDays(2), accounts.get(0).getIban(), accounts.get(2).getIban(), 50, "Bol.com"));
+        System.out.println("Done seeding data");
     }
 
     private void seedBaseAccount(Long id){
