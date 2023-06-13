@@ -40,9 +40,6 @@ public class AccountService extends BaseService{
         } else {
             return getAll(limit, offset);
         }
-
-
-
     }
 
     public List<Account> getAllActive(Long limit, Long offset, boolean active){

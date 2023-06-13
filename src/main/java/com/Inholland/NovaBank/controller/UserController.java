@@ -25,26 +25,21 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private TransactionService transactionService;
-
     @PreAuthorize("hasRole('ADMIN')" + " || hasRole('USER')")
     @GetMapping("/{userId}")
     public ResponseEntity<BaseDTO> getById(@PathVariable long userId){
         try{
-
             returnUserDTO user = userService.getById(userId);
 
             if(user == null){
-                return ResponseEntity.status(403).body(null);
+                return ResponseEntity.status(403).body(new ErrorDTO("User does not exist", 403));
             }
             else{
                 return ResponseEntity.status(200).body(user);
             }
+
         }catch (Exception e) {
-
-            return ResponseEntity.status(404).body(null);
-
+            return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),404));
         }
     }
 
@@ -52,7 +47,6 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<returnUserDTO>> getAll(@RequestParam (required = false) boolean isActive,@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
         try {
-
             return ResponseEntity.status(200).body(userService.getAll(isActive, limit, offset));
         }catch (Exception e) {
             return ResponseEntity.status(404).body(null);
@@ -72,7 +66,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<BaseDTO>add(@RequestBody newUserDTO user){
         try{
-            return ResponseEntity.status(200).body(userService.addUser(user));
+            return ResponseEntity.status(201).body(userService.addUser(user));
         }catch (Exception e) {
             System.out.println(e);
             return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),404));
