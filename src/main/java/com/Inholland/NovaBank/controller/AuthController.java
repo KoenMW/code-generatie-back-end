@@ -26,7 +26,7 @@ public class AuthController {
         try{
             return ResponseEntity.ok().body(userService.login(loginRequestDTO));
         } catch (Exception e) {
-            return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),403));
+            return ResponseEntity.status(403).body(new ErrorDTO(e.getMessage(),403));
         }
 
 

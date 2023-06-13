@@ -10,7 +10,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 
-
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -193,6 +193,18 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
         int actual = JsonPath.read(response.getBody(), "$.size()");
 
         Assertions.assertEquals(6, actual);
+    }
+
+    @Then("Then the response status is {int}")
+    public void thenTheResponseStatusIs(int status) {
+        Assertions.assertEquals(status, response.getStatusCode().value());
+    }
+
+    @When("I retrieve all accounts throws an error")
+    public void iRetrieveAllAccountsThrowsAnError() {
+        response = restTemplate.exchange(restTemplate.getRootUri() + "/account", HttpMethod.GET, new HttpEntity<>(null, httpHeaders), String.class);
+
+
     }
 }
 

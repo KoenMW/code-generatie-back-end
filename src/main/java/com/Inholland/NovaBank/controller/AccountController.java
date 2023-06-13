@@ -84,7 +84,7 @@ public class AccountController {
         }
     }
     catch (Exception e){
-        return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(), 404));
+        return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(), 400));
     }
 
 
