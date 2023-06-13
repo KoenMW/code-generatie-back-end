@@ -29,3 +29,8 @@ Feature: accounts CRUD operations
     Then The response status is 200
     And The response body is a JSON object containing a property "iban"
 
+  Scenario: Get all search accounts
+    Given The user is logged in with username "JohnDoe" and password "1234"
+    Given The endpoint for "accounts/search" is available for method "GET"
+    When I retrieve all accounts with searchPath
+    Then I should receive all searchAccounts

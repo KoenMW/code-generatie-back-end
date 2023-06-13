@@ -37,15 +37,8 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-
-
     private final HttpHeaders httpHeaders = new HttpHeaders();
     private String jwtToken;
-
-
-
-
 
     private ResponseEntity<String> response;
     @Autowired
@@ -103,19 +96,6 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
                 .toEntity(String.class)
                 .block();
 
-
-
-        /*newAccountDTO dto = new newAccountDTO(userId, AccountType.valueOf(accountType),absoluteLimit);
-        System.out.println(dto);
-        httpHeaders.add("Content-Type", "application/json");
-        response = restTemplate.exchange("/accounts",
-                HttpMethod.POST,
-                new HttpEntity<>(
-                        mapper.writeValueAsString(dto),
-                        httpHeaders
-                ), String.class);
-
-         */
     }
 
 
@@ -200,6 +180,19 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
         assert account != null;
         Assertions.assertNotNull(account.getIban());
         Assertions.assertEquals(response.getStatusCode().value(), 200);
+    }
+
+    @When("I retrieve all accounts with searchPath")
+    public void iRetrieveAllAccountsWithSearchPath() {
+        response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts/search", HttpMethod.GET, new HttpEntity<>(null, httpHeaders), String.class);
+    }
+
+    @Then("I should receive all searchAccounts")
+    public void iShouldReceiveAllSearchAccounts() {
+        Assertions.assertEquals(200, response.getStatusCode().value());
+        int actual = JsonPath.read(response.getBody(), "$.size()");
+
+        Assertions.assertEquals(6, actual);
     }
 }
 
