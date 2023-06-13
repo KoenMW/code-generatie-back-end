@@ -42,14 +42,17 @@ public class AccountService extends BaseService{
             return getAll(limit, offset);
         }
     }
+
     //Methode om alle actieve accounts op te halen
     public List<Account> getAllActive(Long limit, Long offset, boolean active){
         return accountRepository.findAllAccountsActive(getPageable(limit, offset), active);
     }
+
     //Methode om alle accounts op te halen
     public List<Account> getAll(Long limit, Long offset){
         return accountRepository.findAllAccounts(getPageable(limit, offset));
     }
+
     //Methode om accounts op te halen voor anonieme gebruikers bij de zoekfunctie met minder informatie
     public List<searchAccountDTO> getAllSearch(Long limit, Long offset){
         if(limit == null){
@@ -60,6 +63,7 @@ public class AccountService extends BaseService{
         }
         return transformAccounts(accountRepository.findAllAccounts(getPageable(limit, offset)));
     }
+
     //Methode om accounts om te zetten in een DTO voor anonieme gebruikers
     public List<searchAccountDTO> transformAccounts(List<Account> accounts){
         List<searchAccountDTO> searchAccountDTOS = new ArrayList<>();
@@ -68,10 +72,12 @@ public class AccountService extends BaseService{
         }
         return searchAccountDTOS;
     }
+
     //Maakt een pageable object aan voor de offset en limit
     public Pageable getPageable(Long limit, Long offset) {
         return new OffsetBasedPageRequest(offset.intValue(), limit.intValue());
     }
+
     //Methode om een account op te halen op basis van de id
     public List<Account> getByUserId(long id){
         if(authUser(id)){
@@ -81,6 +87,7 @@ public class AccountService extends BaseService{
             throw new IllegalArgumentException("Not authorized");
         }
     }
+
     //Alleen admin mag het ophalen of de gebruiker zelf
     public boolean authUser(long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -90,6 +97,7 @@ public class AccountService extends BaseService{
             return true;
         } else return user.getId() == id;
     }
+
     //Methode om een nieuw account aan te maken
     //Controleert of de gebruiker al een account heeft en of de limiet juist is
     public returnAccountDTO add(newAccountDTO account){
@@ -104,10 +112,12 @@ public class AccountService extends BaseService{
         return new returnAccountDTO(accountFromRepo.getIban(), accountFromRepo.getAccountType());
 
     }
+
     //Simpele methode om limiet te controleren
     public Boolean checkLimit(float limit){
         return limit >= 0 && limit < 1000000;
     }
+
     //Methode om een account in te vullen
     public Account setAccount(newAccountDTO account){
         Account newAccount = new Account();
@@ -119,11 +129,13 @@ public class AccountService extends BaseService{
         newAccount.setUserReferenceId(account.getUserReferenceId());
         return newAccount;
     }
+
     //Methode om te kijken of de gebruiker al een account heeft
     public boolean checkUserHasAccount(long id){
         returnUserDTO user = userService.getByIdDataSeeder(id);
         return user.isHasAccount();
     }
+
     //Zorgt ervoor dat de useraccountstatus wordt geupdate
     public void updateUserAccountStatus(long id){
         patchUserDTO patchUserDTO = new patchUserDTO();
@@ -133,6 +145,7 @@ public class AccountService extends BaseService{
         patchUserDTO.setOp("update");
         userService.update(patchUserDTO);
     }
+
     //Methode om accounts aan te passen
     //Controleert of de gebruiker niet de bank wil aanpassen
     //Het is een patch dus gaat 1 veld aanpassen
@@ -162,10 +175,12 @@ public class AccountService extends BaseService{
         Account account1 = accountRepository.save(accountFromRepo);
         return new returnAccountDTO(account1.getIban(), account1.getAccountType());
     }
+
     //Controleert of het niet de bank is
     private boolean ownership(Account accountFromRepo) {
         return accountFromRepo.getIban().equals("NL01INHO0000000001");
     }
+
     //Methode voor de transaction om balans te updaten
     public returnAccountDTO updateBalance(patchAccountDTO account){
         Account accountFromRepo = accountRepository.findByIban(account.getIban());
@@ -173,6 +188,7 @@ public class AccountService extends BaseService{
         Account account1 = accountRepository.save(accountFromRepo);
         return new returnAccountDTO(account1.getIban(), account1.getAccountType());
     }
+
     //Methode om te controleren of account bestaat
     public boolean AccountExists(String Iban){
         return accountRepository.findByIban(Iban) != null;
