@@ -84,10 +84,14 @@ public class TransactionService extends BaseService {
 
     //first gets the transactions from the last 24 hours, then adds the amount of the new transaction to the total amount of the transactions from the last 24 hours and checks if it is less than the absolute limit
     private boolean CheckDailyLimit(String iban, double amount, float dailyLimit){
+
         List<Transaction> transactions = GetTransactionsFromLast24Hours(iban);
         float totalAmount = 0;
         for (Transaction transaction : transactions){
-            totalAmount += transaction.getAmount();
+            if(!transaction.getDescription().equalsIgnoreCase("deposit")){
+                totalAmount += transaction.getAmount();
+            }
+
         }
         return totalAmount + amount <= dailyLimit;
     }
