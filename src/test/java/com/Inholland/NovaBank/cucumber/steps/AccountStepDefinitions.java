@@ -142,7 +142,7 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
     @And("There is an account with property {string}")
     public void thereIsAnAccountWithProperty(String iban) {
         //Loop trough response assert true if iban is found
-        List<returnAccountDTO> accounts = Arrays.asList(mapper.convertValue(JsonPath.read(response.getBody(), "$"), returnAccountDTO[].class));
+       List<returnAccountDTO> accounts = Arrays.asList(mapper.convertValue(JsonPath.read(response.getBody(), "$"), returnAccountDTO[].class));
         Assertions.assertNotNull(accounts.stream().anyMatch(account -> Boolean.parseBoolean(account.getIban())));
     }
 

@@ -1,6 +1,5 @@
 package com.Inholland.NovaBank.model.DTO;
 
-import com.Inholland.NovaBank.model.Role;
 import lombok.Data;
 
 @Data
@@ -16,7 +15,5 @@ public class patchUserDTO  extends BaseDTO{
         this.key = key;
         this.value = value;
     }
-    public patchUserDTO() {
-
-    }
+    public patchUserDTO() { }
 }
