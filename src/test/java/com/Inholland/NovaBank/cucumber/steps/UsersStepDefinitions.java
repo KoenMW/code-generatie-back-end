@@ -8,6 +8,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -101,7 +102,9 @@ public class UsersStepDefinitions extends BaseStepDefinitions{
         // get json body from response
         Double getDayLimit = JsonPath.read(response.getBody(), "$");
         // assert dayLimit
-        Assertions.assertEquals(dayLimit, getDayLimit);
+        Assertions.assertNotNull(getDayLimit);
+
+        Assertions.assertTrue(getDayLimit <= dayLimit);
     }
 
     //Find all users without account

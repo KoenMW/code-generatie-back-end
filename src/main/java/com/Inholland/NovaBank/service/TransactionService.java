@@ -6,6 +6,7 @@ import com.Inholland.NovaBank.model.DTO.TransactionRequestDTO;
 import com.Inholland.NovaBank.model.DTO.TransactionResponceDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
+import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.TransactionRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
