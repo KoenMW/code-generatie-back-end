@@ -29,15 +29,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<BaseDTO> getById(@PathVariable long userId){
         try{
-            returnUserDTO user = userService.getById(userId);
-
-            if(user == null){
-                return ResponseEntity.status(403).body(new ErrorDTO("User does not exist", 403));
-            }
-            else{
-                return ResponseEntity.status(200).body(user);
-            }
-
+            return ResponseEntity.status(200).body(userService.getById(userId));
         }catch (Exception e) {
             return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),404));
         }
@@ -68,22 +60,16 @@ public class UserController {
         try{
             return ResponseEntity.status(201).body(userService.addUser(user));
         }catch (Exception e) {
-            System.out.println(e);
             return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),404));
         }
     }
     @PreAuthorize("hasRole('ADMIN')" + " || hasRole('USER')")
     @GetMapping("/dailylimit/{userId}")
     public ResponseEntity<Double> getRemainingDailyLimit(@PathVariable long userId){
-        System.out.println("test");
-        System.out.println(userId);
         try{
             return ResponseEntity.status(200).body(userService.getRemainingDailyLimit(userId));
-
         }
         catch (Exception e){
-            System.out.println("failed to retrieve daily limit");
-            System.out.println(e);
             return ResponseEntity.status(404).body(null);
         }
     }

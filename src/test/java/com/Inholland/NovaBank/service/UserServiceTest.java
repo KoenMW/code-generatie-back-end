@@ -35,6 +35,8 @@ public class UserServiceTest {
     private UserService userServiceMock;
     @InjectMocks
     private UserService userService;
+    @Mock
+    private UserRepository userRepository;
 
     @Test
     void getByIdDataSeeder() {
@@ -242,6 +244,40 @@ public class UserServiceTest {
         when(userServiceMock.update(new patchUserDTO(1L, "update", "dayLimit", "320"))).thenReturn(null);
         returnUserDTO user = userServiceMock.update(new patchUserDTO(1L, "update", "dayLimit", "320"));
         assertNull(user);
+    }
+    @Test
+    void updateUsernameCheck(){
+        when(userRepository.findUserByUsername("henkie")).thenReturn(null);
+       userService.updateUsernameCheck(new patchUserDTO(1L, "update", "username", "henkie"));
+    }
+    @Test
+    void updateUsernameCheckInvalid(){
+        when(userRepository.findUserByUsername("henkie")).thenReturn(new User("firstName", "lastName", "henkie", "password", "email", ROLE_USER, 5000, 1000, true));
+        assertThrows(IllegalArgumentException.class, () -> userService.updateUsernameCheck(new patchUserDTO(1L, "update", "username", "henkie")));
+    }
+    @Test
+    void updateEmailCheck() {
+        userService.updateEmailCheck(new patchUserDTO(1L, "update", "email", "henk@mail.com"));
+    }
+    @Test
+    void updateEmailCheckInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> userService.updateEmailCheck(new patchUserDTO(1L, "update", "email", "henk@mail")));
+    }
+    @Test
+    void updateDayLimitCheck() {
+        userService.updateDayLimitCheck(new patchUserDTO(1L, "update", "dayLimit", "320"));
+    }
+    @Test
+    void updateDayLimitCheckInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> userService.updateDayLimitCheck(new patchUserDTO(1L, "update", "dayLimit", "3200000")));
+    }
+    @Test
+    void updateTransactionLimitCheck() {
+        userService.updateTransactionLimitCheck(new patchUserDTO(1L, "update", "transactionLimit", "320"));
+    }
+    @Test
+    void updateTransactionLimitCheckInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> userService.updateTransactionLimitCheck(new patchUserDTO(1L, "update", "transactionLimit", "3200000")));
     }
 
     @Test
