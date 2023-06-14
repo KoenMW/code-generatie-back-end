@@ -1,7 +1,7 @@
 Feature: Auth controller
 
   Scenario: Login with valid credentials
-    When The user logs in with username "JohnDoe" and password "1234"
+    When The user logs in with username "JohnDoe" and password "1234567"
     Then The response status code should be 200
     And The response should contain a valid JWT token
 
