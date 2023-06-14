@@ -82,7 +82,6 @@ public class AccountService extends BaseService{
     public List<Account> getByUserId(long id){
         if(authUser(id)){
             List<Account> accounts = accountRepository.findByuserReferenceId(id);
-            System.out.println(accounts);
             if(accounts.isEmpty()){
                 throw new IllegalArgumentException("No accounts found");
             }

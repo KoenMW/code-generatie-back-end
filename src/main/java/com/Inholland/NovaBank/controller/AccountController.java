@@ -46,8 +46,6 @@ public class AccountController {
     @GetMapping("/{userId}")
     public ResponseEntity<List<Account>> getByUserId(@PathVariable long userId){
         try{
-            List<Account> accounts = accountService.getByUserId(userId);
-            System.out.println(accounts);
             return ResponseEntity.status(200).body(accountService.getByUserId(userId));
         }
         catch (Exception e){
