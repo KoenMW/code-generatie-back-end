@@ -39,11 +39,12 @@ public class TransactionService extends BaseService {
     }
 
     public List<TransactionResponceDTO> GetAll(){
-        return ConvertToResponse((List<Transaction>) transactionRepository.findAll());
+        return ConvertToResponse((List<Transaction>) transactionRepository.findAll(), 0);
     }
 
     public List<TransactionResponceDTO> GetAllFromIban(String Iban){
-        return ConvertToResponse(transactionRepository.findAllByFromAccountOrToAccount(Iban, Iban));
+        List<Transaction> transactions = transactionRepository.findAllByFromAccountOrToAccount(Iban, Iban);
+        return ConvertToResponse(transactions, accountRepository.findByIban(Iban).getUserReferenceId());
     }
 
     public TransactionResponceDTO Add(TransactionRequestDTO transaction) {
@@ -57,7 +58,7 @@ public class TransactionService extends BaseService {
             accountService.updateBalance(new patchAccountDTO(toAccount.getIban(), "update", "balance", Double.toString(toAccount.getBalance() + transaction.getAmount())));
         }
         Transaction saved = transactionRepository.save(new Transaction(LocalDateTime.now(), transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription(), transaction.getUserId()));
-        return ConvertToResponse(saved);
+        return ConvertToResponse(saved, transaction.getUserId());
     }
 
     public boolean HasBalance(String Iban, float amount){
@@ -77,30 +78,21 @@ public class TransactionService extends BaseService {
             Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
             Account toAccount = accountRepository.findByIban(transaction.getToAccount());
 
-            return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())) && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0 &&CheckTransactionLimit(transaction.getAmount(), fromAccount.getUserReferenceId());
+            return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())) && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0;
         }
         return false;
     }
 
     //first gets the transactions from the last 24 hours, then adds the amount of the new transaction to the total amount of the transactions from the last 24 hours and checks if it is less than the absolute limit
     private boolean CheckDailyLimit(String iban, double amount, float dailyLimit){
-
         List<Transaction> transactions = GetTransactionsFromLast24Hours(iban);
         float totalAmount = 0;
         for (Transaction transaction : transactions){
             if(!transaction.getDescription().equalsIgnoreCase("deposit")){
                 totalAmount += transaction.getAmount();
             }
-
         }
         return totalAmount + amount <= dailyLimit;
-    }
-
-    private boolean CheckTransactionLimit(double amount, long id){
-        
-        User user = userRepository.findById(id).get();
-        return amount <= user.getTransactionLimit();
-
     }
 
 
@@ -119,7 +111,7 @@ public class TransactionService extends BaseService {
 
     public List<TransactionResponceDTO> GetAllFromUser(long userId){
         List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
-        return ConvertToResponse(transactionRepository.findAllByFromAccountInOrToAccountIn(ibans, ibans));
+        return ConvertToResponse(transactionRepository.findAllByFromAccountInOrToAccountIn(ibans, ibans), userId);
     }
 
     public boolean ValidateWithdraw(DepositWithdrawDTO dto){
@@ -129,7 +121,7 @@ public class TransactionService extends BaseService {
     public TransactionResponceDTO Withdraw(DepositWithdrawDTO dto){
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() - dto.getAmount())));
-        return ConvertToResponse(transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw", dto.getUserId())));
+        return ConvertToResponse(transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw", dto.getUserId())), dto.getUserId());
     }
 
     public boolean ValidateDeposit(DepositWithdrawDTO dto){
@@ -139,21 +131,21 @@ public class TransactionService extends BaseService {
     public TransactionResponceDTO Deposit(DepositWithdrawDTO dto){
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
-        return ConvertToResponse(transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit", dto.getUserId())));
+        return ConvertToResponse(transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit", dto.getUserId())), dto.getUserId());
     }
 
-    private TransactionResponceDTO ConvertToResponse(Transaction transaction){
-        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(transaction.getUserId());
+    private TransactionResponceDTO ConvertToResponse(Transaction transaction, long userId){
+        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
         if (Objects.equals(transaction.getFromAccount(), "deposit") || ibans.contains(transaction.getToAccount()) )
             return new TransactionResponceDTO(transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription(), transaction.getTimestamp(), "+" );
         Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
-        return new TransactionResponceDTO(transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription(), transaction.getTimestamp(), GetDirection(transaction.getFromAccount(), fromAccount.getUserReferenceId()));
+        return new TransactionResponceDTO(transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription(), transaction.getTimestamp(), "-" );
     }
 
-    private List<TransactionResponceDTO> ConvertToResponse(List<Transaction> transactions) {
+    private List<TransactionResponceDTO> ConvertToResponse(List<Transaction> transactions, long userId){
         List<TransactionResponceDTO> response = new ArrayList<>();
         for (Transaction transaction : transactions) {
-            response.add(ConvertToResponse(transaction));
+            response.add(ConvertToResponse(transaction, userId));
         }
         return response;
     }
