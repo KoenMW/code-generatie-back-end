@@ -1,10 +1,8 @@
 package com.Inholland.NovaBank.service;
 
 import com.Inholland.NovaBank.Jwt.JwtTokenProvider;
+import com.Inholland.NovaBank.model.*;
 import com.Inholland.NovaBank.model.DTO.*;
-import com.Inholland.NovaBank.model.Role;
-import com.Inholland.NovaBank.model.Transaction;
-import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.TransactionRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
@@ -212,20 +210,17 @@ public class UserService extends BaseService{
 
     //Transactions
     public double GetSumOfAllTransactionsFromAccountOfLast24Hours(long userId){
-        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
         double sum = 0;
-        if(transactionRepository.findAllByFromAccountAndTimestampAfterAndFromAccountNotIn(ibans.get(0), LocalDateTime.now().minusDays(1), ibans).isEmpty()){
-            return 0;
-        }
-        for (String iban: ibans) {
-            sum += transactionRepository.findSumOfAllTransactionsFromAccount(iban, LocalDateTime.now().minusDays(1),  ibans);
-        }
+        String checkingIban = accountRepository.findCheckingIbanByUserReferenceIdAndAccountType(userId, AccountType.CHECKING);
+        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
+        sum = transactionRepository.findSumOfTransactionsFromAccount(checkingIban, ibans, LocalDateTime.now().minusDays(1));
         return sum;
     }
 
     public double getRemainingDailyLimit(long id) {
         long dailyLimit = userRepository.findUserDayLimitById(id);
         System.out.println(dailyLimit);
+        System.out.println(GetSumOfAllTransactionsFromAccountOfLast24Hours(id));
         return (dailyLimit - GetSumOfAllTransactionsFromAccountOfLast24Hours(id));
     }
 }

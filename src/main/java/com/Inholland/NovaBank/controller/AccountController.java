@@ -35,10 +35,8 @@ public class AccountController {
     @GetMapping("/search")
     public ResponseEntity<List<searchAccountDTO>> getAllSearch(@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
         try{
-            System.out.println("test");
             return ResponseEntity.status(200).body(accountService.getAllSearch(limit, offset));
         }catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.status(404).body(null);
         }
     }
@@ -48,15 +46,7 @@ public class AccountController {
     @GetMapping("/{userId}")
     public ResponseEntity<List<Account>> getByUserId(@PathVariable long userId){
         try{
-            List<Account> accounts = accountService.getByUserId(userId);
-
-            if(accounts.isEmpty()){
-                return ResponseEntity.status(404).body(null);
-            }
-            else{
-                return ResponseEntity.status(200).body(accounts);
-            }
-
+            return ResponseEntity.status(200).body(accountService.getByUserId(userId));
         }
         catch (Exception e){
             return ResponseEntity.status(404).body(null);
@@ -70,7 +60,6 @@ public class AccountController {
         try{
             return ResponseEntity.status(201).body(accountService.add(account));
         }catch (Exception e){
-            System.out.println(e.getMessage());
             return ResponseEntity.status(400).body(new ErrorDTO(e.getMessage(), 400));
         }
 
@@ -79,15 +68,10 @@ public class AccountController {
     @PatchMapping ()
     public ResponseEntity<BaseDTO> update(@RequestBody patchAccountDTO account){
     try{
-        if(account.getOp().equalsIgnoreCase("update")){
-            return ResponseEntity.status(200).body(accountService.update(account));
-        }
-        else{
-            return ResponseEntity.status(404).body(new ErrorDTO("Operation not found", 404));
-        }
+        return ResponseEntity.status(200).body(accountService.update(account));
     }
     catch (Exception e){
-        return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(), 404));
+        return ResponseEntity.status(400).body(new ErrorDTO(e.getMessage(), 400));
     }
 
 

@@ -10,7 +10,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 
-
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -37,15 +37,8 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-
-
     private final HttpHeaders httpHeaders = new HttpHeaders();
     private String jwtToken;
-
-
-
-
 
     private ResponseEntity<String> response;
     @Autowired
@@ -103,19 +96,6 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
                 .toEntity(String.class)
                 .block();
 
-
-
-        /*newAccountDTO dto = new newAccountDTO(userId, AccountType.valueOf(accountType),absoluteLimit);
-        System.out.println(dto);
-        httpHeaders.add("Content-Type", "application/json");
-        response = restTemplate.exchange("/accounts",
-                HttpMethod.POST,
-                new HttpEntity<>(
-                        mapper.writeValueAsString(dto),
-                        httpHeaders
-                ), String.class);
-
-         */
     }
 
 
@@ -202,7 +182,30 @@ public class AccountStepDefinitions extends BaseStepDefinitions{
         Assertions.assertEquals(response.getStatusCode().value(), 200);
     }
 
+    @When("I retrieve all accounts with searchPath")
+    public void iRetrieveAllAccountsWithSearchPath() {
+        response = restTemplate.exchange(restTemplate.getRootUri() + "/accounts/search", HttpMethod.GET, new HttpEntity<>(null, httpHeaders), String.class);
+    }
 
+    @Then("I should receive all searchAccounts")
+    public void iShouldReceiveAllSearchAccounts() {
+        Assertions.assertEquals(200, response.getStatusCode().value());
+        int actual = JsonPath.read(response.getBody(), "$.size()");
+
+        assert actual > 0;
+    }
+
+    @Then("Then the response status is {int}")
+    public void thenTheResponseStatusIs(int status) {
+        Assertions.assertEquals(status, response.getStatusCode().value());
+    }
+
+    @When("I retrieve all accounts throws an error")
+    public void iRetrieveAllAccountsThrowsAnError() {
+        response = restTemplate.exchange(restTemplate.getRootUri() + "/account", HttpMethod.GET, new HttpEntity<>(null, httpHeaders), String.class);
+
+
+    }
 }
 
 
