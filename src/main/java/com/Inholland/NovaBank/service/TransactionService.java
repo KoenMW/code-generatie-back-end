@@ -79,7 +79,7 @@ public class TransactionService extends BaseService {
             Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
             Account toAccount = accountRepository.findByIban(transaction.getToAccount());
 
-            return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())) && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0;
+            return HasBalance(transaction.getFromAccount(), transaction.getAmount())  && fromAccount.getAbsoluteLimit() <= fromAccount.getBalance() - transaction.getAmount() && CheckDailyLimit(transaction.getFromAccount(), transaction.getAmount(), userRepository.findUserDayLimitById(fromAccount.getUserReferenceId())) && CheckForSavingsAccount(fromAccount, toAccount) && transaction.getAmount() > 0 && CheckTransactionLimit(transaction.getAmount(), fromAccount.getUserReferenceId());
         }
         return false;
     }
@@ -95,6 +95,14 @@ public class TransactionService extends BaseService {
         }
         return totalAmount + amount <= dailyLimit;
     }
+
+    private boolean CheckTransactionLimit(double amount, long id){
+
+        User user = userRepository.findById(id).get();
+        return amount <= user.getTransactionLimit();
+
+    }
+
 
 
     //gets a list of transactions from the last 24 hours
