@@ -39,12 +39,18 @@ public class UserService extends BaseService{
         return transformUser(userRepository.findById(id).orElse(null));
     }
     public returnUserDTO getById(long id){
-        if (authUser(id)) {
-            return transformUser(userRepository.findById(id).orElse(null));
-        }
-        else {
+        if(authUser(id)) {
+            returnUserDTO user = transformUser(userRepository.findById(id).orElse(null));
+            if(user == null){
+                throw new IllegalArgumentException("User does not exist");
+            }
+            else{
+                return user;
+            }
+        } else {
             throw new IllegalArgumentException("Not authorized");
         }
+
     }
     public boolean authUser(long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -97,20 +103,15 @@ public class UserService extends BaseService{
     public returnUserDTO addUser(newUserDTO user) {
         if (checkUsername(user.getUsername()) && checkUsernameLength(user.getUsername())) {
             if(!checkIfNotNull(user)){
-                throw new IllegalArgumentException("Not all fields are filled in");
-            }
+                throw new IllegalArgumentException("Not all fields are filled in");}
             if(user.getPassword().length() < 7){
-                throw new IllegalArgumentException("Password needs to be at least 7 characters long");
-            }
+                throw new IllegalArgumentException("Password needs to be at least 7 characters long");}
             if(!validEmail(user.getEmail())){
-                throw new IllegalArgumentException("Email is not valid");
-            }
+                throw new IllegalArgumentException("Email is not valid");}
             if(!checkUsername(user.getUsername())){
-                throw new IllegalArgumentException("Username is already taken");
-            }
+                throw new IllegalArgumentException("Username is already taken");}
             if(!checkUsernameLength(user.getUsername())){
-                throw new IllegalArgumentException("Username needs to be between 4 and 20 characters long");
-            }
+                throw new IllegalArgumentException("Username needs to be between 4 and 20 characters long");}
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             User newUser = createUser(user);
             User savedUser = userRepository.save(newUser);
@@ -129,10 +130,7 @@ public class UserService extends BaseService{
         return !Objects.equals(user.getFirstName(), "") && !Objects.equals(user.getLastName(), "") && !Objects.equals(user.getUsername(), "") && !Objects.equals(user.getPassword(), "") && !Objects.equals(user.getEmail(), "");
     }
     public boolean checkUsername(String username){
-        if(userRepository.findUserByUsername(username) == null)
-            return true;
-        else
-            return false;
+        return userRepository.findUserByUsername(username) == null;
     }
     public boolean checkUsernameLength(String username){
         return username.length() >= 4 && username.length() <= 20;
@@ -158,39 +156,44 @@ public class UserService extends BaseService{
             switch (user.getKey()) {
                 case "firstName" -> userFromRepo.setFirstName(user.getValue());
                 case "lastName" -> userFromRepo.setLastName(user.getValue());
-                case "username" -> {
-                    if (checkUsernameLength(user.getValue()) && checkUsername(user.getValue()))
-                        userFromRepo.setUsername(user.getValue());
-                    else if (!checkUsernameLength(user.getValue()))
-                        throw new IllegalArgumentException("Username needs to be between 4 and 20 characters longs");
-                    else if (!checkUsername(user.getValue()))
-                        throw new IllegalArgumentException("Username is already taken");}
-                case "email" -> {
-                    if (!validEmail(user.getValue()))
-                        throw new IllegalArgumentException("Email is not valid");
-                    else
+                case "username" -> {updateUsernameCheck(user);
+                    userFromRepo.setUsername(user.getValue());}
+                case "email" -> { updateEmailCheck(user);
                         userFromRepo.setEmail(user.getValue()); }
                 case "role" -> userFromRepo.setRole((Role) Role.valueOf(user.getValue()));
-                case "dayLimit" -> {
-                    if (checkLimit(Float.parseFloat(user.getValue())))
-                        userFromRepo.setDayLimit(Integer.parseInt(user.getValue()));
-                    else
-                        throw new IllegalArgumentException("Invalid limit, must be greater or equal to 0 and less than 1000000"); }
-                case "transactionLimit" -> {
-                    if (checkLimit(Float.parseFloat(user.getValue())))
-                        userFromRepo.setTransactionLimit(Integer.parseInt(user.getValue()));
-                    else
-                        throw new IllegalArgumentException("Invalid limit, must be greater or equal to 0 and less than 1000000"); }
+                case "dayLimit" -> { updateDayLimitCheck(user);
+                        userFromRepo.setDayLimit(Integer.parseInt(user.getValue()));}
+                case "transactionLimit" -> { updateTransactionLimitCheck(user);
+                        userFromRepo.setTransactionLimit(Integer.parseInt(user.getValue()));}
                 case "hasAccount" -> userFromRepo.setHasAccount(Boolean.parseBoolean(user.getValue()));
                 default -> {
-                    return null;
-                }
+                    return null; }
             }
             User savedUser = userRepository.save(userFromRepo);
             return new returnUserDTO(savedUser.getId(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getRole(), savedUser.getDayLimit(), savedUser.getTransactionLimit(), savedUser.isHasAccount());
         }
         throw new IllegalArgumentException("Username not found");
     }
+    //exceptions for update
+    public void updateUsernameCheck(patchUserDTO user){
+        if (!checkUsernameLength(user.getValue()))
+            throw new IllegalArgumentException("Username needs to be between 4 and 20 characters longs");
+        else if (!checkUsername(user.getValue()))
+            throw new IllegalArgumentException("Username is already taken");
+    }
+    public void updateEmailCheck(patchUserDTO user){
+        if (!validEmail(user.getValue()))
+            throw new IllegalArgumentException("Email is not valid");
+    }
+    public void updateDayLimitCheck(patchUserDTO user){
+        if (!checkLimit(Float.parseFloat(user.getValue())))
+            throw new IllegalArgumentException("Invalid limit, must be greater or equal to 0 and less than 1000000");
+    }
+    public void updateTransactionLimitCheck(patchUserDTO user){
+        if (!checkLimit(Float.parseFloat(user.getValue())))
+            throw new IllegalArgumentException("Invalid limit, must be greater or equal to 0 and less than 1000000");
+    }
+    //Limit check
     public boolean checkLimit(float limit){
         return limit >= 0 && limit < 1000000;
     }

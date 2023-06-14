@@ -60,16 +60,16 @@ public class UserControllerTest {
     @Test
     @WithMockUser(username = "JohnDoe", password = "123h4jg893n",roles = "ADMIN")
     void getByIdInvallid() throws Exception {
-        when(userService.getById(1L)).thenReturn(null);
+        when(userService.getById(89L)).thenThrow(new IllegalArgumentException("User not found"));
 
         MockHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.get("/users/1")
+                MockMvcRequestBuilders.get("/users/89")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .param("userId", "1");
+                        .param("userId", "89");
 
         this.mockMvc.perform(builder).andDo(print())
-                .andExpect(status().isForbidden());
+                .andExpect(status().is(404));
     }
 
     @Test
