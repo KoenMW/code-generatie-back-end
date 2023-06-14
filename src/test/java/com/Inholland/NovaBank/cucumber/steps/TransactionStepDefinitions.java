@@ -82,7 +82,7 @@ public void theUserIsLoggedInWithUsernameAndThePassword(String username, String 
                 .build();
 
         response = webClient.post()
-                .bodyValue(new TransactionRequestDTO(arg0, arg1, Float.parseFloat(arg2), arg3))
+                .bodyValue(new TransactionRequestDTO(arg0, arg1, Float.parseFloat(arg2), arg3, 1L))
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(String.class))
                 .block();
 
@@ -106,7 +106,7 @@ public void theUserIsLoggedInWithUsernameAndThePassword(String username, String 
                 .build();
 
         response = webClient.post()
-                .bodyValue(new DepositWithdrawDTO(arg1, Float.parseFloat(arg0)))
+                .bodyValue(new DepositWithdrawDTO(arg1, Float.parseFloat(arg0), 1L))
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(String.class))
                 .block();
     }
@@ -114,7 +114,7 @@ public void theUserIsLoggedInWithUsernameAndThePassword(String username, String 
 
     @When("I deposit {string} to account with IBAN {string}")
     public void iDepositToAccountWithIBAN(String arg0, String arg1) {
-        DepositWithdrawDTO deposit = new DepositWithdrawDTO(arg1, Float.parseFloat(arg0));
+        DepositWithdrawDTO deposit = new DepositWithdrawDTO(arg1, Float.parseFloat(arg0), 1L);
         System.out.println("deposit:" + arg0 + " to account: " + arg1);
         System.out.println(deposit);
         WebClient webClient = WebClient.builder()

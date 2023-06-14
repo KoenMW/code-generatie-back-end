@@ -6,7 +6,6 @@ import com.Inholland.NovaBank.model.DTO.TransactionRequestDTO;
 import com.Inholland.NovaBank.model.DTO.TransactionResponceDTO;
 import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
 import com.Inholland.NovaBank.model.Transaction;
-import com.Inholland.NovaBank.model.User;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.TransactionRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class TransactionService extends BaseService {
@@ -39,11 +39,11 @@ public class TransactionService extends BaseService {
     }
 
     public List<TransactionResponceDTO> GetAll(){
-        return ConvertToResponce((List<Transaction>) transactionRepository.findAll());
+        return ConvertToResponse((List<Transaction>) transactionRepository.findAll());
     }
 
     public List<TransactionResponceDTO> GetAllFromIban(String Iban){
-        return ConvertToResponce(transactionRepository.findAllByFromAccountOrToAccount(Iban, Iban));
+        return ConvertToResponse(transactionRepository.findAllByFromAccountOrToAccount(Iban, Iban));
     }
 
     public TransactionResponceDTO Add(TransactionRequestDTO transaction) {
@@ -56,8 +56,8 @@ public class TransactionService extends BaseService {
             accountService.updateBalance(new patchAccountDTO(fromAccount.getIban(), "update", "balance", Double.toString(fromAccount.getBalance() - transaction.getAmount())));
             accountService.updateBalance(new patchAccountDTO(toAccount.getIban(), "update", "balance", Double.toString(toAccount.getBalance() + transaction.getAmount())));
         }
-        Transaction saved = transactionRepository.save(new Transaction(LocalDateTime.now(), transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription()));
-        return ConvertToResponce(saved);
+        Transaction saved = transactionRepository.save(new Transaction(LocalDateTime.now(), transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription(), transaction.getUserId()));
+        return ConvertToResponse(saved);
     }
 
     public boolean HasBalance(String Iban, float amount){
@@ -99,7 +99,7 @@ public class TransactionService extends BaseService {
 
     //gets a list of transactions from the last 24 hours
     private List<Transaction> GetTransactionsFromLast24Hours(String iban){
-        return transactionRepository.findAllByFromAccountOrToAccountAndTimestampAfter(iban, iban, LocalDateTime.now().minusDays(1));
+        return transactionRepository.findAllByFromAccountAndTimestampAfter(iban, LocalDateTime.now().minusDays(1));
     }
 
     //check if the account is a savings account and if it is, check if the user reference id is the same
@@ -112,7 +112,7 @@ public class TransactionService extends BaseService {
 
     public List<TransactionResponceDTO> GetAllFromUser(long userId){
         List<String> ibans = accountRepository.findAllIbansByUserReferenceId(userId);
-        return ConvertToResponce(transactionRepository.findAllByFromAccountInOrToAccountIn(ibans, ibans));
+        return ConvertToResponse(transactionRepository.findAllByFromAccountInOrToAccountIn(ibans, ibans));
     }
 
     public boolean ValidateWithdraw(DepositWithdrawDTO dto){
@@ -122,7 +122,7 @@ public class TransactionService extends BaseService {
     public TransactionResponceDTO Withdraw(DepositWithdrawDTO dto){
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() - dto.getAmount())));
-        return ConvertToResponce(transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw")));
+        return ConvertToResponse(transactionRepository.save(new Transaction(LocalDateTime.now(), account.getIban(), "withdraw", dto.getAmount(), "Withdraw", dto.getUserId())));
     }
 
     public boolean ValidateDeposit(DepositWithdrawDTO dto){
@@ -132,21 +132,22 @@ public class TransactionService extends BaseService {
     public TransactionResponceDTO Deposit(DepositWithdrawDTO dto){
         Account account = accountRepository.findByIban(dto.getIban());
         accountService.updateBalance(new patchAccountDTO(account.getIban(), "update", "balance", Double.toString(account.getBalance() + dto.getAmount())));
-        return ConvertToResponce(transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit")));
+        return ConvertToResponse(transactionRepository.save(new Transaction(LocalDateTime.now(), "deposit", account.getIban(), dto.getAmount(), "Deposit", dto.getUserId())));
     }
 
-    private TransactionResponceDTO ConvertToResponce(Transaction transaction){
-        if (transaction.getFromAccount() == "deposit")
+    private TransactionResponceDTO ConvertToResponse(Transaction transaction){
+        List<String> ibans = accountRepository.findAllIbansByUserReferenceId(transaction.getUserId());
+        if (Objects.equals(transaction.getFromAccount(), "deposit") || ibans.contains(transaction.getToAccount()) )
             return new TransactionResponceDTO(transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription(), transaction.getTimestamp(), "+" );
         Account fromAccount = accountRepository.findByIban(transaction.getFromAccount());
         return new TransactionResponceDTO(transaction.getFromAccount(), transaction.getToAccount(), transaction.getAmount(), transaction.getDescription(), transaction.getTimestamp(), GetDirection(transaction.getFromAccount(), fromAccount.getUserReferenceId()));
     }
 
-    private List<TransactionResponceDTO> ConvertToResponce(List<Transaction> transactions) {
-        List<TransactionResponceDTO> responce = new ArrayList<>();
+    private List<TransactionResponceDTO> ConvertToResponse(List<Transaction> transactions) {
+        List<TransactionResponceDTO> response = new ArrayList<>();
         for (Transaction transaction : transactions) {
-            responce.add(ConvertToResponce(transaction));
+            response.add(ConvertToResponse(transaction));
         }
-        return responce;
+        return response;
     }
 }
