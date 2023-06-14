@@ -1,9 +1,9 @@
 package com.Inholland.NovaBank.controller;
 
 import com.Inholland.NovaBank.model.Account;
-import com.Inholland.NovaBank.model.DTO.newUserDTO;
-import com.Inholland.NovaBank.model.DTO.returnUserDTO;
+import com.Inholland.NovaBank.model.DTO.*;
 import com.Inholland.NovaBank.model.User;
+import com.Inholland.NovaBank.service.TransactionService;
 import com.Inholland.NovaBank.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestOperations;
 
 import java.util.List;
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -25,50 +25,52 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    //role checken?
+    @PreAuthorize("hasRole('ADMIN')" + " || hasRole('USER')")
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getById(@PathVariable long userId){
+    public ResponseEntity<BaseDTO> getById(@PathVariable long userId){
         try{
-            User user = userService.getById(userId);
-            if(user == null){
-                return ResponseEntity.status(403).body(null);
-            }
-            else{
-                return ResponseEntity.status(200).body(user);
-            }
+            return ResponseEntity.status(200).body(userService.getById(userId));
         }catch (Exception e) {
-            return ResponseEntity.status(404).body(null);
+            return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),404));
         }
     }
 
-    public ResponseEntity<User> getUserByUsername(String username){
-        try{
-            User user = userService.getUserByUsername(username);
-            if(user == null){
-                return ResponseEntity.status(403).body(null);
-            }
-            else{
-                return ResponseEntity.status(200).body(user);
-            }
-        }catch (Exception e) {
-            return ResponseEntity.status(404).body(null);
-        }
-    }
-
+    @PreAuthorize("hasRole('ADMIN')" + " || hasRole('USER')")
     @GetMapping
-    public List<User> getAll(){
-        return userService.getAll();
+    public ResponseEntity<List<returnUserDTO>> getAll(@RequestParam (required = false) boolean isActive,@RequestParam (required = false) Long limit, @RequestParam (required = false) Long offset){
+        try {
+            return ResponseEntity.status(200).body(userService.getAll(isActive, limit, offset));
+        }catch (Exception e) {
+            return ResponseEntity.status(404).body(null);
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    public ResponseEntity<returnUserDTO>add(@RequestBody newUserDTO user){
+    @PatchMapping
+    public ResponseEntity<BaseDTO> update(@RequestBody patchUserDTO user){
         try{
-            return ResponseEntity.status(200).body(userService.addUser(user));
+            return ResponseEntity.status(200).body(userService.update(user));
         }catch (Exception e) {
+            return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),404));
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<BaseDTO>add(@RequestBody newUserDTO user){
+        try{
+            return ResponseEntity.status(201).body(userService.addUser(user));
+        }catch (Exception e) {
+            return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),404));
+        }
+    }
+    @PreAuthorize("hasRole('ADMIN')" + " || hasRole('USER')")
+    @GetMapping("/dailylimit/{userId}")
+    public ResponseEntity<Double> getRemainingDailyLimit(@PathVariable long userId){
+        try{
+            return ResponseEntity.status(200).body(userService.getRemainingDailyLimit(userId));
+        }
+        catch (Exception e){
             return ResponseEntity.status(404).body(null);
         }
     }
-    //andere controllers
-
 }

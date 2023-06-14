@@ -3,7 +3,7 @@ package com.Inholland.NovaBank.model.DTO;
 import lombok.Data;
 
 @Data
-public class newUserDTO {
+public class newUserDTO extends BaseDTO {
     private String firstName;
     private String lastName;
     private String username;

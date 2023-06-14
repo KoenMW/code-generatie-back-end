@@ -3,7 +3,7 @@ package com.Inholland.NovaBank.model.DTO;
 import lombok.Data;
 
 @Data
-public class patchAccountDTO {
+public class patchAccountDTO extends BaseDTO {
     private String iban;
     private String op;
     private String key;

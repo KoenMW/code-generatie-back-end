@@ -1,20 +1,22 @@
 package com.Inholland.NovaBank.service;
 
+
 import com.Inholland.NovaBank.model.Account;
 import com.Inholland.NovaBank.model.AccountType;
-import com.Inholland.NovaBank.model.DTO.newAccountDTO;
-import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
-import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
-import com.Inholland.NovaBank.model.User;
+import com.Inholland.NovaBank.model.DTO.*;
+
 import com.Inholland.NovaBank.repositorie.AccountRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Service
 public class AccountService extends BaseService{
@@ -23,63 +25,92 @@ public class AccountService extends BaseService{
     @Autowired
     private UserService userService;
 
-    public ResponseEntity<List<Account>> getAll(boolean isActive, Long limit, Long offset){
-        if(isActive){
-            if(limit == null){
-                limit = 1000L;
-            }
-            if(offset == null){
-                offset = 0L;
-            }
+    //Methode om alles op te halen controleert of de account actief is en of er een limiet is meegegeven en een offset
+    public List<Account> getAll(boolean isActive, Long limit, Long offset){
 
-            return ResponseEntity.status(200).body(getAllActive(limit, offset,isActive));
+        if (limit == null) {
+            limit = 1000L;
         }
-        else{
-            if(limit == null){
-                limit = 1000L;
-            }
-            if(offset == null){
-                offset = 0L;
-            }
-            return ResponseEntity.status(200).body(getAll(limit, offset));
+        if (offset == null) {
+            offset = 0L;
         }
 
+        if (isActive) {
+            return getAllActive(limit, offset, true);
 
+        } else {
+            return getAll(limit, offset);
+        }
     }
 
+    //Methode om alle actieve accounts op te halen
     public List<Account> getAllActive(Long limit, Long offset, boolean active){
         return accountRepository.findAllAccountsActive(getPageable(limit, offset), active);
     }
 
+    //Methode om alle accounts op te halen
     public List<Account> getAll(Long limit, Long offset){
         return accountRepository.findAllAccounts(getPageable(limit, offset));
     }
 
-    private Pageable getPageable(Long limit, Long offset) {
+    //Methode om accounts op te halen voor anonieme gebruikers bij de zoekfunctie met minder informatie
+    public List<searchAccountDTO> getAllSearch(Long limit, Long offset){
+        if(limit == null){
+            limit = 1000L;
+        }
+        if(offset == null){
+            offset = 0L;
+        }
+        return transformAccounts(accountRepository.findAllAccounts(getPageable(limit, offset)));
+    }
+
+    //Methode om accounts om te zetten in een DTO voor anonieme gebruikers
+    public List<searchAccountDTO> transformAccounts(List<Account> accounts){
+        List<searchAccountDTO> searchAccountDTOS = new ArrayList<>();
+        for (Account account : accounts) {
+            searchAccountDTOS.add(new searchAccountDTO(account.getIban(), account.getUserReferenceId(),account.getAccountType()));
+        }
+        return searchAccountDTOS;
+    }
+
+    //Maakt een pageable object aan voor de offset en limit
+    public Pageable getPageable(Long limit, Long offset) {
         return new OffsetBasedPageRequest(offset.intValue(), limit.intValue());
     }
 
+    //Methode om een account op te halen op basis van de id
     public List<Account> getByUserId(long id){
         if(authUser(id)){
-            return accountRepository.findByuserReferenceId(id);
+            List<Account> accounts = accountRepository.findByuserReferenceId(id);
+            if(accounts.isEmpty()){
+                throw new IllegalArgumentException("No accounts found");
+            }
+            else{
+                return accounts;
+            }
         }
         else{
-            return null;
+            throw new IllegalArgumentException("Not authorized");
         }
-
     }
 
-    private boolean authUser(long id){
+    //Alleen admin mag het ophalen of de gebruiker zelf
+    public boolean authUser(long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentPrincipalName = authentication.getName();
-        User user = userService.getUserByUsername(currentPrincipalName);
+        returnUserDTO user = userService.getUserByUsername(currentPrincipalName);
         if(user.getRole().toString().equals("ROLE_ADMIN")){
             return true;
         } else return user.getId() == id;
-
     }
 
+    //Methode om een nieuw account aan te maken
+    //Controleert of de gebruiker al een account heeft en of de limiet juist is
     public returnAccountDTO add(newAccountDTO account){
+
+        if(!checkLimit(account.getAbsoluteLimit())){
+            throw new IllegalArgumentException("Limit must be greater than or equal to 0 and less than 1000000");
+        }
         if(!checkUserHasAccount(account.getUserReferenceId())){
             updateUserAccountStatus(account.getUserReferenceId());
         }
@@ -88,7 +119,14 @@ public class AccountService extends BaseService{
         return new returnAccountDTO(accountFromRepo.getIban(), accountFromRepo.getAccountType());
 
     }
-    private Account setAccount(newAccountDTO account){
+
+    //Simpele methode om limiet te controleren
+    public Boolean checkLimit(float limit){
+        return limit >= 0 && limit < 1000000;
+    }
+
+    //Methode om een account in te vullen
+    public Account setAccount(newAccountDTO account){
         Account newAccount = new Account();
         newAccount.setIban(generateIban());
         newAccount.setBalance(0);
@@ -99,35 +137,85 @@ public class AccountService extends BaseService{
         return newAccount;
     }
 
-    private boolean checkUserHasAccount(long id){
-        User user = userService.getById(id);
+    //Methode om te kijken of de gebruiker al een account heeft
+    public boolean checkUserHasAccount(long id){
+        returnUserDTO user = userService.getByIdDataSeeder(id);
         return user.isHasAccount();
     }
 
-    private void updateUserAccountStatus(long id){
-        User user = userService.getById(id);
-        user.setHasAccount(true);
-        userService.update(user);
+    //Zorgt ervoor dat de useraccountstatus wordt geupdate
+    public void updateUserAccountStatus(long id){
+        patchUserDTO patchUserDTO = new patchUserDTO();
+        patchUserDTO.setKey("hasAccount");
+        patchUserDTO.setValue("true");
+        patchUserDTO.setId(id);
+        patchUserDTO.setOp("update");
+        userService.update(patchUserDTO);
     }
 
-    public returnAccountDTO update(patchAccountDTO account){
+    //Methode om accounts aan te passen
+    //Controleert of de gebruiker niet de bank wil aanpassen
+    //Het is een patch dus gaat 1 veld aanpassen
+    public returnAccountDTO update(patchAccountDTO account)  {
         Account accountFromRepo = accountRepository.findByIban(account.getIban());
+        checkOperation(account);
+        ownership(accountFromRepo);
+        checkValue(account);
+
         switch (account.getKey()) {
             case "iban" -> accountFromRepo.setIban(account.getValue());
             case "active" -> accountFromRepo.setActive(Boolean.parseBoolean(account.getValue()));
             case "accountType" -> accountFromRepo.setAccountType(AccountType.valueOf(account.getValue()));
-            case "absoluteLimit" -> accountFromRepo.setAbsoluteLimit((float) Double.parseDouble(account.getValue()));
+            case "absoluteLimit" -> {
+                if(checkLimit(Float.parseFloat(account.getValue()))){
+                    accountFromRepo.setAbsoluteLimit((float) Double.parseDouble(account.getValue()));
+                }
+                else{
+                    throw new IllegalArgumentException("Invalid limit, must be greater or equal to 0 and less than 1000000");
+                }
+            }
             case "balance" -> accountFromRepo.setBalance((float) Double.parseDouble(account.getValue()));
             case "userReferenceId" -> accountFromRepo.setUserReferenceId(Long.parseLong(account.getValue()));
             default -> {
-                return null;
+                throw new IllegalArgumentException("Invalid key");
             }
         }
-
-
         Account account1 = accountRepository.save(accountFromRepo);
         return new returnAccountDTO(account1.getIban(), account1.getAccountType());
     }
+
+    public void checkOperation(patchAccountDTO account){
+        if(!account.getOp().equalsIgnoreCase("update")){
+            throw new IllegalArgumentException("Invalid operation");
+        }
+    }
+
+    public void checkValue(patchAccountDTO account){
+        if(account.getValue() == null || account.getValue() == ""){
+            throw new IllegalArgumentException("Value cannot be null");
+        }
+    }
+
+    //Controleert of het niet de bank is
+    public void ownership(Account accountFromRepo) {
+        if(accountFromRepo.getIban().equals("NL01INHO0000000001")){
+            throw new IllegalArgumentException("Not authorized");
+        }
+    }
+
+    //Methode voor de transaction om balans te updaten
+    public returnAccountDTO updateBalance(patchAccountDTO account){
+        Account accountFromRepo = accountRepository.findByIban(account.getIban());
+        accountFromRepo.setBalance(Float.parseFloat(account.getValue()));
+        Account account1 = accountRepository.save(accountFromRepo);
+        return new returnAccountDTO(account1.getIban(), account1.getAccountType());
+    }
+
+    //Methode om te controleren of account bestaat
+    public boolean AccountExists(String Iban){
+        return accountRepository.findByIban(Iban) != null;
+    }
+
 
 
 

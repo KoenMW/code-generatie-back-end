@@ -1,10 +1,7 @@
 package com.Inholland.NovaBank.service;
 
-import com.Inholland.NovaBank.model.Account;
-import com.Inholland.NovaBank.model.AccountType;
-import com.Inholland.NovaBank.model.DTO.patchAccountDTO;
-import com.Inholland.NovaBank.model.DTO.returnAccountDTO;
-import com.Inholland.NovaBank.model.Transaction;
+import com.Inholland.NovaBank.model.*;
+import com.Inholland.NovaBank.model.DTO.*;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.TransactionRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
@@ -14,30 +11,38 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
-
+@ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceTest {
 
-    @Mock
+    @MockBean
     private TransactionRepository transactionRepository;
 
-    @Mock
+    @MockBean
     private AccountRepository accountRepository;
 
-    @Mock
+    @MockBean
     private UserRepository userRepository;
 
-    @Mock
+    @MockBean
     private AccountService accountService;
 
     private TransactionService transactionService;
+
+
+
 
     @BeforeEach
     void setUp() {
@@ -45,55 +50,88 @@ class TransactionServiceTest {
     }
 
     @Test
-    void getAll() {
-        when(transactionRepository.findAll()).thenReturn(
+    void getAllNotNull() {
+        given(transactionRepository.findAll()).willReturn(
                 List.of(
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
                 )
         );
-        List<Transaction> transactions = transactionService.GetAll();
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 100, 1L, AccountType.CHECKING, true, 100)
+        );
+        given(accountRepository.findByIban("NL01INHO0000000002")).willReturn(
+                new Account("NL01INHO0000000002", 100, 1L, AccountType.CHECKING, true, 100)
+        );
+        List<TransactionResponceDTO> transactions = transactionService.GetAll();
         assertNotNull(transactions);
+    }
+
+    @Test
+    void getAllSize() {
+        given(transactionRepository.findAll()).willReturn(
+                List.of(
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
+                )
+        );
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 100, 1L, AccountType.CHECKING, true, 100)
+        );
+        given(accountRepository.findByIban("NL01INHO0000000002")).willReturn(
+                new Account("NL01INHO0000000002", 100, 1L, AccountType.CHECKING, true, 100)
+        );
+        List<TransactionResponceDTO> transactions = transactionService.GetAll();
         assertEquals(2, transactions.size());
     }
 
     @Test
-    void getAllFromIban() {
-        when(transactionRepository.findAllByFromAccountOrToAccount("NL01INHO0000000001", "NL01INHO0000000001")).thenReturn(
+    void getAllFromIbanNotNull() {
+        given(transactionRepository.findAllByFromAccountOrToAccount("NL01INHO0000000001", "NL01INHO0000000001")).willReturn(
                 List.of(
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
                 )
         );
-        List<Transaction> transactions = transactionService.GetAllFromIban("NL01INHO0000000001");
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 100, 1L, AccountType.CHECKING, true, 100)
+        );
+        given(accountRepository.findByIban("NL01INHO0000000002")).willReturn(
+                new Account("NL01INHO0000000002", 100, 1L, AccountType.CHECKING, true, 100)
+        );
+        List<TransactionResponceDTO> transactions = transactionService.GetAllFromIban("NL01INHO0000000001");
         assertNotNull(transactions);
-        assertEquals(2, transactions.size());
     }
 
 
     @Test
-    void add() {
-        doReturn(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 100.0F, "test"))
-            .when(transactionRepository)
-            .save(Mockito.any(Transaction.class));
-
-        when(accountRepository.findByIban("NL01INHO0000000001")).thenReturn(
-                new Account("NL01INHO0000000001", 1000, 1, AccountType.SAVINGS, true, 10)
+    void getAllFromIbanSize() {
+        given(transactionRepository.findAllByFromAccountOrToAccount("NL01INHO0000000001", "NL01INHO0000000001")).willReturn(
+                List.of(
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
+                )
         );
-        when(accountRepository.findByIban("NL01INHO0000000002")).thenReturn(
-                new Account("NL01INHO0000000002", 1000, 1, AccountType.SAVINGS, true, 10)
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 100, 1L, AccountType.CHECKING, true, 100)
         );
+        given(accountRepository.findByIban("NL01INHO0000000002")).willReturn(
+                new Account("NL01INHO0000000002", 100, 1L, AccountType.CHECKING, true, 100)
+        );
+        List<TransactionResponceDTO> transactions = transactionService.GetAllFromIban("NL01INHO0000000001");
+        assertEquals(2, transactions.size());
+    }
 
-        // Update stubbing to use doReturn().when() for stubbing with argument matching
-        doReturn(new returnAccountDTO()).when(accountService).update(new patchAccountDTO("NL01INHO0000000001", "update", "balance", "900.0"));
-        doReturn(new returnAccountDTO()).when(accountService).update(new patchAccountDTO("NL01INHO0000000002", "update", "balance", "1100.0"));
-
-        Transaction transaction = transactionService.Add(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
-        assertNotNull(transaction);
-        assertEquals("NL01INHO0000000001", transaction.getFromAccount());
-        assertEquals("NL01INHO0000000002", transaction.getToAccount());
-        assertEquals(100, transaction.getAmount());
-        assertEquals("test", transaction.getDescription());
+    @Test
+    void addNotNull() {
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 100, 1L, AccountType.CHECKING, true, 100)
+        );
+        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L);
+        Transaction transaction = new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L);
+        given(transactionRepository.save(any(Transaction.class))).willReturn(transaction);
+        TransactionResponceDTO transactionResponceDTO = transactionService.Add(transactionRequestDTO);
+        assertNotNull(transactionResponceDTO);
     }
 
 
@@ -104,56 +142,161 @@ class TransactionServiceTest {
         );
         boolean hasBalance = transactionService.HasBalance("NL01INHO0000000001", 100);
         assertTrue(hasBalance);
-
     }
 
     @Test
-    void accountExists() {
-        when(accountRepository.findByIban("NL01INHO0000000001")).thenReturn(
-                        new Account("NL01INHO0000000001", 1000, 1, AccountType.SAVINGS, true, 10)
-        );
-        when(accountRepository.findByIban("NL01INHO0000000002")).thenReturn(null);
-        boolean accountExists = transactionService.AccountExists("NL01INHO0000000001");
-        assertTrue(accountExists);
-        accountExists = transactionService.AccountExists("NL01INHO0000000002");
-        assertFalse(accountExists);
+    void hasBalanceFalse(){
+        Account account = new Account("NL01INHO0000000001", 300, 1l, AccountType.CREDIT, true, 100);
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(account);
+        boolean hasBalance = transactionService.HasBalance("NL01INHO0000000001", 400);
+        assertFalse(hasBalance);
     }
 
     @Test
-    void validateTransaction() {
-        when(accountRepository.findByIban("NL01INHO0000000001")).thenReturn(
-                new Account("NL01INHO0000000001", 1000, 1, AccountType.SAVINGS, true, 10)
+    void validateTransactionTrue() {
+        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L);
+        given(accountService.AccountExists("NL01INHO0000000001")).willReturn(true);
+        given(accountService.AccountExists("NL01INHO0000000002")).willReturn(true);
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 1000, 1L, AccountType.CHECKING, true, 100)
         );
-        when(accountRepository.findByIban("NL01INHO0000000002")).thenReturn(
-                new Account("NL01INHO0000000002", 1000, 1, AccountType.SAVINGS, true, 10)
+        given(accountRepository.findByIban("NL01INHO0000000002")).willReturn(
+                new Account("NL01INHO0000000002", 1000, 1L, AccountType.CHECKING, true, 100)
         );
-        when(userRepository.findUserTransactionLimitById(1L)).thenReturn(100);
-        boolean validateTransaction = transactionService.ValidateTransaction(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 100, "test"));
-        assertTrue(validateTransaction);
-        validateTransaction = transactionService.ValidateTransaction(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 1000, "test"));
-        assertFalse(validateTransaction);
-        validateTransaction = transactionService.ValidateTransaction(new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", -100, "test"));
-        assertFalse(validateTransaction);
+        given(userRepository.findUserDayLimitById(1L)).willReturn(100);
+        given(userRepository.findById(1L)).willReturn(Optional.of(new User("henk", "link", "henkie", "1234", "henk@gmail.com", Role.ROLE_ADMIN, 100, 100, true)));
+        boolean validate = transactionService.ValidateTransaction(transactionRequestDTO);
+        System.out.println(validate);
+        assertTrue(validate);
     }
 
     @Test
-    void getAllFromUser() {
-        when(accountRepository.findAllIbansByUserReferenceId(1)).thenReturn(
+    void validateTransactionFalse(){
+        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L);
+        given(accountService.AccountExists("NL01INHO0000000001")).willReturn(true);
+        given(accountService.AccountExists("NL01INHO0000000002")).willReturn(false);
+
+        boolean validate = transactionService.ValidateTransaction(transactionRequestDTO);
+        assertFalse(validate);
+    }
+
+    @Test
+    void getAllFromUserNotNull() {
+        given(accountRepository.findAllIbansByUserReferenceId(1L)).willReturn(
                 List.of(
                         "NL01INHO0000000001",
                         "NL01INHO0000000002"
                 )
         );
-        when(transactionRepository.findAllByFromAccountInOrToAccountIn(List.of("NL01INHO0000000001", "NL01INHO0000000002"), List.of("NL01INHO0000000001", "NL01INHO0000000002"))).thenReturn(
+        given(transactionRepository.findAllByFromAccountInOrToAccountIn(List.of("NL01INHO0000000001", "NL01INHO0000000002"), List.of("NL01INHO0000000001", "NL01INHO0000000002"))).willReturn(
                 List.of(
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
                 )
-
         );
-        List<Transaction> transaction = transactionService.GetAllFromUser(1);
-        assertNotNull(transaction);
-        assertEquals(2, transaction.size());
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 100, 1L, AccountType.CHECKING, true, 100)
+        );
+        given(accountRepository.findByIban("NL01INHO0000000002")).willReturn(
+                new Account("NL01INHO0000000002", 100, 1L, AccountType.CHECKING, true, 100)
+        );
+        List<TransactionResponceDTO> transactions = transactionService.GetAllFromUser(1L);
+        assertNotNull(transactions);
+    }
 
+    @Test
+    void getAllFromUserSize(){
+        given(accountRepository.findAllIbansByUserReferenceId(1L)).willReturn(
+                List.of(
+                        "NL01INHO0000000001",
+                        "NL01INHO0000000002"
+                )
+        );
+        given(transactionRepository.findAllByFromAccountInOrToAccountIn(List.of("NL01INHO0000000001", "NL01INHO0000000002"), List.of("NL01INHO0000000001", "NL01INHO0000000002"))).willReturn(
+                List.of(
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
+                )
+        );
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 300, 1L, AccountType.CREDIT, true, 100)
+        );
+        given(accountRepository.findByIban("NL01INHO0000000002")).willReturn(
+                new Account("NL01INHO0000000002", 300, 1L, AccountType.CREDIT, true, 100)
+        );
+        List<TransactionResponceDTO> transactions = transactionService.GetAllFromUser(1L);
+        assertEquals(2, transactions.size());
+    }
+
+    @Test
+    void validateWithdrawTrue() {
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 300, 1L, AccountType.CREDIT, true, 100)
+        );
+        given(userRepository.findUserDayLimitById(1L)).willReturn(100);
+        boolean validate = transactionService.ValidateWithdraw(new DepositWithdrawDTO("NL01INHO0000000001", 100, 1L));
+        assertTrue(validate);
+    }
+
+    @Test
+    void validateWithdrawFalse(){
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 300, 1L, AccountType.CREDIT, true, 100)
+        );
+        given(userRepository.findUserDayLimitById(1L)).willReturn(100);
+        boolean validate = transactionService.ValidateWithdraw(new DepositWithdrawDTO("NL01INHO0000000001", 200, 1L));
+        assertFalse(validate);
+    }
+
+    @Test
+    void withdrawNotNull() {
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 300, 1L, AccountType.CREDIT, true, 100)
+        );
+        given(accountService.updateBalance(new patchAccountDTO("NL01INHO0000000001", "update", "balance", "100"))).willReturn(
+                new returnAccountDTO("NL01INHO0000000001",AccountType.CREDIT)
+        );
+        given(transactionRepository.save(any(Transaction.class))).willReturn(
+                new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000001", 200, "withdraw", 1L)
+        );
+        TransactionResponceDTO transaction = transactionService.Withdraw(new DepositWithdrawDTO("NL01INHO0000000001", 200, 1L));
+        assertNotNull(transaction);
+    }
+
+    @Test
+    void validateDepositTrue() {
+        assertTrue(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", 100, 1L)));
+    }
+
+
+    @Test
+    void validateDepositzeroIsFalse() {
+        assertFalse(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", 0, 1L)));
+    }
+    
+    @Test
+    void validateDepositMoreThanOneThousandFalse() {
+        assertFalse(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", 1001, 1L)));
+    }
+
+    @Test
+    void validateDepositLessThanZeroTrue() {
+        assertFalse(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", -1, 1L)));
+    }
+
+    @Test
+    void depositNotNull() {
+        given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
+                new Account("NL01INHO0000000001", 300, 1L, AccountType.CREDIT, true, 100)
+        );
+        given(accountService.updateBalance(new patchAccountDTO("NL01INHO0000000001", "update", "balance", "500.0"))).willReturn(
+                new returnAccountDTO("NL01INHO0000000001",AccountType.CREDIT)
+        );
+        given(transactionRepository.save(any(Transaction.class))).willReturn(
+                new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000001", 200, "deposit", 1L)
+        );
+        TransactionResponceDTO transaction = transactionService.Deposit(new DepositWithdrawDTO("NL01INHO0000000001", 200, 1L));
+
+        assertNotNull(transaction);
     }
 }
