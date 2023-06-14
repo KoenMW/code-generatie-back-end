@@ -26,11 +26,11 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<BaseDTO> Add(@RequestBody TransactionRequestDTO transaction){
-        if (transactionService.ValidateTransaction(transaction)){
-            return ResponseEntity.ok().body(transactionService.Add(transaction));
-        } else {
-            return ResponseEntity.badRequest().body(new ErrorDTO("Error: Transaction not allowed. Please note that transfers to someone else's savings account are currently prohibited. Additionally, ensure that your transaction amount is within your daily transaction limit and account absolute limit. For more information or to adjust your limits, please contact our customer support.", 400));
-        }
+            if (transactionService.ValidateTransaction(transaction)){
+                return ResponseEntity.ok().body(transactionService.Add(transaction));
+            } else {
+                return ResponseEntity.badRequest().body(new ErrorDTO("Error: Transaction not allowed. Please note that transfers to someone else's savings account are currently prohibited. Additionally, ensure that your transaction amount is within your daily transaction limit and account absolute limit. For more information or to adjust your limits, please contact our customer support.", 400));
+            }
     }
     @PreAuthorize("hasRole('USER') || hasRole('ADMIN')")
     @GetMapping("/byUser/{userId}")
