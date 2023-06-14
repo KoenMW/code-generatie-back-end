@@ -48,7 +48,7 @@ public class UserService extends BaseService{
             throw new IllegalArgumentException("Not authorized");
         }
     }
-    private boolean authUser(long id){
+    public boolean authUser(long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String currentPrincipalName = authentication.getName();
@@ -58,7 +58,7 @@ public class UserService extends BaseService{
         } else return user.getId() == id;
     }
 
-    private returnUserDTO transformUser(User user) {
+    public returnUserDTO transformUser(User user) {
         return new returnUserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail(), user.getRole(), user.getDayLimit(), user.getTransactionLimit(), user.isHasAccount());
     }
 
@@ -121,7 +121,7 @@ public class UserService extends BaseService{
         throw new IllegalArgumentException("Username is not valid");
     }
 
-    private boolean validEmail(String emailAddress) {
+    public boolean validEmail(String emailAddress) {
         String regexPattern = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
                 + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
         return emailAddress.matches(regexPattern);
@@ -130,14 +130,17 @@ public class UserService extends BaseService{
     public boolean checkIfNotNull(newUserDTO user){
         return !Objects.equals(user.getFirstName(), "") && !Objects.equals(user.getLastName(), "") && !Objects.equals(user.getUsername(), "") && !Objects.equals(user.getPassword(), "") && !Objects.equals(user.getEmail(), "");
     }
-    private boolean checkUsername(String username){
-        return userRepository.findUserByUsername(username) == null;
+    public boolean checkUsername(String username){
+        if(userRepository.findUserByUsername(username) == null)
+            return true;
+        else
+            return false;
     }
-    private boolean checkUsernameLength(String username){
+    public boolean checkUsernameLength(String username){
         return username.length() >= 4 && username.length() <= 20;
     }
 
-    private User createUser(newUserDTO user) {
+    public User createUser(newUserDTO user) {
         User newUser = new User();
         newUser.setFirstName(user.getFirstName());
         newUser.setLastName(user.getLastName());
@@ -190,7 +193,7 @@ public class UserService extends BaseService{
         }
         throw new IllegalArgumentException("Username not found");
     }
-    private boolean checkLimit(float limit){
+    public boolean checkLimit(float limit){
         return limit >= 0 && limit < 1000000;
     }
 
@@ -224,11 +227,5 @@ public class UserService extends BaseService{
         long dailyLimit = userRepository.findUserDayLimitById(id);
         System.out.println(dailyLimit);
         return (dailyLimit - GetSumOfAllTransactionsFromAccountOfLast24Hours(id));
-    }
-
-    UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider){
-        this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
     }
 }

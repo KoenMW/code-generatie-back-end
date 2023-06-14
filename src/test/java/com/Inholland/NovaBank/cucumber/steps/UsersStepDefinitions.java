@@ -87,9 +87,9 @@ public class UsersStepDefinitions extends BaseStepDefinitions{
 
     //Find dayLimit by id
     @When("I retrieve the dayLimit from the user with id {int}")
-    public void iRetrieveTheDayLimitFromTheUserWithId(int id) {
+    public void iRetrieveTheDayLimitFromTheUserWithId(long id) {
         response = restTemplate
-                .exchange("/dailylimit/" + id,
+                .exchange("/users/dailylimit/" + id,
                         HttpMethod.GET,
                         new HttpEntity<>(httpHeaders),
                         String.class);
@@ -97,8 +97,11 @@ public class UsersStepDefinitions extends BaseStepDefinitions{
 
     @Then("I should receive the dayLimit {int} from the user")
     public void iShouldReceiveTheDayLimitFromTheUserWithId(int dayLimit) {
-        Map<String, Object> user = JsonPath.read(response.getBody(), "$");
-        assert user.get("dayLimit").equals(dayLimit);
+        Assertions.assertEquals(200, response.getStatusCode().value());
+        // get json body from response
+        Double getDayLimit = JsonPath.read(response.getBody(), "$");
+        // assert dayLimit
+        Assertions.assertEquals(dayLimit, getDayLimit);
     }
 
     //Find all users without account

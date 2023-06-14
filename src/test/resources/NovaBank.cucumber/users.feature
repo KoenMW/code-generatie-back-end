@@ -19,12 +19,6 @@ Feature: users crud and login
     Then The response status code is 200
     And I should receive all users without account
 
-  Scenario: Update user
-    Given The user is already logged in with username "JohnDoe" and password "1234567"
-    Given The endpoint "users" is available for method "PATCH"
-    When I update the user with id 1 and set the dayLimit to 1234
-    Then The response status code is 200
-
   Scenario: Add user
     Given The user is already logged in with username "JohnDoe" and password "1234567"
     Given The endpoint "users" is available for method "POST"
@@ -37,3 +31,9 @@ Feature: users crud and login
     Given The endpoint "users" is available for method "GET"
     When I retrieve the dayLimit from the user with id 1
     Then I should receive the dayLimit 5000 from the user
+
+  Scenario: Update user
+    Given The user is already logged in with username "JohnDoe" and password "1234567"
+    Given The endpoint "users" is available for method "PATCH"
+    When I update the user with id 3 and set the dayLimit to 1234
+    Then The response status code is 200

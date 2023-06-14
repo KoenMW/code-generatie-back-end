@@ -72,7 +72,7 @@ public class UserController {
             return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(),404));
         }
     }
-
+    @PreAuthorize("hasRole('ADMIN')" + " || hasRole('USER')")
     @GetMapping("/dailylimit/{userId}")
     public ResponseEntity<Double> getRemainingDailyLimit(@PathVariable long userId){
         System.out.println("test");

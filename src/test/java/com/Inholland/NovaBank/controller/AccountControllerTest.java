@@ -51,14 +51,6 @@ public class AccountControllerTest {
     private AccountService accountService;
 
 
-
-
-    @BeforeEach
-    void setUp() {
-
-
-    }
-
     @Test
     @WithMockUser(username = "JohnDoe", password = "123h4jg893n",roles = "ADMIN")
     void getAll() throws Exception {
