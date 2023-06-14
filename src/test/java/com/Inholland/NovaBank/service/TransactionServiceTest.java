@@ -1,9 +1,7 @@
 package com.Inholland.NovaBank.service;
 
-import com.Inholland.NovaBank.model.Account;
-import com.Inholland.NovaBank.model.AccountType;
+import com.Inholland.NovaBank.model.*;
 import com.Inholland.NovaBank.model.DTO.*;
-import com.Inholland.NovaBank.model.Transaction;
 import com.Inholland.NovaBank.repositorie.AccountRepository;
 import com.Inholland.NovaBank.repositorie.TransactionRepository;
 import com.Inholland.NovaBank.repositorie.UserRepository;
@@ -18,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -165,6 +164,7 @@ class TransactionServiceTest {
                 new Account("NL01INHO0000000002", 1000, 1L, AccountType.CHECKING, true, 100)
         );
         given(userRepository.findUserDayLimitById(1L)).willReturn(100);
+        given(userRepository.findById(1L)).willReturn(Optional.of(new User("henk", "link", "henkie", "1234", "henk@gmail.com", Role.ROLE_ADMIN, 100, 100, true)));
         boolean validate = transactionService.ValidateTransaction(transactionRequestDTO);
         System.out.println(validate);
         assertTrue(validate);
