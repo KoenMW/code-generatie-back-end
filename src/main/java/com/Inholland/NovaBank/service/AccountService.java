@@ -107,11 +107,12 @@ public class AccountService extends BaseService{
     //Methode om een nieuw account aan te maken
     //Controleert of de gebruiker al een account heeft en of de limiet juist is
     public returnAccountDTO add(newAccountDTO account){
-        if(!checkUserHasAccount(account.getUserReferenceId())){
-            updateUserAccountStatus(account.getUserReferenceId());
-        }
+
         if(!checkLimit(account.getAbsoluteLimit())){
             throw new IllegalArgumentException("Limit must be greater than or equal to 0 and less than 1000000");
+        }
+        if(!checkUserHasAccount(account.getUserReferenceId())){
+            updateUserAccountStatus(account.getUserReferenceId());
         }
         Account newAccount = setAccount(account);
         Account accountFromRepo = accountRepository.save(newAccount);
