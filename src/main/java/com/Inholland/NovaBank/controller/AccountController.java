@@ -47,14 +47,8 @@ public class AccountController {
     public ResponseEntity<List<Account>> getByUserId(@PathVariable long userId){
         try{
             List<Account> accounts = accountService.getByUserId(userId);
-
-            if(accounts.isEmpty()){
-                return ResponseEntity.status(404).body(null);
-            }
-            else{
-                return ResponseEntity.status(200).body(accounts);
-            }
-
+            System.out.println(accounts);
+            return ResponseEntity.status(200).body(accountService.getByUserId(userId));
         }
         catch (Exception e){
             return ResponseEntity.status(404).body(null);
@@ -76,15 +70,10 @@ public class AccountController {
     @PatchMapping ()
     public ResponseEntity<BaseDTO> update(@RequestBody patchAccountDTO account){
     try{
-        if(account.getOp().equalsIgnoreCase("update")){
-            return ResponseEntity.status(200).body(accountService.update(account));
-        }
-        else{
-            return ResponseEntity.status(404).body(new ErrorDTO("Operation not found", 404));
-        }
+        return ResponseEntity.status(200).body(accountService.update(account));
     }
     catch (Exception e){
-        return ResponseEntity.status(404).body(new ErrorDTO(e.getMessage(), 400));
+        return ResponseEntity.status(400).body(new ErrorDTO(e.getMessage(), 400));
     }
 
 

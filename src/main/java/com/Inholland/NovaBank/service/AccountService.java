@@ -81,7 +81,14 @@ public class AccountService extends BaseService{
     //Methode om een account op te halen op basis van de id
     public List<Account> getByUserId(long id){
         if(authUser(id)){
-            return accountRepository.findByuserReferenceId(id);
+            List<Account> accounts = accountRepository.findByuserReferenceId(id);
+            System.out.println(accounts);
+            if(accounts.isEmpty()){
+                throw new IllegalArgumentException("No accounts found");
+            }
+            else{
+                return accounts;
+            }
         }
         else{
             throw new IllegalArgumentException("Not authorized");
@@ -151,9 +158,10 @@ public class AccountService extends BaseService{
     //Het is een patch dus gaat 1 veld aanpassen
     public returnAccountDTO update(patchAccountDTO account)  {
         Account accountFromRepo = accountRepository.findByIban(account.getIban());
-        if(ownership(accountFromRepo)){
-            throw new IllegalArgumentException("Not authorized");
-        }
+        checkOperation(account);
+        ownership(accountFromRepo);
+        checkValue(account);
+
         switch (account.getKey()) {
             case "iban" -> accountFromRepo.setIban(account.getValue());
             case "active" -> accountFromRepo.setActive(Boolean.parseBoolean(account.getValue()));
@@ -169,16 +177,30 @@ public class AccountService extends BaseService{
             case "balance" -> accountFromRepo.setBalance((float) Double.parseDouble(account.getValue()));
             case "userReferenceId" -> accountFromRepo.setUserReferenceId(Long.parseLong(account.getValue()));
             default -> {
-                return null;
+                throw new IllegalArgumentException("Invalid key");
             }
         }
         Account account1 = accountRepository.save(accountFromRepo);
         return new returnAccountDTO(account1.getIban(), account1.getAccountType());
     }
 
+    public void checkOperation(patchAccountDTO account){
+        if(!account.getOp().equalsIgnoreCase("update")){
+            throw new IllegalArgumentException("Invalid operation");
+        }
+    }
+
+    public void checkValue(patchAccountDTO account){
+        if(account.getValue() == null || account.getValue() == ""){
+            throw new IllegalArgumentException("Value cannot be null");
+        }
+    }
+
     //Controleert of het niet de bank is
-    private boolean ownership(Account accountFromRepo) {
-        return accountFromRepo.getIban().equals("NL01INHO0000000001");
+    public void ownership(Account accountFromRepo) {
+        if(accountFromRepo.getIban().equals("NL01INHO0000000001")){
+            throw new IllegalArgumentException("Not authorized");
+        }
     }
 
     //Methode voor de transaction om balans te updaten
