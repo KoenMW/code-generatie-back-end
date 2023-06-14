@@ -363,4 +363,35 @@ public class AccountServiceTest {
         assertFalse(exists);
     }
 
+    @Test
+    public void checkOperation(){
+        accountService.checkOperation(new patchAccountDTO("NL01INHO0000000001","update","balance","200"));
+    }
+
+    @Test
+    public void checkOperationInvalid(){
+        assertThrows(IllegalArgumentException.class, () -> accountService.checkOperation(new patchAccountDTO("NL01INHO0000000001","qeqweqwe","balance","200")));
+    }
+
+    @Test
+    public void checkValue(){
+        accountService.checkValue(new patchAccountDTO("NL01INHO0000000001","update","balance","200"));
+    }
+
+    @Test
+    public void checkValueInvalid(){
+        assertThrows(IllegalArgumentException.class, () -> accountService.checkValue(new patchAccountDTO("NL01INHO0000000001","update","balance","")));
+    }
+
+    @Test
+    public void ownership(){
+        accountService.ownership(new Account("NL12INHO0154160635", 200,2, AccountType.SAVINGS,true,200));
+    }
+
+    @Test
+    public void ownershipInvalid(){
+        assertThrows(IllegalArgumentException.class, () -> accountService.ownership(new Account("NL01INHO0000000001", 200,2, AccountType.SAVINGS,false,200)));
+    }
+
+
 }

@@ -217,8 +217,8 @@ public class AccountControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void getByInvalidUserId() throws Exception {
-        when(accountService.getByUserId(1L)).thenReturn(List.of());
-        this.mockMvc.perform(get("/accounts/1")).andDo(print())
+        when(accountService.getByUserId(42)).thenThrow(new IllegalArgumentException("User not found"));
+        this.mockMvc.perform(get("/accounts/42")).andDo(print())
                 .andExpect(status().isNotFound());
 
     }

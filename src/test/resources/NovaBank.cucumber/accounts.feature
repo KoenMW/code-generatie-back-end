@@ -50,7 +50,7 @@ Feature: accounts CRUD operations
     Given The user is logged in with username "JohnDoe" and password "1234"
     Given The endpoint for "accounts" is available for method "PATCH"
     When I patch the account with iban "NL18INHO0363662776" and an absoluteLimit of -200
-    Then The response status is 404
+    Then The response status is 400
 
   Scenario: Get all search accounts
     Given The user is logged in with username "JohnDoe" and password "1234"
