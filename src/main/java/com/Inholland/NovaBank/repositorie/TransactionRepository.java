@@ -16,6 +16,8 @@ public interface TransactionRepository extends CrudRepository<Transaction, Long>
 
     List<Transaction> findAllByFromAccountInOrToAccountIn(List<String> fromAccount, List<String> toAccount);
 
+    List<Transaction> findAllByFromAccountAndTimestampAfter(String fromAccount, LocalDateTime date);
+
     @Query("SELECT coalesce(SUM(t.amount), 0) FROM Transaction t WHERE t.fromAccount = ?1 AND t.toAccount NOT IN ?2 AND t.timestamp > ?3")
     Double findSumOfTransactionsFromAccount(String fromAccount, List<String> toAccount, LocalDateTime date);
 }

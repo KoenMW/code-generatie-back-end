@@ -54,8 +54,8 @@ class TransactionServiceTest {
     void getAllNotNull() {
         given(transactionRepository.findAll()).willReturn(
                 List.of(
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
                 )
         );
         given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
@@ -72,8 +72,8 @@ class TransactionServiceTest {
     void getAllSize() {
         given(transactionRepository.findAll()).willReturn(
                 List.of(
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
                 )
         );
         given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
@@ -90,8 +90,8 @@ class TransactionServiceTest {
     void getAllFromIbanNotNull() {
         given(transactionRepository.findAllByFromAccountOrToAccount("NL01INHO0000000001", "NL01INHO0000000001")).willReturn(
                 List.of(
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
                 )
         );
         given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
@@ -109,8 +109,8 @@ class TransactionServiceTest {
     void getAllFromIbanSize() {
         given(transactionRepository.findAllByFromAccountOrToAccount("NL01INHO0000000001", "NL01INHO0000000001")).willReturn(
                 List.of(
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
                 )
         );
         given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
@@ -128,8 +128,8 @@ class TransactionServiceTest {
         given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
                 new Account("NL01INHO0000000001", 100, 1L, AccountType.CHECKING, true, 100)
         );
-        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test");
-        Transaction transaction = new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 100, "test");
+        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L);
+        Transaction transaction = new Transaction(LocalDateTime.now(), "NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L);
         given(transactionRepository.save(any(Transaction.class))).willReturn(transaction);
         TransactionResponceDTO transactionResponceDTO = transactionService.Add(transactionRequestDTO);
         assertNotNull(transactionResponceDTO);
@@ -155,7 +155,7 @@ class TransactionServiceTest {
 
     @Test
     void validateTransactionTrue() {
-        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test");
+        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L);
         given(accountService.AccountExists("NL01INHO0000000001")).willReturn(true);
         given(accountService.AccountExists("NL01INHO0000000002")).willReturn(true);
         given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
@@ -172,7 +172,7 @@ class TransactionServiceTest {
 
     @Test
     void validateTransactionFalse(){
-        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test");
+        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO("NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L);
         given(accountService.AccountExists("NL01INHO0000000001")).willReturn(true);
         given(accountService.AccountExists("NL01INHO0000000002")).willReturn(false);
 
@@ -190,8 +190,8 @@ class TransactionServiceTest {
         );
         given(transactionRepository.findAllByFromAccountInOrToAccountIn(List.of("NL01INHO0000000001", "NL01INHO0000000002"), List.of("NL01INHO0000000001", "NL01INHO0000000002"))).willReturn(
                 List.of(
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
                 )
         );
         given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
@@ -214,8 +214,8 @@ class TransactionServiceTest {
         );
         given(transactionRepository.findAllByFromAccountInOrToAccountIn(List.of("NL01INHO0000000001", "NL01INHO0000000002"), List.of("NL01INHO0000000001", "NL01INHO0000000002"))).willReturn(
                 List.of(
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test"),
-                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test")
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000002", 100, "test", 1L),
+                        new Transaction(LocalDateTime.now(),"NL01INHO0000000002", "NL01INHO0000000001", 100, "test", 1L)
                 )
         );
         given(accountRepository.findByIban("NL01INHO0000000001")).willReturn(
@@ -234,7 +234,7 @@ class TransactionServiceTest {
                 new Account("NL01INHO0000000001", 300, 1L, AccountType.CREDIT, true, 100)
         );
         given(userRepository.findUserDayLimitById(1L)).willReturn(100);
-        boolean validate = transactionService.ValidateWithdraw(new DepositWithdrawDTO("NL01INHO0000000001", 100));
+        boolean validate = transactionService.ValidateWithdraw(new DepositWithdrawDTO("NL01INHO0000000001", 100, 1L));
         assertTrue(validate);
     }
 
@@ -244,7 +244,7 @@ class TransactionServiceTest {
                 new Account("NL01INHO0000000001", 300, 1L, AccountType.CREDIT, true, 100)
         );
         given(userRepository.findUserDayLimitById(1L)).willReturn(100);
-        boolean validate = transactionService.ValidateWithdraw(new DepositWithdrawDTO("NL01INHO0000000001", 200));
+        boolean validate = transactionService.ValidateWithdraw(new DepositWithdrawDTO("NL01INHO0000000001", 200, 1L));
         assertFalse(validate);
     }
 
@@ -257,31 +257,31 @@ class TransactionServiceTest {
                 new returnAccountDTO("NL01INHO0000000001",AccountType.CREDIT)
         );
         given(transactionRepository.save(any(Transaction.class))).willReturn(
-                new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000001", 200, "withdraw")
+                new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000001", 200, "withdraw", 1L)
         );
-        TransactionResponceDTO transaction = transactionService.Withdraw(new DepositWithdrawDTO("NL01INHO0000000001", 200));
+        TransactionResponceDTO transaction = transactionService.Withdraw(new DepositWithdrawDTO("NL01INHO0000000001", 200, 1L));
         assertNotNull(transaction);
     }
 
     @Test
     void validateDepositTrue() {
-        assertTrue(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", 100)));
+        assertTrue(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", 100, 1L)));
     }
 
 
     @Test
     void validateDepositzeroIsFalse() {
-        assertFalse(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", 0)));
+        assertFalse(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", 0, 1L)));
     }
     
     @Test
     void validateDepositMoreThanOneThousandFalse() {
-        assertFalse(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", 1001)));
+        assertFalse(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", 1001, 1L)));
     }
 
     @Test
     void validateDepositLessThanZeroTrue() {
-        assertFalse(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", -1)));
+        assertFalse(transactionService.ValidateDeposit(new DepositWithdrawDTO("NL01INHO0000000001", -1, 1L)));
     }
 
     @Test
@@ -293,9 +293,9 @@ class TransactionServiceTest {
                 new returnAccountDTO("NL01INHO0000000001",AccountType.CREDIT)
         );
         given(transactionRepository.save(any(Transaction.class))).willReturn(
-                new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000001", 200, "deposit")
+                new Transaction(LocalDateTime.now(),"NL01INHO0000000001", "NL01INHO0000000001", 200, "deposit", 1L)
         );
-        TransactionResponceDTO transaction = transactionService.Deposit(new DepositWithdrawDTO("NL01INHO0000000001", 200));
+        TransactionResponceDTO transaction = transactionService.Deposit(new DepositWithdrawDTO("NL01INHO0000000001", 200, 1L));
 
         assertNotNull(transaction);
     }

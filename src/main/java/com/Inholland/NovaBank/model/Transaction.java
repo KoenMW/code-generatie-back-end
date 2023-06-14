@@ -20,13 +20,15 @@ public class Transaction {
     private String toAccount;
     private float amount;
     private String description;
+    private long userId;
 
-    public Transaction(LocalDateTime timestamp, String fromAccount, String toAccount, float amount, String description) {
+    public Transaction(LocalDateTime timestamp, String fromAccount, String toAccount, float amount, String description, long userId) {
         this.timestamp = timestamp;
         this.fromAccount = fromAccount;
         this.toAccount = toAccount;
         this.amount = amount;
         this.description = description;
+        this.userId = userId;
     }
 
     public Transaction() {
