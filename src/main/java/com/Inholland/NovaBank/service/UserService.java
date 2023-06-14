@@ -50,7 +50,6 @@ public class UserService extends BaseService{
         } else {
             throw new IllegalArgumentException("Not authorized");
         }
-
     }
     public boolean authUser(long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -69,6 +68,7 @@ public class UserService extends BaseService{
     public returnUserDTO getUserByUsername(String username){
         return transformUser(userRepository.findUserByUsername(username));
     }
+
     public List<returnUserDTO> getAll(boolean isActive, Long limit, Long offset){
         if (limit == null) {
             limit = 1000L;
